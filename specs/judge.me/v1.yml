@@ -672,7 +672,9 @@ paths:
           description: ''
           content:
             application/json:
-              schema: {}
+              schema: {
+                type: 'object'
+              }
       requestBody:
         required: true
         content:
