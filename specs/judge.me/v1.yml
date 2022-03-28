@@ -61,14 +61,14 @@ tags:
     description: |
       Most of the API endpoints here have 2 different kinds of `id`, one is Judge.me internal ID, the other is External ID from the e-commerce platform (e.g. Shopify).
       Please see each endpoint's document to know which one the `id` attribute represents.
-      
+
       Generally, in Judge.me's responses and in query parameters, `id` is Judge.me internal ID and `external_id` is the External ID of the resource;
       while in the request body of your update/create requests', `id` is the External ID of the resource.
   - name: Find by ID or other fields
     description: |
       In many of our API endpoints, we allow to find a resource not only by `id`, but also by other fields (e.g. product's `handle`, reviewer's `email`, `external_id`).
       Please see each endpoint's document for more details.
-      
+
       When `id` is a required param (usually required in the request URL), and you want to find by another field, please set `id` to any negative number,`-1`,
       and then set value to the other field that you want to find by.
   - name: Main Widgets
@@ -86,7 +86,7 @@ tags:
       To subscribe to an event happens in Judge.me.
       You can register a webhook `review/created` or `review/created_fail` to know when a review is created, or not.
       You can also register a widget-update webhook to know when Judge.me updates a widget.
-      
+
       Judge.me will send a POST request to the registered `url` containing relevant information for each event.
 paths:
   "/widgets/product_review":
@@ -115,7 +115,11 @@ paths:
             application/json:
               schema:
                 type: object
-                properties: {}
+                properties:
+                  widget:
+                    type: string
+                  product_external_id:
+                    type: string
       tags:
         - Main Widgets
   "/widgets/preview_badge":
@@ -238,7 +242,8 @@ paths:
               schema:
                 type: object
                 properties:
-                  verified_badge: {}
+                  verified_badge:
+                    type: string
       tags:
         - Main Widgets
   "/widgets/all_reviews_count":
@@ -1203,7 +1208,7 @@ paths:
                       widget_star_color: "#339999"
                       enable_review_pictures: true
       parameters:
-        - name: setting_keys[]
+        - name: setting_keys
           description: Array of keys of settings
           in: query
           style: form
