@@ -1,0 +1,962 @@
+---
+openapi: 3.0.0
+
+servers:
+  - url: https://api.reviews.io
+    description: Reviews.io API server
+
+info:
+  version: v0.1.0
+  title: Reviews.io API
+  x-logo:
+    url: https://raw.githubusercontent.com/takeshape/openapi-specs/main/specs/reviews.io/reviews-io.png
+    altText: Reviews.io Logo
+  contact:
+    name: Reviews.io Support
+    url: https://support.reviews.io/
+    email: support@reviews.io
+  description: |
+    Create your own widgets, send SMS invitations, customise your review emails and more with API access.
+
+    # Authentication
+    You must provide an API Key and Store ID (available in Integrations > API).
+
+    In every request you will need to supply `store` and `apikey` in the request search params.
+
+    Example how to authenticate with cURL:
+    ```
+    curl -X GET 'https://api.reviews.io/product/reviews/all?apikey=YOUR_API_KEY&store=YOUR_STORE_ID' -H 'accept: application/json'
+    ```
+
+security:
+  - apikey: []
+    store: []
+
+components:
+  securitySchemes:
+    apikey:
+      type: apiKey
+      in: query
+      name: apikey
+    store:
+      type: apiKey
+      in: query
+      name: store
+  schemas:
+    store:
+      type: string
+      example: www.example.com
+    response_status:
+      type: string
+      nullable: true
+      enum:
+        - success
+        - error
+      description: The status of a response
+    response:
+      type: object
+      properties:
+        status:
+          "$ref": "#/components/schemas/response_status"
+        message:
+          type: string
+          description: The status message of a response
+    paginated_response:
+      type: object
+      properties:
+        status:
+          "$ref": "#/components/schemas/response_status"
+        count:
+          type: integer
+        per_page:
+          type: integer
+        total_pages:
+          type: integer
+        current_page:
+          type: integer
+    customer:
+      type: object
+      description: The customer object
+      properties:
+        email:
+          type: string
+          format: email
+          example: charli@example.com
+          description: Customer's email address
+        name:
+          type: string
+          example: Charli
+          description: Customer's name
+    reviews_stats:
+      type: object
+      properties:
+        total_reviews:
+          type: string
+          nullable: true
+        average_rating:
+          type: string
+          nullable: true
+    reviews_word:
+      type: string
+    reviews_store:
+      type: string
+    reviewer:
+      type: object
+      properties:
+        user_id:
+          type: integer
+        first_name:
+          type: string
+        last_name:
+          type: string
+        verified_buyer:
+          type: string
+          enum:
+            - "yes"
+            - "no"
+        address:
+          type: string
+        profile_picture:
+          type: string
+        gravatar:
+          type: string
+        email:
+          type: string
+          nullable: true
+        name_formatted:
+          type: string
+    reviews_whitelisted_urls:
+      type: array
+      items:
+        type: string
+    merchant_review:
+      type: object
+      properties:
+        rating:
+          type: string
+        comments:
+          type: string
+        date:
+          type: string
+        reviewer:
+          "$ref": "#/components/schemas/reviewer"
+        ratings:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              score:
+                type: string
+        branch:
+          type: object
+          properties:
+            name:
+              type: string
+            description:
+              type: string
+              nullable: true
+            image:
+              type: string
+              nullable: true
+    merchant_reviews:
+      type: array
+      items:
+        "$ref": "#/components/schemas/merchant_review"
+    product_review:
+      type: object
+      properties:
+        product_review_id:
+          type: integer
+        product_make:
+          type: string
+        order_id:
+          type: string
+          nullable: true
+        name:
+          type: string
+        sku:
+          type: string
+        review:
+          type: string
+        rating:
+          type: integer
+          minimum: 0
+          maximum: 5
+        date_created:
+          type: string
+        votes:
+          type: string
+          nullable: true
+        timeago:
+          type: string
+        date_formatted:
+          type: string
+        product:
+          type: string
+        ratings:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              score:
+                type: string
+        reviewer:
+          "$ref": "#/components/schemas/reviewer"
+        images:
+          type: array
+          items:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+    product_reviews:
+      type: array
+      items:
+        "$ref": "#/components/schemas/product_review"
+    order_id:
+      type: string
+      example: "12345"
+      description: Order ID
+    invite_status:
+      type: string
+      enum:
+        - active
+        - inactive
+      example: "active"
+      description: Invite status
+    invite_delay:
+      type: string
+      example: "12345"
+      description: Invite delay
+    invitation:
+      type: object
+      properties:
+        id:
+          type: string
+          description: An invitation unique id
+        email:
+          "$ref": "#/components/schemas/customer/properties/email"
+        name:
+          "$ref": "#/components/schemas/customer/properties/name"
+        order_id:
+          "$ref": "#/components/schemas/order_id"
+        date_send:
+          type: string
+        email_sent:
+          type: string
+          enum:
+            - "yes"
+            - "no"
+        status:
+          "$ref": "#/components/schemas/invite_status"
+        resent:
+          type: string
+          nullable: true
+    invitations:
+      type: array
+      items:
+        "$ref": "#/components/schemas/invitation"
+    product_review_template_id:
+      type: string
+      example: "12345"
+      description: Product review template identifier
+    merchant_review_template_id:
+      type: string
+      example: "12345"
+      description: Merchant review template identifier
+    product:
+      type: object
+      description: A product
+      properties:
+        sku:
+          type: string
+          description: Product unique ID
+        name:
+          type: string
+          description: Product name
+        description:
+          type: string
+          description: Product description
+        image_url:
+          type: string
+          description: Product image URL
+        mpn:
+          type: string
+          description: Product MPN
+        gtin:
+          type: string
+          description: Product GTIN
+        brand:
+          type: string
+          description: Product brand
+        category:
+          type: string
+          description: Product category
+        custom:
+          type: string
+          description: Product custom property
+        pageUrl:
+          type: string
+          description: Product page url
+    products:
+      type: array
+      items:
+        "$ref": "#/components/schemas/product"
+
+paths:
+  "/product/invitation/{id}":
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          example: "11623520"
+        description: "ID for the invitation"
+    put:
+      security:
+        - apikey: []
+          store: []
+      summary: Edit product review invitation
+      operationId: productInvitation#update
+      responses:
+        "200":
+          description: Product review invitation response
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - "$ref": "#/components/schemas/response"
+                  - type: object
+                    properties:
+                      invitation:
+                        "$ref": "#/components/schemas/invitation"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  "$ref": "#/components/schemas/customer/properties/name"
+                email:
+                  "$ref": "#/components/schemas/customer/properties/email"
+                order_id:
+                  "$ref": "#/components/schemas/order_id"
+                products:
+                  "$ref": "#/components/schemas/products"
+                status:
+                  "$ref": "#/components/schemas/invite_status"
+                template_id:
+                  "$ref": "#/components/schemas/product_review_template_id"
+                delay:
+                  "$ref": "#/components/schemas/invite_delay"
+    delete:
+      security:
+        - apikey: []
+          store: []
+      summary: Remove product review invitation
+      operationId: productInvitation#destroy
+      responses:
+        "200":
+          description: Removed product review invitation successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    "$ref": "#/components/schemas/response_status"
+
+  "/merchant/invitation":
+    get:
+      security:
+        - apikey: []
+          store: []
+      summary: List merchant review invitations
+      parameters:
+        - name: order_id
+          in: query
+          schema:
+            type: string
+            example: "11623520"
+          description: Search by Order ID
+        - name: invite_sent
+          in: query
+          schema:
+            type: boolean
+            example: "1 or 0"
+          description: Return invites by send status (1 or 0)
+        - name: page
+          in: query
+          schema:
+            type: integer
+            example: "0"
+          description: Page Number (Starts at 0)
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            example: "10"
+          description: Number of invites per page
+      operationId: merchantInvitation#index
+      responses:
+        "200":
+          description: Merchant review invitation response
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - "$ref": "#/components/schemas/paginated_response"
+                  - type: object
+                    properties:
+                      invitations:
+                        "$ref": "#/components/schemas/invitations"
+
+  "/product/invitation":
+    get:
+      security:
+        - apikey: []
+          store: []
+      summary: List product review invitations
+      parameters:
+        - name: order_id
+          in: query
+          schema:
+            type: string
+            example: "11623520"
+          description: Search by Order ID
+        - name: invite_sent
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 1
+            example: "1 or 0"
+          description: Return invites by send status (1 or 0)
+        - name: page
+          in: query
+          schema:
+            type: integer
+            example: "0"
+          description: Page Number (Starts at 0)
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            example: "10"
+          description: Number of invites per page
+      operationId: productInvitation#index
+      responses:
+        "200":
+          description: Product review invitation response
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - "$ref": "#/components/schemas/paginated_response"
+                  - type: object
+                    properties:
+                      invitations:
+                        "$ref": "#/components/schemas/invitations"
+
+  "/merchant/reviews":
+    get:
+      security:
+        - apikey: []
+          store: []
+      summary: List merchant reviews
+      parameters:
+        - name: review_id
+          in: query
+          schema:
+            type: integer
+            example: 11623520
+          description: Search by Review ID
+        - name: order_number
+          in: query
+          schema:
+            type: string
+          description: Filter reviews by order number
+        - name: service_feedback_email_id
+          in: query
+          schema:
+            type: string
+          description: Filter reviews by invitation email id
+        - name: branch
+          in: query
+          schema:
+            type: string
+          description: or product name
+        - name: min_rating
+          in: query
+          schema:
+            type: integer
+          description: Minimum rating for returned results (1-5).
+        - name: max_rating
+          in: query
+          schema:
+            type: integer
+          description: Maximum rating for returned results (1-5).
+        - name: min_date
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Minimum date for returned results (YYYY-MM-DD).
+        - name: max_date
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Maximum date for returned results (YYYY-MM-DD).
+        - name: order
+          in: query
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+              - rating
+          description: Order by date 'asc' or 'desc' or 'rating'.
+        - name: include_replies
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 1
+          description: Include replies (1 or 0).
+        - name: photos
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 1
+          description: Only return reviews that have a photo (1 or 0).
+        - name: include_whitelist
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 1
+          description: Return a list of whitelisted URLS for the store.
+      operationId: merchantReview#index
+      responses:
+        "200":
+          description: Merchant review list response
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - "$ref": "#/components/schemas/paginated_response"
+                  - type: object
+                    properties:
+                      stats:
+                        "$ref": "#/components/schemas/reviews_stats"
+                      word:
+                        "$ref": "#/components/schemas/reviews_word"
+                      store:
+                        "$ref": "#/components/schemas/reviews_store"
+                      reviews:
+                        "$ref": "#/components/schemas/merchant_reviews"
+                      whitelisted_urls:
+                        "$ref": "#/components/schemas/reviews_whitelisted_urls"
+
+  "/merchant/latest":
+    get:
+      security:
+        - apikey: []
+          store: []
+      summary: List merchant latest reviews
+      operationId: merchantReviewLatest#index
+      responses:
+        "200":
+          description: Merchant review list response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  stats:
+                    "$ref": "#/components/schemas/reviews_stats"
+                  word:
+                    "$ref": "#/components/schemas/reviews_word"
+                  reviews:
+                    "$ref": "#/components/schemas/merchant_reviews"
+                  excellent_percentage:
+                    type: string
+
+  "/product/reviews/all":
+    get:
+      security:
+        - apikey: []
+          store: []
+      summary: Get all product reviews
+      parameters:
+        - name: order_id
+          in: query
+          schema:
+            type: string
+          description: Filter reviews by Order Number
+        - name: page
+          in: query
+          schema:
+            type: string
+            example: "0"
+          description: Page Number (Starts at 0)
+        - name: per_page
+          in: query
+          schema:
+            type: string
+            example: "10"
+          description: Number of reviews per page
+        - name: photos
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 1
+          description: Only return reviews that have a photo (1 or 0).
+        - name: include_moderated
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 1
+          description: Include reviews that have been moderated
+        - name: include_no_comments
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 1
+          description: Include reviews that have no text body (just rating)
+        - name: min_date
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Minimum date for returned results (YYYY-MM-DD).
+        - name: max_date
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Maximum date for returned results (YYYY-MM-DD).
+      operationId: productReview#index
+      responses:
+        "200":
+          description: Product review list response
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - "$ref": "#/components/schemas/paginated_response"
+                  - type: object
+                    properties:
+                      rating:
+                        type: string
+                      word:
+                        "$ref": "#/components/schemas/reviews_word"
+                      store:
+                        "$ref": "#/components/schemas/reviews_store"
+                      reviews:
+                        "$ref": "#/components/schemas/product_reviews"
+
+  "/product/review":
+    get:
+      security:
+        - apikey: []
+          store: []
+      summary: Get product reviews for a SKU
+      parameters:
+        - name: sku
+          in: query
+          schema:
+            type: string
+          description: Unique SKU of Product
+        - name: mpn
+          in: query
+          schema:
+            type: string
+          description: Alternative to SKU
+        - name: page
+          in: query
+          schema:
+            type: string
+            example: "0"
+          description: Page Number (Starts at 0)
+        - name: per_page
+          in: query
+          schema:
+            type: string
+            example: "10"
+          description: Number of reviews per page
+        - name: photos
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 1
+          description: Only return reviews that have a photo (1 or 0).
+        - name: verified_only
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 1
+          description: Only return verified reviews
+        - name: comments_only
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 1
+          description: Only return reviews with comments
+        - name: minRating
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 5
+          description: Number between 1 and 5. Return reviews with rating greater than or equal to minRating (default 4)
+        - name: include_unpublished_images
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 1
+          description: Return images that haven't been published
+        - name: include_moderated
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 1
+          description: Include reviews that have been moderated
+        - name: order_id
+          in: query
+          schema:
+            type: string
+          description: Filter reviews by Order Number
+        - name: min_date
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Minimum date for returned results (YYYY-MM-DD).
+        - name: max_date
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Maximum date for returned results (YYYY-MM-DD).
+      operationId: productReview#index
+      responses:
+        "200":
+          description: Product review list response
+          content:
+            application/json:
+              schema:
+                type: object
+                allOf:
+                  - "$ref": "#/components/schemas/paginated_response"
+                  - type: object
+                    properties:
+                      write_review_link:
+                        type: string
+                      word:
+                        "$ref": "#/components/schemas/reviews_word"
+                      stats:
+                        "$ref": "#/components/schemas/reviews_stats"
+                      store:
+                        "$ref": "#/components/schemas/reviews_store"
+                      reviews:
+                        "$ref": "#/components/schemas/product_reviews"
+                      ratings:
+                        type: array
+                        items:
+                          type: object
+
+  "/product/review/new":
+    post:
+      security:
+        - apikey: []
+          store: []
+      summary: Insert product review
+      operationId: productReview#create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sku:
+                  "$ref": "#/components/schemas/product/properties/sku"
+                name:
+                  type: string
+                email:
+                  "$ref": "#/components/schemas/reviewer/properties/email"
+                review:
+                  type: string
+                rating:
+                  type: string
+                order_id:
+                  "$ref": "#/components/schemas/order_id"
+                title:
+                  type: string
+                address:
+                  type: string
+                ratings:
+                  type: string
+                  description: 'Sub Ratings. JSON encoded string { "Price": 4, "Quality": 3, "Fit":"Perfect" }'
+                images:
+                  type: string
+                  description: 'Images. JSON Encoded string [{"url": "https://www.example.com/images/image.png", status:"inactive"}]. Status is optional and defaults to "inactive".'
+      responses:
+        "200":
+          description: Insert product review response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    "$ref": "#/components/schemas/response_status"
+
+  "/invitation":
+    post:
+      security:
+        - apikey: []
+          store: []
+      summary: Queue review invitation
+      operationId: invitation#create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  "$ref": "#/components/schemas/customer/properties/name"
+                email:
+                  "$ref": "#/components/schemas/customer/properties/email"
+                order_id:
+                  "$ref": "#/components/schemas/order_id"
+                products:
+                  "$ref": "#/components/schemas/products"
+                template_id:
+                  "$ref": "#/components/schemas/product_review_template_id"
+                date_send:
+                  type: string
+                delay:
+                  type: string
+                country_code:
+                  type: string
+      responses:
+        "200":
+          description: Review invitation response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    "$ref": "#/components/schemas/response_status"
+                  message:
+                    type: array
+                    items:
+                      type: string
+
+  "/merchant/sms/invitation":
+    post:
+      security:
+        - apikey: []
+          store: []
+      summary: Queue SMS merchant review invitation
+      operationId: smsMerchantInvitation#create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  "$ref": "#/components/schemas/customer/properties/name"
+                mobile_number:
+                  type: string
+                order_id:
+                  "$ref": "#/components/schemas/order_id"
+                message:
+                  type: string
+                date_send:
+                  type: string
+                delay:
+                  type: string
+                branch:
+                  type: string
+      responses:
+        "200":
+          description: Review invitation response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    "$ref": "#/components/schemas/response_status"
+
+  "/product/sms/invitation":
+    post:
+      security:
+        - apikey: []
+          store: []
+      summary: Queue SMS product review invitation
+      operationId: smsProductInvitation#create
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  "$ref": "#/components/schemas/customer/properties/name"
+                mobile_number:
+                  type: string
+                order_id:
+                  "$ref": "#/components/schemas/order_id"
+                message:
+                  type: string
+                products:
+                  "$ref": "#/components/schemas/products"
+                date_send:
+                  type: string
+                delay:
+                  type: string
+                type:
+                  type: string
+      responses:
+        "200":
+          description: Review invitation response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    "$ref": "#/components/schemas/response_status"
