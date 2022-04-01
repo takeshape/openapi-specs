@@ -307,6 +307,25 @@ components:
       type: array
       items:
         "$ref": "#/components/schemas/product"
+    response__product_review_index:
+      allOf:
+        - "$ref": "#/components/schemas/paginated_response"
+        - type: object
+          properties:
+            write_review_link:
+              type: string
+            word:
+              "$ref": "#/components/schemas/reviews_word"
+            stats:
+              "$ref": "#/components/schemas/reviews_stats"
+            store:
+              "$ref": "#/components/schemas/reviews_store"
+            reviews:
+              "$ref": "#/components/schemas/product_reviews"
+            ratings:
+              type: array
+              items:
+                type: object
 
 paths:
   "/product/invitation/{id}":
@@ -330,7 +349,6 @@ paths:
           content:
             application/json:
               schema:
-                type: object
                 allOf:
                   - "$ref": "#/components/schemas/response"
                   - type: object
@@ -413,7 +431,6 @@ paths:
           content:
             application/json:
               schema:
-                type: object
                 allOf:
                   - "$ref": "#/components/schemas/paginated_response"
                   - type: object
@@ -461,7 +478,6 @@ paths:
           content:
             application/json:
               schema:
-                type: object
                 allOf:
                   - "$ref": "#/components/schemas/paginated_response"
                   - type: object
@@ -556,7 +572,6 @@ paths:
           content:
             application/json:
               schema:
-                type: object
                 allOf:
                   - "$ref": "#/components/schemas/paginated_response"
                   - type: object
@@ -660,7 +675,6 @@ paths:
           content:
             application/json:
               schema:
-                type: object
                 allOf:
                   - "$ref": "#/components/schemas/paginated_response"
                   - type: object
@@ -769,7 +783,6 @@ paths:
           content:
             application/json:
               schema:
-                type: object
                 allOf:
                   - "$ref": "#/components/schemas/paginated_response"
                   - type: object
