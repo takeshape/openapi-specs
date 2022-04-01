@@ -783,28 +783,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  status:
-                    "$ref": "#/components/schemas/response_status"
-                  count:
-                    type: integer
-                  per_page:
-                    type: integer
-                  total_pages:
-                    type: integer
-                  current_page:
-                    type: integer
-                  stats:
-                    "$ref": "#/components/schemas/reviews_stats"
-                  word:
-                    "$ref": "#/components/schemas/reviews_word"
-                  store:
-                    "$ref": "#/components/schemas/reviews_store"
-                  reviews:
-                    "$ref": "#/components/schemas/merchant_reviews"
-                  whitelisted_urls:
-                    "$ref": "#/components/schemas/reviews_whitelisted_urls"
+                "$ref": "#/components/schemas/response__product_review_index"
 
   "/product/review/new":
     post:
