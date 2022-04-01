@@ -783,24 +783,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                  - "$ref": "#/components/schemas/paginated_response"
-                  - type: object
-                    properties:
-                      write_review_link:
-                        type: string
-                      word:
-                        "$ref": "#/components/schemas/reviews_word"
-                      stats:
-                        "$ref": "#/components/schemas/reviews_stats"
-                      store:
-                        "$ref": "#/components/schemas/reviews_store"
-                      reviews:
-                        "$ref": "#/components/schemas/product_reviews"
-                      ratings:
-                        type: array
-                        items:
-                          type: object
+                "$ref": "#/components/schemas/response__product_review_index"
 
   "/product/review/new":
     post:
