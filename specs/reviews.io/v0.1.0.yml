@@ -840,6 +840,7 @@ paths:
                       logo:
                         type: string
                   reviews:
+                    type: object
                     properties:
                       total:
                         type: integer
