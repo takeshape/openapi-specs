@@ -46,60 +46,6 @@ components:
     store:
       type: string
       example: www.example.com
-    response_status:
-      type: string
-      nullable: true
-      enum:
-        - success
-        - error
-      description: The status of a response
-    response:
-      type: object
-      properties:
-        status:
-          "$ref": "#/components/schemas/response_status"
-        message:
-          type: string
-          description: The status message of a response
-    paginated_response:
-      type: object
-      properties:
-        status:
-          "$ref": "#/components/schemas/response_status"
-        count:
-          type: integer
-        per_page:
-          type: integer
-        total_pages:
-          type: integer
-        current_page:
-          type: integer
-    customer:
-      type: object
-      description: The customer object
-      properties:
-        email:
-          type: string
-          format: email
-          example: charli@example.com
-          description: Customer's email address
-        name:
-          type: string
-          example: Charli
-          description: Customer's name
-    reviews_stats:
-      type: object
-      properties:
-        total_reviews:
-          type: string
-          nullable: true
-        average_rating:
-          type: string
-          nullable: true
-    reviews_word:
-      type: string
-    reviews_store:
-      type: string
     reviewer:
       type: object
       properties:
@@ -125,10 +71,6 @@ components:
           nullable: true
         name_formatted:
           type: string
-    reviews_whitelisted_urls:
-      type: array
-      items:
-        type: string
     merchant_review:
       type: object
       properties:
@@ -160,10 +102,6 @@ components:
             image:
               type: string
               nullable: true
-    merchant_reviews:
-      type: array
-      items:
-        "$ref": "#/components/schemas/merchant_review"
     product_review:
       type: object
       properties:
@@ -180,6 +118,8 @@ components:
           type: string
         review:
           type: string
+        title:
+          type: string
         rating:
           type: integer
           minimum: 0
@@ -187,6 +127,9 @@ components:
         date_created:
           type: string
         votes:
+          type: string
+          nullable: true
+        flags:
           type: string
           nullable: true
         timeago:
@@ -209,66 +152,22 @@ components:
         images:
           type: array
           items:
-            type: string
+            type: object
+        replies:
+          type: array
+          items:
+            type: object
         tags:
           type: array
           items:
             type: string
-    product_reviews:
-      type: array
-      items:
-        "$ref": "#/components/schemas/product_review"
-    order_id:
-      type: string
-      example: "12345"
-      description: Order ID
-    invite_status:
-      type: string
-      enum:
-        - active
-        - inactive
-      example: "active"
-      description: Invite status
-    invite_delay:
-      type: string
-      example: "12345"
-      description: Invite delay
-    invitation:
-      type: object
-      properties:
-        id:
-          type: string
-          description: An invitation unique id
-        email:
-          "$ref": "#/components/schemas/customer/properties/email"
-        name:
-          "$ref": "#/components/schemas/customer/properties/name"
-        order_id:
-          "$ref": "#/components/schemas/order_id"
-        date_send:
-          type: string
-        email_sent:
-          type: string
-          enum:
-            - "yes"
-            - "no"
-        status:
-          "$ref": "#/components/schemas/invite_status"
-        resent:
-          type: string
-          nullable: true
-    invitations:
-      type: array
-      items:
-        "$ref": "#/components/schemas/invitation"
-    product_review_template_id:
-      type: string
-      example: "12345"
-      description: Product review template identifier
-    merchant_review_template_id:
-      type: string
-      example: "12345"
-      description: Merchant review template identifier
+        author:
+          type: object
+          properties:
+            email:
+              type: string
+              format: email
+              nullable: true
     product:
       type: object
       description: A product
@@ -303,29 +202,6 @@ components:
         pageUrl:
           type: string
           description: Product page url
-    products:
-      type: array
-      items:
-        "$ref": "#/components/schemas/product"
-    response__product_review_index:
-      allOf:
-        - "$ref": "#/components/schemas/paginated_response"
-        - type: object
-          properties:
-            write_review_link:
-              type: string
-            word:
-              "$ref": "#/components/schemas/reviews_word"
-            stats:
-              "$ref": "#/components/schemas/reviews_stats"
-            store:
-              "$ref": "#/components/schemas/reviews_store"
-            reviews:
-              "$ref": "#/components/schemas/product_reviews"
-            ratings:
-              type: array
-              items:
-                type: object
 
 paths:
   "/product/invitation/{id}":
@@ -349,12 +225,42 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                  - "$ref": "#/components/schemas/response"
-                  - type: object
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+                  invitation:
+                    type: object
                     properties:
-                      invitation:
-                        "$ref": "#/components/schemas/invitation"
+                      id:
+                        type: string
+                        description: An invitation unique id
+                      email:
+                        type: string
+                        format: email
+                      name:
+                        type: string
+                      order_id:
+                        type: string
+                      date_send:
+                        type: string
+                      email_sent:
+                        type: string
+                        enum:
+                          - "yes"
+                          - "no"
+                      status:
+                        type: string
+                        enum:
+                          - active
+                          - inactive
+                        example: "active"
+                        description: Invite status
+                      resent:
+                        type: string
+                        nullable: true
       requestBody:
         required: true
         content:
@@ -363,19 +269,31 @@ paths:
               type: object
               properties:
                 name:
-                  "$ref": "#/components/schemas/customer/properties/name"
+                  type: string
                 email:
-                  "$ref": "#/components/schemas/customer/properties/email"
+                  type: string
+                  format: email
                 order_id:
-                  "$ref": "#/components/schemas/order_id"
+                  type: string
                 products:
-                  "$ref": "#/components/schemas/products"
+                  type: array
+                  items:
+                    "$ref": "#/components/schemas/product"
                 status:
-                  "$ref": "#/components/schemas/invite_status"
+                  type: string
+                  enum:
+                    - active
+                    - inactive
+                  example: "active"
+                  description: Invite status
                 template_id:
-                  "$ref": "#/components/schemas/product_review_template_id"
+                  type: string
+                  example: "12345"
+                  description: Template identifier
                 delay:
-                  "$ref": "#/components/schemas/invite_delay"
+                  type: string
+                  example: "12345"
+                  description: Invite delay
     delete:
       security:
         - apikey: []
@@ -391,7 +309,12 @@ paths:
                 type: object
                 properties:
                   status:
-                    "$ref": "#/components/schemas/response_status"
+                    type: string
+                    nullable: true
+                    enum:
+                      - success
+                      - error
+                    description: The status of a response
 
   "/merchant/invitation":
     get:
@@ -431,12 +354,43 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                  - "$ref": "#/components/schemas/paginated_response"
-                  - type: object
-                    properties:
-                      invitations:
-                        "$ref": "#/components/schemas/invitations"
+                type: object
+                properties:
+                  status:
+                    type: string
+                  total_pages:
+                    type: integer
+                  per_page:
+                    type: integer
+                  count:
+                    type: integer
+                  invitations:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          description: An invitation unique id
+                        order_id:
+                          type: string
+                        customer_email:
+                          type: string
+                          format: email
+                        customer_name:
+                          type: string
+                        date_send:
+                          type: string
+                        email_sent:
+                          type: string
+                          enum:
+                            - "yes"
+                            - "no"
+                        status:
+                          type: string
+                        resent:
+                          type: string
+                          nullable: true
 
   "/product/invitation":
     get:
@@ -478,12 +432,63 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                  - "$ref": "#/components/schemas/paginated_response"
-                  - type: object
-                    properties:
-                      invitations:
-                        "$ref": "#/components/schemas/invitations"
+                type: object
+                properties:
+                  status:
+                    type: string
+                  total_pages:
+                    type: integer
+                  per_page:
+                    type: integer
+                  count:
+                    type: integer
+                  invitations:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          description: An invitation unique id
+                        order_id:
+                          type: string
+                        customer_email:
+                          type: string
+                          format: email
+                        customer_name:
+                          type: string
+                        date_send:
+                          type: string
+                        email_sent:
+                          type: string
+                          enum:
+                            - "yes"
+                            - "no"
+                        status:
+                          type: string
+                        resent:
+                          type: string
+                          nullable: true
+                        product:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              service_feedback_email_id:
+                                type: integer
+                              product_id:
+                                type: integer
+                              sku:
+                                type: string
+                              image:
+                                type: string
+                              name:
+                                type: string
+                              description:
+                                type: string
+                                nullable: true
+                              brand:
+                                type: string
 
   "/merchant/reviews":
     get:
@@ -572,20 +577,35 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                  - "$ref": "#/components/schemas/paginated_response"
-                  - type: object
+                type: object
+                properties:
+                  total_pages:
+                    type: integer
+                  per_page:
+                    type: integer
+                  page:
+                    type: integer
+                  stats:
+                    type: object
                     properties:
-                      stats:
-                        "$ref": "#/components/schemas/reviews_stats"
-                      word:
-                        "$ref": "#/components/schemas/reviews_word"
-                      store:
-                        "$ref": "#/components/schemas/reviews_store"
-                      reviews:
-                        "$ref": "#/components/schemas/merchant_reviews"
-                      whitelisted_urls:
-                        "$ref": "#/components/schemas/reviews_whitelisted_urls"
+                      total_reviews:
+                        type: string
+                        nullable: true
+                      average_rating:
+                        type: string
+                        nullable: true
+                  word:
+                    type: string
+                  store:
+                    type: string
+                  reviews:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/merchant_review"
+                  whitelisted_urls:
+                    type: array
+                    items:
+                      type: string
 
   "/merchant/latest":
     get:
@@ -603,13 +623,22 @@ paths:
                 type: object
                 properties:
                   stats:
-                    "$ref": "#/components/schemas/reviews_stats"
+                    type: object
+                    properties:
+                      total_reviews:
+                        type: string
+                        nullable: true
+                      average_rating:
+                        type: string
+                        nullable: true
                   word:
-                    "$ref": "#/components/schemas/reviews_word"
-                  reviews:
-                    "$ref": "#/components/schemas/merchant_reviews"
+                    type: string
                   excellent_percentage:
                     type: string
+                  reviews:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/merchant_review"
 
   "/product/reviews/all":
     get:
@@ -668,25 +697,35 @@ paths:
             type: string
             format: date
           description: Maximum date for returned results (YYYY-MM-DD).
-      operationId: productReview#index
+      operationId: productReviewAll#index
       responses:
         "200":
           description: Product review list response
           content:
             application/json:
               schema:
-                allOf:
-                  - "$ref": "#/components/schemas/paginated_response"
-                  - type: object
-                    properties:
-                      rating:
-                        type: string
-                      word:
-                        "$ref": "#/components/schemas/reviews_word"
-                      store:
-                        "$ref": "#/components/schemas/reviews_store"
-                      reviews:
-                        "$ref": "#/components/schemas/product_reviews"
+                type: object
+                properties:
+                  status:
+                    type: string
+                  total_pages:
+                    type: integer
+                  per_page:
+                    type: integer
+                  current_page:
+                    type: integer
+                  count:
+                    type: integer
+                  reviews:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/product_review"
+                  rating:
+                    type: string
+                  ratings:
+                    type: array
+                    items:
+                      type: object
 
   "/product/review":
     get:
@@ -783,7 +822,56 @@ paths:
           content:
             application/json:
               schema:
-                "$ref": "#/components/schemas/response__product_review_index"
+                type: object
+                properties:
+                  write_review_link:
+                    type: string
+                  word:
+                    type: string
+                  stats:
+                    type: object
+                    properties:
+                      average:
+                        type: string
+                      count:
+                        type: integer
+                  store:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      logo:
+                        type: string
+                  reviews:
+                    properties:
+                      total:
+                        type: integer
+                      per_page:
+                        type: integer
+                      current_page:
+                        type: integer
+                      last_page:
+                        type: integer
+                      from:
+                        type: integer
+                      to:
+                        type: integer
+                      data:
+                        type: array
+                        items:
+                          "$ref": "#/components/schemas/product_review"
+                  products:
+                    type: array
+                    items:
+                      type: object
+                  ratings:
+                    type: array
+                    items:
+                      type: object
+                  settings:
+                    type: array
+                    items:
+                      type: object
 
   "/product/review/new":
     post:
@@ -810,7 +898,7 @@ paths:
                 rating:
                   type: string
                 order_id:
-                  "$ref": "#/components/schemas/order_id"
+                  type: string
                 title:
                   type: string
                 address:
@@ -830,7 +918,12 @@ paths:
                 type: object
                 properties:
                   status:
-                    "$ref": "#/components/schemas/response_status"
+                    type: string
+                    nullable: true
+                    enum:
+                      - success
+                      - error
+                    description: The status of a response
 
   "/invitation":
     post:
@@ -847,15 +940,20 @@ paths:
               type: object
               properties:
                 name:
-                  "$ref": "#/components/schemas/customer/properties/name"
+                  type: string
                 email:
-                  "$ref": "#/components/schemas/customer/properties/email"
+                  type: string
+                  format: email
                 order_id:
-                  "$ref": "#/components/schemas/order_id"
+                  type: string
                 products:
-                  "$ref": "#/components/schemas/products"
+                  type: array
+                  items:
+                    "$ref": "#/components/schemas/product"
                 template_id:
-                  "$ref": "#/components/schemas/product_review_template_id"
+                  type: string
+                  example: "12345"
+                  description: Template identifier
                 date_send:
                   type: string
                 delay:
@@ -871,7 +969,12 @@ paths:
                 type: object
                 properties:
                   status:
-                    "$ref": "#/components/schemas/response_status"
+                    type: string
+                    nullable: true
+                    enum:
+                      - success
+                      - error
+                    description: The status of a response
                   message:
                     type: array
                     items:
@@ -892,11 +995,11 @@ paths:
               type: object
               properties:
                 name:
-                  "$ref": "#/components/schemas/customer/properties/name"
+                  type: string
                 mobile_number:
                   type: string
                 order_id:
-                  "$ref": "#/components/schemas/order_id"
+                  type: string
                 message:
                   type: string
                 date_send:
@@ -914,7 +1017,12 @@ paths:
                 type: object
                 properties:
                   status:
-                    "$ref": "#/components/schemas/response_status"
+                    type: string
+                    nullable: true
+                    enum:
+                      - success
+                      - error
+                    description: The status of a response
 
   "/product/sms/invitation":
     post:
@@ -931,15 +1039,17 @@ paths:
               type: object
               properties:
                 name:
-                  "$ref": "#/components/schemas/customer/properties/name"
+                  type: string
                 mobile_number:
                   type: string
                 order_id:
-                  "$ref": "#/components/schemas/order_id"
+                  type: string
                 message:
                   type: string
                 products:
-                  "$ref": "#/components/schemas/products"
+                  type: array
+                  items:
+                    "$ref": "#/components/schemas/product"
                 date_send:
                   type: string
                 delay:
@@ -955,4 +1065,9 @@ paths:
                 type: object
                 properties:
                   status:
-                    "$ref": "#/components/schemas/response_status"
+                    type: string
+                    nullable: true
+                    enum:
+                      - success
+                      - error
+                    description: The status of a response
