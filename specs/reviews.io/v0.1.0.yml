@@ -199,7 +199,41 @@ components:
         pageUrl:
           type: string
           description: Product page url
-
+    invitation_product:
+      type: object
+      description: A product
+      properties:
+        sku:
+          type: string
+          description: Product unique ID
+        name:
+          type: string
+          description: Product name
+        description:
+          type: string
+          description: Product description
+        image:
+          type: string
+          description: Product image URL
+        mpn:
+          type: string
+          description: Product MPN
+        gtin:
+          type: string
+          description: Product GTIN
+        brand:
+          type: string
+          description: Product brand
+        category:
+          type: string
+          description: Product category
+        custom:
+          type: string
+          description: Product custom property
+        pageUrl:
+          type: string
+          description: Product page url
+          
 paths:
   "/product/invitation/{id}":
     parameters:
@@ -948,7 +982,7 @@ paths:
                 products:
                   type: array
                   items:
-                    "$ref": "#/components/schemas/product"
+                    "$ref": "#/components/schemas/invitation_product"
                 template_id:
                   type: string
                   example: "12345"
