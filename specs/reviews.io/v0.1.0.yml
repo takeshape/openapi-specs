@@ -329,20 +329,21 @@ paths:
         - name: invite_sent
           in: query
           schema:
-            type: boolean
-            example: "1 or 0"
+            type: integer
+            minimum: 0
+            maximum: 1
           description: Return invites by send status (1 or 0)
         - name: page
           in: query
           schema:
             type: integer
-            example: "0"
+            example: 0
           description: Page Number (Starts at 0)
         - name: limit
           in: query
           schema:
             type: integer
-            example: "10"
+            example: 10
           description: Number of invites per page
       operationId: merchantInvitation#index
       responses:
@@ -414,7 +415,7 @@ paths:
           in: query
           schema:
             type: integer
-            example: "0"
+            example: 0
           description: Page Number (Starts at 0)
         - name: limit
           in: query
@@ -652,14 +653,14 @@ paths:
         - name: page
           in: query
           schema:
-            type: string
-            example: "0"
+            type: integer
+            example: 0
           description: Page Number (Starts at 0)
         - name: per_page
           in: query
           schema:
-            type: string
-            example: "10"
+            type: integer
+            example: 10
           description: Number of reviews per page
         - name: photos
           in: query
@@ -744,14 +745,14 @@ paths:
         - name: page
           in: query
           schema:
-            type: string
-            example: "0"
+            type: integer
+            example: 0
           description: Page Number (Starts at 0)
         - name: per_page
           in: query
           schema:
-            type: string
-            example: "10"
+            type: integer
+            example: 10
           description: Number of reviews per page
         - name: photos
           in: query
