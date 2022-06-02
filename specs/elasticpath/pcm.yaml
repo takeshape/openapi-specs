@@ -1865,7 +1865,7 @@ components:
           $ref: '#/components/schemas/Parent'
         children:
           $ref: '#/components/schemas/Children'
-        custom-modifiers:
+        custom_modifiers:
           $ref: '#/components/schemas/CustomModifiers'
         files:
           type: object
@@ -1904,7 +1904,7 @@ components:
           x-omitempty: true
         modifiers:
           $ref: '#/components/schemas/Modifiers'
-        product-spec:
+        product_spec:
           $ref: '#/components/schemas/ProductSpec'
         variationOpts:
           $ref: '#/components/schemas/VariationOpts'
