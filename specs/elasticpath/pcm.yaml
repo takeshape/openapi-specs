@@ -5507,7 +5507,7 @@ paths:
       tags:
         - Catalog Products
       summary: Get all products in a catalog release.
-      operationId: getAllProducts
+      operationId: getAllProductsInCatalogRelease
       parameters:
         - name: filter
           in: query
@@ -6396,6 +6396,7 @@ paths:
     get:
       parameters: []
       summary: Get all Products
+      operationId: getAllProducts
       description: >
         Retrieves a list of all products in the Product Content Management
         system.
