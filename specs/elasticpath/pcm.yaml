@@ -4679,7 +4679,9 @@ paths:
         - bearerAuthentication: []
   /pcm/products:
     get:
-      parameters: []
+      parameters:
+        - $ref: '#/components/parameters/filter'
+        - $ref: '#/components/parameters/page'
       summary: Get all Products
       operationId: getAllProducts
       description: >
