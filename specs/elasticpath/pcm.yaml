@@ -163,7 +163,7 @@ components:
     ProductList:
       type: array
       items:
-        $ref: '#/components/schemas/ProductList'
+        $ref: '#/components/schemas/Product'
       x-go-name: Data
     ProductListData:
       type: object
