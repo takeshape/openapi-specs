@@ -160,18 +160,29 @@ components:
       type: string
       x-go-name: SKU
       nullable: true
-    Data:
+    ProductList:
       type: array
       items:
-        $ref: '#/components/schemas/Product'
+        $ref: '#/components/schemas/ProductList'
       x-go-name: Data
+    ProductListData:
+      type: object
+      title: ProductListData
+      description: Container for a list of products.
+      properties:
+        meta:
+          $ref: '#/components/schemas/PageMeta'
+        data:
+          $ref: '#/components/schemas/ProductList'
+        links:
+          $ref: '#/components/schemas/Links'
     ProductsForCartConfiguration:
       type: object
       title: ProductsForCartConfiguration
       description: A list of product id or sku and bundle configuration for cart.
       properties:
         data:
-          $ref: '#/components/schemas/Data'
+          $ref: '#/components/schemas/ProductList'
       required:
         - data
       x-go-name: ProductsForCartConfiguration
@@ -3571,16 +3582,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                title: ProductListData
-                description: Container for a list of products.
-                properties:
-                  meta:
-                    $ref: '#/components/schemas/PageMeta'
-                  data:
-                    $ref: '#/components/schemas/Data'
-                  links:
-                    $ref: '#/components/schemas/Links'
+                $ref: '#/components/schemas/ProductListData'
         default:
           description: The unexpected error.
           content:
@@ -3899,16 +3901,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                title: ProductListData
-                description: Container for a list of products.
-                properties:
-                  meta:
-                    $ref: '#/components/schemas/PageMeta'
-                  data:
-                    $ref: '#/components/schemas/Data'
-                  links:
-                    $ref: '#/components/schemas/Links'
+                $ref: '#/components/schemas/ProductListData'
         default:
           description: The unexpected error.
           content:
@@ -4103,16 +4096,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                title: ProductListData
-                description: Container for a list of products.
-                properties:
-                  meta:
-                    $ref: '#/components/schemas/PageMeta'
-                  data:
-                    $ref: '#/components/schemas/Data'
-                  links:
-                    $ref: '#/components/schemas/Links'
+                $ref: '#/components/schemas/ProductListData'
         default:
           description: The unexpected error.
           content:
@@ -4160,16 +4144,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                title: ProductListData
-                description: Container for a list of products.
-                properties:
-                  meta:
-                    $ref: '#/components/schemas/PageMeta'
-                  data:
-                    $ref: '#/components/schemas/Data'
-                  links:
-                    $ref: '#/components/schemas/Links'
+                $ref: '#/components/schemas/ProductListData'
         default:
           description: The unexpected error.
           content:
@@ -4215,16 +4190,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                title: ProductListData
-                description: Container for a list of products.
-                properties:
-                  meta:
-                    $ref: '#/components/schemas/PageMeta'
-                  data:
-                    $ref: '#/components/schemas/Data'
-                  links:
-                    $ref: '#/components/schemas/Links'
+                $ref: '#/components/schemas/ProductListData'
         default:
           description: The unexpected error.
           content:
@@ -4271,16 +4237,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                title: ProductListData
-                description: Container for a list of products.
-                properties:
-                  meta:
-                    $ref: '#/components/schemas/PageMeta'
-                  data:
-                    $ref: '#/components/schemas/Data'
-                  links:
-                    $ref: '#/components/schemas/Links'
+                $ref: '#/components/schemas/ProductListData'
         default:
           description: The unexpected error.
           content:
@@ -4294,7 +4251,7 @@ paths:
       tags:
         - Catalog Products
       summary: Get a product in a catalog release.
-      operationId: getProduct
+      operationId: getProductInCatalogRelease
       parameters:
         - description: The catalog ID.
           name: catalog_id
@@ -4736,50 +4693,9 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: string
-                          format: uuid
-                        type:
-                          type: string
-                          enum:
-                            - product
-                        attributes:
-                          type: object
-                          additionalProperties: false
-                          properties:
-                            name:
-                              type: string
-                            description:
-                              type: string
-                            slug:
-                              type: string
-                            sku:
-                              type: string
-                            status:
-                              type: string
-                              enum:
-                                - live
-                                - draft
-                            commodity_type:
-                              type: string
-                              enum:
-                                - physical
-                                - digital
-                            upc_ean:
-                              type: string
-                            mpn:
-                              type: string
-                            locales:
-                              type: object
+                $ref: '#/components/schemas/ProductListData'
               examples:
-                list-poducts:
+                list-products:
                   value:
                     data:
                       - id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
@@ -4845,45 +4761,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                data:
-                  type: object
-                  properties:
-                    type:
-                      type: string
-                      enum:
-                        - product
-                    attributes:
-                      type: object
-                      additionalProperties: false
-                      properties:
-                        name:
-                          type: string
-                        description:
-                          type: string
-                        slug:
-                          type: string
-                        sku:
-                          type: string
-                        status:
-                          type: string
-                          enum:
-                            - live
-                            - draft
-                        commodity_type:
-                          type: string
-                          enum:
-                            - physical
-                            - digital
-                        upc_ean:
-                          type: string
-                        mpn:
-                          type: string
-                        locales:
-                          type: object
-                        components:
-                          type: object
+              $ref: '#/components/schemas/Product'
             examples:
               create-product:
                 value:
@@ -5030,6 +4908,7 @@ paths:
           description: UUID of the product
           example: 3fa85f64-5717-4562-b3fc-2c963f66afa6
       summary: Get a Product
+      operationId: getProduct
       description: |
         Retrieves a product by its identifier.
       tags:
@@ -5043,43 +4922,7 @@ paths:
                 type: object
                 properties:
                   data:
-                    type: object
-                    properties:
-                      id:
-                        type: string
-                        format: uuid
-                      type:
-                        type: string
-                        enum:
-                          - product
-                      attributes:
-                        type: object
-                        additionalProperties: false
-                        properties:
-                          name:
-                            type: string
-                          description:
-                            type: string
-                          slug:
-                            type: string
-                          sku:
-                            type: string
-                          status:
-                            type: string
-                            enum:
-                              - live
-                              - draft
-                          commodity_type:
-                            type: string
-                            enum:
-                              - physical
-                              - digital
-                          upc_ean:
-                            type: string
-                          mpn:
-                            type: string
-                          locales:
-                            type: object
+                    $ref: '#/components/schemas/Product'
               examples:
                 get-product:
                   value:
@@ -5200,46 +5043,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  data:
-                    type: object
-                    properties:
-                      id:
-                        type: string
-                        format: uuid
-                      type:
-                        type: string
-                        enum:
-                          - product
-                      attributes:
-                        type: object
-                        additionalProperties: false
-                        properties:
-                          name:
-                            type: string
-                          description:
-                            type: string
-                          slug:
-                            type: string
-                          sku:
-                            type: string
-                          status:
-                            type: string
-                            enum:
-                              - live
-                              - draft
-                          commodity_type:
-                            type: string
-                            enum:
-                              - physical
-                              - digital
-                          upc_ean:
-                            type: string
-                          mpn:
-                            type: string
-                          locales:
-                            type: object
+                $ref: '#/components/schemas/Product'
               examples:
                 updated-product:
                   value:
