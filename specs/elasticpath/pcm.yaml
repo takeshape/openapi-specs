@@ -22,7 +22,7 @@ components:
       style: deepObject
       explode: true
       schema:
-        $ref: '#/components/schemas/page-input'
+        $ref: '#/components/schemas/PageInput'
   requestBodies:
     bundle-configuration-data:
       content:
@@ -46,56 +46,17 @@ components:
       description: A list of product id or sku and bundle configuration for cart.
       required: true
   schemas:
-    error:
-      $ref: '#/components/schemas/ApiError'
-    error-response:
-      $ref: '#/components/schemas/ErrorResponse'
-    sales:
+    Sales:
       type: object
       description: A set of sale specifications.
       additionalProperties:
-        type: object
-        description: A set of sale prices and a validity period.
-        properties:
-          bundle_ids:
-            $ref: '#/components/schemas/BundleIDs'
-          schedule:
-            $ref: '#/components/schemas/Schedule'
-          currencies:
-            type: object
-            description: List of currency specific amounts.
-            additionalProperties:
-              type: object
-              description: Combination of an amount of a tax included indicator.
-              properties:
-                amount:
-                  $ref: '#/components/schemas/Amount'
-                includes_tax:
-                  $ref: '#/components/schemas/IncludesTax'
-                tiers:
-                  type: object
-                  description: An optional set of tier prices with minimum quantities.
-                  additionalProperties:
-                    $ref: '#/components/schemas/TierPrice'
-    currencies:
+        $ref: '#/components/schemas/Sale'
+    Currencies:
       type: object
       description: List of currency specific amounts.
       additionalProperties:
-        type: object
-        description: Combination of an amount of a tax included indicator.
-        properties:
-          amount:
-            $ref: '#/components/schemas/Amount'
-          includes_tax:
-            $ref: '#/components/schemas/IncludesTax'
-          tiers:
-            type: object
-            description: An optional set of tier prices with minimum quantities.
-            additionalProperties:
-              $ref: '#/components/schemas/TierPrice'
-    schedule:
-      $ref: '#/components/schemas/Schedule'
-    sale:
+        $ref: '#/components/schemas/CurrencyAmount'
+    Sale:
       type: object
       description: A set of sale prices and a validity period.
       properties:
@@ -104,24 +65,9 @@ components:
         schedule:
           $ref: '#/components/schemas/Schedule'
         currencies:
-          type: object
-          description: List of currency specific amounts.
-          additionalProperties:
-            type: object
-            description: Combination of an amount of a tax included indicator.
-            properties:
-              amount:
-                $ref: '#/components/schemas/Amount'
-              includes_tax:
-                $ref: '#/components/schemas/IncludesTax'
-              tiers:
-                type: object
-                description: An optional set of tier prices with minimum quantities.
-                additionalProperties:
-                  $ref: '#/components/schemas/TierPrice'
-    tier-price:
-      $ref: '#/components/schemas/TierPrice'
-    amount:
+          $ref: '#/components/schemas/Currencies'
+
+    CurrencyAmount:
       type: object
       description: Combination of an amount of a tax included indicator.
       properties:
@@ -134,60 +80,7 @@ components:
           description: An optional set of tier prices with minimum quantities.
           additionalProperties:
             $ref: '#/components/schemas/TierPrice'
-    pricebook:
-      $ref: '#/components/schemas/Pricebook'
-    pricebook-update:
-      $ref: '#/components/schemas/PricebookUpdate'
-    pricebook-create:
-      $ref: '#/components/schemas/PricebookCreateParam'
-    pricebook-create-data:
-      $ref: '#/components/schemas/PricebookCreateData'
-    pricebook-update-data:
-      $ref: '#/components/schemas/PricebookUpdateData'
-    pricebook-replicate:
-      $ref: '#/components/schemas/PricebookReplicate'
-    pricebook-replicate-data:
-      $ref: '#/components/schemas/PricebookReplicateData'
-    pricebook-with-prices-data:
-      type: object
-      title: PricebookWithPricesData
-      description: Json-api style data object containing a price book and its prices.
-      properties:
-        data:
-          $ref: '#/components/schemas/Pricebook'
-        links:
-          type: object
-          properties:
-            self:
-              type: string
-              format: uri
-              nullable: true
-            first:
-              type: string
-              format: uri
-              nullable: true
-            last:
-              type: string
-              format: uri
-              nullable: true
-            prev:
-              type: string
-              format: uri
-              nullable: true
-            next:
-              type: string
-              format: uri
-              nullable: true
-        included:
-          type: array
-          items:
-            $ref: '#/components/schemas/ProductPrice'
-      required:
-        - data
-      additionalProperties: false
-    pricebook-data:
-      $ref: '#/components/schemas/PricebookData'
-    page-input:
+    PageInput:
       type: object
       properties:
         limit:
@@ -200,7 +93,7 @@ components:
           type: integer
           format: int64
           minimum: 0
-    page-meta:
+    PageMeta:
       type: object
       title: PageMeta
       properties:
@@ -220,17 +113,7 @@ components:
               type: integer
             total:
               type: integer
-    pricebook-list-data:
-      $ref: '#/components/schemas/PricebookListData'
-    product-price-create-arg:
-      $ref: '#/components/schemas/ProductPriceCreateArg'
-    product-price:
-      $ref: '#/components/schemas/ProductPrice'
-    product-price-create-data:
-      $ref: '#/components/schemas/ProductPriceCreateData'
-    product-price-data:
-      $ref: '#/components/schemas/ProductPriceData'
-    links:
+    Links:
       type: object
       properties:
         self:
@@ -253,22 +136,6 @@ components:
           type: string
           format: uri
           nullable: true
-    product-price-list-data:
-      $ref: '#/components/schemas/ProductPriceListData'
-    price-modifier:
-      $ref: '#/components/schemas/PriceModifier'
-    price-modifier-data:
-      $ref: '#/components/schemas/PriceModifierData'
-    price-modifier-update:
-      $ref: '#/components/schemas/PriceModifierUpdate'
-    price-modifier-update-data:
-      $ref: '#/components/schemas/PriceModifierUpdateData'
-    price-modifier-create:
-      $ref: '#/components/schemas/PriceModifierCreate'
-    price-modifier-create-data:
-      $ref: '#/components/schemas/PriceModifierCreateData'
-    price-modifier-list-data:
-      $ref: '#/components/schemas/PriceModifierListData'
     ProductBundleConfiguration:
       type: object
       title: BundleConfiguration
@@ -580,54 +447,13 @@ components:
           type: object
           properties:
             currencies:
-              type: object
-              description: List of currency specific amounts.
-              additionalProperties:
-                type: object
-                description: Combination of an amount of a tax included indicator.
-                properties:
-                  amount:
-                    $ref: '#/components/schemas/Amount'
-                  includes_tax:
-                    $ref: '#/components/schemas/IncludesTax'
-                  tiers:
-                    type: object
-                    description: An optional set of tier prices with minimum quantities.
-                    additionalProperties:
-                      $ref: '#/components/schemas/TierPrice'
+              $ref: '#/components/schemas/Currencies'
             sku:
               type: string
               minLength: 1
               example: product-sku-a
             sales:
-              type: object
-              description: A set of sale specifications.
-              additionalProperties:
-                type: object
-                description: A set of sale prices and a validity period.
-                properties:
-                  bundle_ids:
-                    $ref: '#/components/schemas/BundleIDs'
-                  schedule:
-                    $ref: '#/components/schemas/Schedule'
-                  currencies:
-                    type: object
-                    description: List of currency specific amounts.
-                    additionalProperties:
-                      type: object
-                      description: Combination of an amount of a tax included indicator.
-                      properties:
-                        amount:
-                          $ref: '#/components/schemas/Amount'
-                        includes_tax:
-                          $ref: '#/components/schemas/IncludesTax'
-                        tiers:
-                          type: object
-                          description: >-
-                            An optional set of tier prices with minimum
-                            quantities.
-                          additionalProperties:
-                            $ref: '#/components/schemas/TierPrice'
+              $ref: '#/components/schemas/Sales'
           required:
             - sku
         id:
@@ -646,28 +472,7 @@ components:
         data:
           $ref: '#/components/schemas/Pricebook'
         links:
-          type: object
-          properties:
-            self:
-              type: string
-              format: uri
-              nullable: true
-            first:
-              type: string
-              format: uri
-              nullable: true
-            last:
-              type: string
-              format: uri
-              nullable: true
-            prev:
-              type: string
-              format: uri
-              nullable: true
-            next:
-              type: string
-              format: uri
-              nullable: true
+          $ref: '#/components/schemas/Links'
       required:
         - data
       additionalProperties: false
@@ -678,52 +483,13 @@ components:
       description: Json-api style array containing a list of price books
       properties:
         meta:
-          type: object
-          title: PageMeta
-          properties:
-            results:
-              type: object
-              properties:
-                total:
-                  type: integer
-            page:
-              type: object
-              properties:
-                limit:
-                  type: integer
-                offset:
-                  type: integer
-                current:
-                  type: integer
-                total:
-                  type: integer
+          $ref: '#/components/schemas/PageMeta'
         data:
           type: array
           items:
             $ref: '#/components/schemas/Pricebook'
         links:
-          type: object
-          properties:
-            self:
-              type: string
-              format: uri
-              nullable: true
-            first:
-              type: string
-              format: uri
-              nullable: true
-            last:
-              type: string
-              format: uri
-              nullable: true
-            prev:
-              type: string
-              format: uri
-              nullable: true
-            next:
-              type: string
-              format: uri
-              nullable: true
+          $ref: '#/components/schemas/Links'
       required:
         - data
       additionalProperties: false
@@ -745,54 +511,13 @@ components:
           type: object
           properties:
             currencies:
-              type: object
-              description: List of currency specific amounts.
-              additionalProperties:
-                type: object
-                description: Combination of an amount of a tax included indicator.
-                properties:
-                  amount:
-                    $ref: '#/components/schemas/Amount'
-                  includes_tax:
-                    $ref: '#/components/schemas/IncludesTax'
-                  tiers:
-                    type: object
-                    description: An optional set of tier prices with minimum quantities.
-                    additionalProperties:
-                      $ref: '#/components/schemas/TierPrice'
+              $ref: '#/components/schemas/Currencies'
             sku:
               type: string
               minLength: 1
               example: product-sku-a
             sales:
-              type: object
-              description: A set of sale specifications.
-              additionalProperties:
-                type: object
-                description: A set of sale prices and a validity period.
-                properties:
-                  bundle_ids:
-                    $ref: '#/components/schemas/BundleIDs'
-                  schedule:
-                    $ref: '#/components/schemas/Schedule'
-                  currencies:
-                    type: object
-                    description: List of currency specific amounts.
-                    additionalProperties:
-                      type: object
-                      description: Combination of an amount of a tax included indicator.
-                      properties:
-                        amount:
-                          $ref: '#/components/schemas/Amount'
-                        includes_tax:
-                          $ref: '#/components/schemas/IncludesTax'
-                        tiers:
-                          type: object
-                          description: >-
-                            An optional set of tier prices with minimum
-                            quantities.
-                          additionalProperties:
-                            $ref: '#/components/schemas/TierPrice'
+              $ref: '#/components/schemas/Sales'
           required:
             - currencies
             - sku
@@ -820,28 +545,7 @@ components:
         data:
           $ref: '#/components/schemas/ProductPrice'
         links:
-          type: object
-          properties:
-            self:
-              type: string
-              format: uri
-              nullable: true
-            first:
-              type: string
-              format: uri
-              nullable: true
-            last:
-              type: string
-              format: uri
-              nullable: true
-            prev:
-              type: string
-              format: uri
-              nullable: true
-            next:
-              type: string
-              format: uri
-              nullable: true
+          $ref: '#/components/schemas/Links'
       required:
         - data
       additionalProperties: false
@@ -852,52 +556,13 @@ components:
       description: Json-api style array containing a list of product prices.
       properties:
         meta:
-          type: object
-          title: PageMeta
-          properties:
-            results:
-              type: object
-              properties:
-                total:
-                  type: integer
-            page:
-              type: object
-              properties:
-                limit:
-                  type: integer
-                offset:
-                  type: integer
-                current:
-                  type: integer
-                total:
-                  type: integer
+          $ref: '#/components/schemas/PageMeta'
         data:
           type: array
           items:
             $ref: '#/components/schemas/ProductPrice'
         links:
-          type: object
-          properties:
-            self:
-              type: string
-              format: uri
-              nullable: true
-            first:
-              type: string
-              format: uri
-              nullable: true
-            last:
-              type: string
-              format: uri
-              nullable: true
-            prev:
-              type: string
-              format: uri
-              nullable: true
-            next:
-              type: string
-              format: uri
-              nullable: true
+          $ref: '#/components/schemas/Links'
       required:
         - data
       additionalProperties: false
@@ -917,21 +582,7 @@ components:
           type: object
           properties:
             currencies:
-              type: object
-              description: List of currency specific amounts.
-              additionalProperties:
-                type: object
-                description: Combination of an amount of a tax included indicator.
-                properties:
-                  amount:
-                    $ref: '#/components/schemas/Amount'
-                  includes_tax:
-                    $ref: '#/components/schemas/IncludesTax'
-                  tiers:
-                    type: object
-                    description: An optional set of tier prices with minimum quantities.
-                    additionalProperties:
-                      $ref: '#/components/schemas/TierPrice'
+              $ref: '#/components/schemas/Currencies'
             name:
               type: string
               example: large-supplement
@@ -962,28 +613,7 @@ components:
         data:
           $ref: '#/components/schemas/PriceModifier'
         links:
-          type: object
-          properties:
-            self:
-              type: string
-              format: uri
-              nullable: true
-            first:
-              type: string
-              format: uri
-              nullable: true
-            last:
-              type: string
-              format: uri
-              nullable: true
-            prev:
-              type: string
-              format: uri
-              nullable: true
-            next:
-              type: string
-              format: uri
-              nullable: true
+          $ref: '#/components/schemas/Links'
       required:
         - data
       additionalProperties: false
@@ -1010,21 +640,7 @@ components:
           type: object
           properties:
             currencies:
-              type: object
-              description: List of currency specific amounts.
-              additionalProperties:
-                type: object
-                description: Combination of an amount of a tax included indicator.
-                properties:
-                  amount:
-                    $ref: '#/components/schemas/Amount'
-                  includes_tax:
-                    $ref: '#/components/schemas/IncludesTax'
-                  tiers:
-                    type: object
-                    description: An optional set of tier prices with minimum quantities.
-                    additionalProperties:
-                      $ref: '#/components/schemas/TierPrice'
+              $ref: '#/components/schemas/Currencies'
             name:
               $ref: '#/components/schemas/Name'
             modifier_type:
@@ -1058,21 +674,7 @@ components:
           type: object
           properties:
             currencies:
-              type: object
-              description: List of currency specific amounts.
-              additionalProperties:
-                type: object
-                description: Combination of an amount of a tax included indicator.
-                properties:
-                  amount:
-                    $ref: '#/components/schemas/Amount'
-                  includes_tax:
-                    $ref: '#/components/schemas/IncludesTax'
-                  tiers:
-                    type: object
-                    description: An optional set of tier prices with minimum quantities.
-                    additionalProperties:
-                      $ref: '#/components/schemas/TierPrice'
+              $ref: '#/components/schemas/Currencies'
             name:
               $ref: '#/components/schemas/Name'
             modifier_type:
@@ -1104,52 +706,13 @@ components:
       description: Json-api style array containing a list of price modifiers.
       properties:
         meta:
-          type: object
-          title: PageMeta
-          properties:
-            results:
-              type: object
-              properties:
-                total:
-                  type: integer
-            page:
-              type: object
-              properties:
-                limit:
-                  type: integer
-                offset:
-                  type: integer
-                current:
-                  type: integer
-                total:
-                  type: integer
+          $ref: '#/components/schemas/PageMeta'
         data:
           type: array
           items:
             $ref: '#/components/schemas/PriceModifier'
         links:
-          type: object
-          properties:
-            self:
-              type: string
-              format: uri
-              nullable: true
-            first:
-              type: string
-              format: uri
-              nullable: true
-            last:
-              type: string
-              format: uri
-              nullable: true
-            prev:
-              type: string
-              format: uri
-              nullable: true
-            next:
-              type: string
-              format: uri
-              nullable: true
+          $ref: '#/components/schemas/Links'
       required:
         - data
       additionalProperties: false
@@ -2416,28 +1979,7 @@ paths:
                         - type
                         - attributes
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
                 required:
                   - data
         default:
@@ -2610,28 +2152,7 @@ paths:
                       - type
                       - attributes
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
                 required:
                   - data
         default:
@@ -2758,28 +2279,7 @@ paths:
                       - type
                       - attributes
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
                 required:
                   - data
         default:
@@ -2961,28 +2461,7 @@ paths:
                       - type
                       - attributes
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
                 required:
                   - data
         default:
@@ -3046,28 +2525,7 @@ paths:
                     items:
                       $ref: '#/components/schemas/Release'
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
         default:
           description: The unexpected error.
           content:
@@ -3101,28 +2559,7 @@ paths:
                   data:
                     $ref: '#/components/schemas/Release'
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
         default:
           description: Unexpected error.
           content:
@@ -3186,28 +2623,7 @@ paths:
                   data:
                     $ref: '#/components/schemas/Release'
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
         default:
           description: The unexpected error.
           content:
@@ -3270,30 +2686,7 @@ paths:
                 description: Container for a list of catalog rules.
                 properties:
                   meta:
-                    type: object
-                    title: PageMeta
-                    properties:
-                      results:
-                        type: object
-                        properties:
-                          total:
-                            type: integer
-                            format: int64
-                      page:
-                        type: object
-                        properties:
-                          limit:
-                            type: integer
-                            format: int64
-                          offset:
-                            type: integer
-                            format: int64
-                          current:
-                            type: integer
-                            format: int64
-                          total:
-                            type: integer
-                            format: int64
+                    $ref: '#/components/schemas/PageMeta'
                   data:
                     type: array
                     items:
@@ -3374,28 +2767,7 @@ paths:
                         - type
                         - attributes
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
                 required:
                   - data
         default:
@@ -3571,28 +2943,7 @@ paths:
                       - type
                       - attributes
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
                 required:
                   - data
         default:
@@ -3704,28 +3055,7 @@ paths:
                       - type
                       - attributes
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
                 required:
                   - data
         default:
@@ -3912,28 +3242,7 @@ paths:
                       - type
                       - attributes
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
                 required:
                   - data
         default:
@@ -4000,28 +3309,7 @@ paths:
                   data:
                     $ref: '#/components/schemas/Release'
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
         default:
           description: The unexpected error.
           content:
@@ -4067,57 +3355,13 @@ paths:
                 description: Container for a list of hierarchies.
                 properties:
                   meta:
-                    type: object
-                    title: PageMeta
-                    properties:
-                      results:
-                        type: object
-                        properties:
-                          total:
-                            type: integer
-                            format: int64
-                      page:
-                        type: object
-                        properties:
-                          limit:
-                            type: integer
-                            format: int64
-                          offset:
-                            type: integer
-                            format: int64
-                          current:
-                            type: integer
-                            format: int64
-                          total:
-                            type: integer
-                            format: int64
+                    $ref: '#/components/schemas/PageMeta'
                   data:
                     type: array
                     items:
                       $ref: '#/components/schemas/Hierarchy'
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
         default:
           description: An unexpected error.
           content:
@@ -4164,28 +3408,7 @@ paths:
                   data:
                     $ref: '#/components/schemas/Hierarchy'
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
         default:
           description: The unexpected error.
           content:
@@ -4237,57 +3460,13 @@ paths:
                 description: Container for a list of nodes.
                 properties:
                   meta:
-                    type: object
-                    title: PageMeta
-                    properties:
-                      results:
-                        type: object
-                        properties:
-                          total:
-                            type: integer
-                            format: int64
-                      page:
-                        type: object
-                        properties:
-                          limit:
-                            type: integer
-                            format: int64
-                          offset:
-                            type: integer
-                            format: int64
-                          current:
-                            type: integer
-                            format: int64
-                          total:
-                            type: integer
-                            format: int64
+                    $ref: '#/components/schemas/PageMeta'
                   data:
                     type: array
                     items:
                       $ref: '#/components/schemas/Node'
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
         default:
           description: The unexpected error.
           content:
@@ -4339,57 +3518,13 @@ paths:
                 description: Container for a list of nodes.
                 properties:
                   meta:
-                    type: object
-                    title: PageMeta
-                    properties:
-                      results:
-                        type: object
-                        properties:
-                          total:
-                            type: integer
-                            format: int64
-                      page:
-                        type: object
-                        properties:
-                          limit:
-                            type: integer
-                            format: int64
-                          offset:
-                            type: integer
-                            format: int64
-                          current:
-                            type: integer
-                            format: int64
-                          total:
-                            type: integer
-                            format: int64
+                    $ref: '#/components/schemas/PageMeta'
                   data:
                     type: array
                     items:
                       $ref: '#/components/schemas/Node'
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
         default:
           description: The unexpected error.
           content:
@@ -4441,55 +3576,11 @@ paths:
                 description: Container for a list of products.
                 properties:
                   meta:
-                    type: object
-                    title: PageMeta
-                    properties:
-                      results:
-                        type: object
-                        properties:
-                          total:
-                            type: integer
-                            format: int64
-                      page:
-                        type: object
-                        properties:
-                          limit:
-                            type: integer
-                            format: int64
-                          offset:
-                            type: integer
-                            format: int64
-                          current:
-                            type: integer
-                            format: int64
-                          total:
-                            type: integer
-                            format: int64
+                    $ref: '#/components/schemas/PageMeta'
                   data:
                     $ref: '#/components/schemas/Data'
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
         default:
           description: The unexpected error.
           content:
@@ -4535,57 +3626,13 @@ paths:
                 description: Container for a list of nodes.
                 properties:
                   meta:
-                    type: object
-                    title: PageMeta
-                    properties:
-                      results:
-                        type: object
-                        properties:
-                          total:
-                            type: integer
-                            format: int64
-                      page:
-                        type: object
-                        properties:
-                          limit:
-                            type: integer
-                            format: int64
-                          offset:
-                            type: integer
-                            format: int64
-                          current:
-                            type: integer
-                            format: int64
-                          total:
-                            type: integer
-                            format: int64
+                    $ref: '#/components/schemas/PageMeta'
                   data:
                     type: array
                     items:
                       $ref: '#/components/schemas/Node'
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
         default:
           description: An unexpected error.
           content:
@@ -4632,57 +3679,13 @@ paths:
                 description: Container for a list of hierarchies.
                 properties:
                   meta:
-                    type: object
-                    title: PageMeta
-                    properties:
-                      results:
-                        type: object
-                        properties:
-                          total:
-                            type: integer
-                            format: int64
-                      page:
-                        type: object
-                        properties:
-                          limit:
-                            type: integer
-                            format: int64
-                          offset:
-                            type: integer
-                            format: int64
-                          current:
-                            type: integer
-                            format: int64
-                          total:
-                            type: integer
-                            format: int64
+                    $ref: '#/components/schemas/PageMeta'
                   data:
                     type: array
                     items:
                       $ref: '#/components/schemas/Hierarchy'
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
         default:
           description: An unexpected error.
           content:
@@ -4730,28 +3733,7 @@ paths:
                   data:
                     $ref: '#/components/schemas/Hierarchy'
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
         default:
           description: The unexpected error.
           content:
@@ -4804,57 +3786,13 @@ paths:
                 description: Container for a list of nodes.
                 properties:
                   meta:
-                    type: object
-                    title: PageMeta
-                    properties:
-                      results:
-                        type: object
-                        properties:
-                          total:
-                            type: integer
-                            format: int64
-                      page:
-                        type: object
-                        properties:
-                          limit:
-                            type: integer
-                            format: int64
-                          offset:
-                            type: integer
-                            format: int64
-                          current:
-                            type: integer
-                            format: int64
-                          total:
-                            type: integer
-                            format: int64
+                    $ref: '#/components/schemas/PageMeta'
                   data:
                     type: array
                     items:
                       $ref: '#/components/schemas/Node'
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
         default:
           description: The unexpected error.
           content:
@@ -4907,57 +3845,13 @@ paths:
                 description: Container for a list of nodes.
                 properties:
                   meta:
-                    type: object
-                    title: PageMeta
-                    properties:
-                      results:
-                        type: object
-                        properties:
-                          total:
-                            type: integer
-                            format: int64
-                      page:
-                        type: object
-                        properties:
-                          limit:
-                            type: integer
-                            format: int64
-                          offset:
-                            type: integer
-                            format: int64
-                          current:
-                            type: integer
-                            format: int64
-                          total:
-                            type: integer
-                            format: int64
+                    $ref: '#/components/schemas/PageMeta'
                   data:
                     type: array
                     items:
                       $ref: '#/components/schemas/Node'
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
         default:
           description: The unexpected error.
           content:
@@ -5010,55 +3904,11 @@ paths:
                 description: Container for a list of products.
                 properties:
                   meta:
-                    type: object
-                    title: PageMeta
-                    properties:
-                      results:
-                        type: object
-                        properties:
-                          total:
-                            type: integer
-                            format: int64
-                      page:
-                        type: object
-                        properties:
-                          limit:
-                            type: integer
-                            format: int64
-                          offset:
-                            type: integer
-                            format: int64
-                          current:
-                            type: integer
-                            format: int64
-                          total:
-                            type: integer
-                            format: int64
+                    $ref: '#/components/schemas/PageMeta'
                   data:
                     $ref: '#/components/schemas/Data'
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
         default:
           description: The unexpected error.
           content:
@@ -5105,57 +3955,13 @@ paths:
                 description: Container for a list of nodes.
                 properties:
                   meta:
-                    type: object
-                    title: PageMeta
-                    properties:
-                      results:
-                        type: object
-                        properties:
-                          total:
-                            type: integer
-                            format: int64
-                      page:
-                        type: object
-                        properties:
-                          limit:
-                            type: integer
-                            format: int64
-                          offset:
-                            type: integer
-                            format: int64
-                          current:
-                            type: integer
-                            format: int64
-                          total:
-                            type: integer
-                            format: int64
+                    $ref: '#/components/schemas/PageMeta'
                   data:
                     type: array
                     items:
                       $ref: '#/components/schemas/Node'
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
         default:
           description: An unexpected error.
           content:
@@ -5202,28 +4008,7 @@ paths:
                   data:
                     $ref: '#/components/schemas/Node'
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
         default:
           description: The unexpected error.
           content:
@@ -5271,28 +4056,7 @@ paths:
                   data:
                     $ref: '#/components/schemas/Node'
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
         default:
           description: The unexpected error.
           content:
@@ -5344,55 +4108,11 @@ paths:
                 description: Container for a list of products.
                 properties:
                   meta:
-                    type: object
-                    title: PageMeta
-                    properties:
-                      results:
-                        type: object
-                        properties:
-                          total:
-                            type: integer
-                            format: int64
-                      page:
-                        type: object
-                        properties:
-                          limit:
-                            type: integer
-                            format: int64
-                          offset:
-                            type: integer
-                            format: int64
-                          current:
-                            type: integer
-                            format: int64
-                          total:
-                            type: integer
-                            format: int64
+                    $ref: '#/components/schemas/PageMeta'
                   data:
                     $ref: '#/components/schemas/Data'
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
         default:
           description: The unexpected error.
           content:
@@ -5445,55 +4165,11 @@ paths:
                 description: Container for a list of products.
                 properties:
                   meta:
-                    type: object
-                    title: PageMeta
-                    properties:
-                      results:
-                        type: object
-                        properties:
-                          total:
-                            type: integer
-                            format: int64
-                      page:
-                        type: object
-                        properties:
-                          limit:
-                            type: integer
-                            format: int64
-                          offset:
-                            type: integer
-                            format: int64
-                          current:
-                            type: integer
-                            format: int64
-                          total:
-                            type: integer
-                            format: int64
+                    $ref: '#/components/schemas/PageMeta'
                   data:
                     $ref: '#/components/schemas/Data'
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
         default:
           description: The unexpected error.
           content:
@@ -5544,55 +4220,11 @@ paths:
                 description: Container for a list of products.
                 properties:
                   meta:
-                    type: object
-                    title: PageMeta
-                    properties:
-                      results:
-                        type: object
-                        properties:
-                          total:
-                            type: integer
-                            format: int64
-                      page:
-                        type: object
-                        properties:
-                          limit:
-                            type: integer
-                            format: int64
-                          offset:
-                            type: integer
-                            format: int64
-                          current:
-                            type: integer
-                            format: int64
-                          total:
-                            type: integer
-                            format: int64
+                    $ref: '#/components/schemas/PageMeta'
                   data:
                     $ref: '#/components/schemas/Data'
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
         default:
           description: The unexpected error.
           content:
@@ -5644,55 +4276,11 @@ paths:
                 description: Container for a list of products.
                 properties:
                   meta:
-                    type: object
-                    title: PageMeta
-                    properties:
-                      results:
-                        type: object
-                        properties:
-                          total:
-                            type: integer
-                            format: int64
-                      page:
-                        type: object
-                        properties:
-                          limit:
-                            type: integer
-                            format: int64
-                          offset:
-                            type: integer
-                            format: int64
-                          current:
-                            type: integer
-                            format: int64
-                          total:
-                            type: integer
-                            format: int64
+                    $ref: '#/components/schemas/PageMeta'
                   data:
                     $ref: '#/components/schemas/Data'
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
         default:
           description: The unexpected error.
           content:
@@ -5739,28 +4327,7 @@ paths:
                   data:
                     $ref: '#/components/schemas/Product'
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
         default:
           description: The unexpected error.
           content:
@@ -5810,55 +4377,11 @@ paths:
                 description: Container for a list of product references.
                 properties:
                   meta:
-                    type: object
-                    title: PageMeta
-                    properties:
-                      results:
-                        type: object
-                        properties:
-                          total:
-                            type: integer
-                            format: int64
-                      page:
-                        type: object
-                        properties:
-                          limit:
-                            type: integer
-                            format: int64
-                          offset:
-                            type: integer
-                            format: int64
-                          current:
-                            type: integer
-                            format: int64
-                          total:
-                            type: integer
-                            format: int64
+                    $ref: '#/components/schemas/PageMeta'
                   data:
                     $ref: '#/components/schemas/ProductReferences'
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
         default:
           description: The unexpected error.
           content:
@@ -5919,28 +4442,7 @@ paths:
                   data:
                     $ref: '#/components/schemas/Product'
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
         default:
           description: The unexpected error.
           content:
@@ -5988,28 +4490,7 @@ paths:
                   data:
                     $ref: '#/components/schemas/Product'
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
         default:
           description: The unexpected error.
           content:
@@ -6060,55 +4541,11 @@ paths:
                 description: Container for a list of product references.
                 properties:
                   meta:
-                    type: object
-                    title: PageMeta
-                    properties:
-                      results:
-                        type: object
-                        properties:
-                          total:
-                            type: integer
-                            format: int64
-                      page:
-                        type: object
-                        properties:
-                          limit:
-                            type: integer
-                            format: int64
-                          offset:
-                            type: integer
-                            format: int64
-                          current:
-                            type: integer
-                            format: int64
-                          total:
-                            type: integer
-                            format: int64
+                    $ref: '#/components/schemas/PageMeta'
                   data:
                     $ref: '#/components/schemas/ProductReferences'
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
         default:
           description: The unexpected error.
           content:
@@ -6157,28 +4594,7 @@ paths:
                   data:
                     $ref: '#/components/schemas/Product'
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
         default:
           description: The unexpected error.
           content:
@@ -6230,57 +4646,13 @@ paths:
                 description: Container for a list of nodes.
                 properties:
                   meta:
-                    type: object
-                    title: PageMeta
-                    properties:
-                      results:
-                        type: object
-                        properties:
-                          total:
-                            type: integer
-                            format: int64
-                      page:
-                        type: object
-                        properties:
-                          limit:
-                            type: integer
-                            format: int64
-                          offset:
-                            type: integer
-                            format: int64
-                          current:
-                            type: integer
-                            format: int64
-                          total:
-                            type: integer
-                            format: int64
+                    $ref: '#/components/schemas/PageMeta'
                   data:
                     type: array
                     items:
                       $ref: '#/components/schemas/Node'
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
         default:
           description: The unexpected error.
           content:
@@ -6333,57 +4705,13 @@ paths:
                 description: Container for a list of nodes.
                 properties:
                   meta:
-                    type: object
-                    title: PageMeta
-                    properties:
-                      results:
-                        type: object
-                        properties:
-                          total:
-                            type: integer
-                            format: int64
-                      page:
-                        type: object
-                        properties:
-                          limit:
-                            type: integer
-                            format: int64
-                          offset:
-                            type: integer
-                            format: int64
-                          current:
-                            type: integer
-                            format: int64
-                          total:
-                            type: integer
-                            format: int64
+                    $ref: '#/components/schemas/PageMeta'
                   data:
                     type: array
                     items:
                       $ref: '#/components/schemas/Node'
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
         default:
           description: The unexpected error.
           content:
@@ -9929,28 +8257,7 @@ paths:
                   data:
                     $ref: '#/components/schemas/Pricebook'
                   links:
-                    type: object
-                    properties:
-                      self:
-                        type: string
-                        format: uri
-                        nullable: true
-                      first:
-                        type: string
-                        format: uri
-                        nullable: true
-                      last:
-                        type: string
-                        format: uri
-                        nullable: true
-                      prev:
-                        type: string
-                        format: uri
-                        nullable: true
-                      next:
-                        type: string
-                        format: uri
-                        nullable: true
+                    $ref: '#/components/schemas/Links'
                   included:
                     type: array
                     items:
