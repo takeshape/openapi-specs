@@ -284,10 +284,6 @@ components:
     Type:
       type: string
       x-go-name: Type
-      default: price-modifier
-      example: price-modifier
-      enum:
-        - price-modifier
     CreatedAt:
       type: string
       format: date-time
