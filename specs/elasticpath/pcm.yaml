@@ -1459,7 +1459,7 @@ components:
                   type: string
                   example: main_image
                   enum:
-                    - main_image
+                    - file
                 id:
                   type: string
                   format: uuid
