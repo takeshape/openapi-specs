@@ -1417,7 +1417,7 @@ components:
     Variations:
       type: array
       items:
-        type: string
+        $ref: '#/components/schemas/NodeReference'
       x-go-name: Variations
       x-omitempty: true
     ProductRelationships:
