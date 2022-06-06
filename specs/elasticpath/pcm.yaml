@@ -1415,9 +1415,12 @@ components:
       x-go-name: VariationOpts
       x-omitempty: true
     Variations:
-      type: array
-      items:
-        $ref: '#/components/schemas/NodeReference'
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: string
       x-go-name: Variations
       x-omitempty: true
     ProductRelationships:
