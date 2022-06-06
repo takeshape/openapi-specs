@@ -1415,9 +1415,12 @@ components:
       x-go-name: VariationOpts
       x-omitempty: true
     Variations:
-      type: array
-      items:
-        $ref: '#/components/schemas/NodeReference'
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: string
       x-go-name: Variations
       x-omitempty: true
     ProductRelationships:
@@ -1456,7 +1459,7 @@ components:
                   type: string
                   example: main_image
                   enum:
-                    - main_image
+                    - file
                 id:
                   type: string
                   format: uuid
