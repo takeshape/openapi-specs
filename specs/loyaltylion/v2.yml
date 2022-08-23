@@ -112,6 +112,149 @@ components:
       properties:
         customer:
           $ref: '#/components/schemas/Customer'
+    Reward:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique ID of the reward in LoyaltyLion
+        kind:
+          type: string
+          description: The kind of reward
+        title:
+          type: string
+          description: The display title of the reward, in your site’s primary language
+        description:
+          type: string
+          nullable: true
+          description: Optional extra reward description
+        content:
+          type: object
+          description: Additional content that’s needed when working with or rendering the reward. This may include things like image urls, fulfilment_instructions, or other strings you may want to render or utilize in some way
+        point_cost:
+          type: integer
+          description: The cost of redeeming the reward in points
+        method:
+          type: string
+          description: How the reward is redeemed; one of voucher, store_fulfilment or gift_card
+        discount_type:
+          type: string
+          description: The monetary effect of the discount. One of flat (reduce target price by discount_amount currency units), percentage (reduce target price by discount_amount percent), custom (implementation-defined)
+        discount_amount:
+          type: integer
+          nullable: true
+          description: When the reward has a specific monetary or percentage value, that value as a unit-less number. So if the discount amount is £5 or 5%, this returns 5
+        minimum_spend:
+          type: integer
+          nullable: true
+          description: The amount a customer must spend to be able to use the reward. A minimum_spend of 30 returns 30
+        usage_limit:
+          type: integer
+          description: The number of times the reward may be used once claimed, typically 1
+        min_redemption_amount:
+          type: integer
+          description: The minimum multiplier of the reward that can be claimed at once
+        max_redemption_amount:
+          type: integer
+          description: The maximum multiplier of the reward that can be claimed at once
+        max_free_shipping:
+          type: integer
+          nullable: true
+          description: The maximum amount that can be deducted from shipping by a free shipping reward. If null then there is no limit
+        site_id:
+          type: integer
+          description: The site ID the reward is associated with
+        target_site:
+          type: object
+          description: A reward site describing where a reward may be used
+          $ref: '#/components/schemas/RewardSite'
+        order_type:
+          type: string
+          description: What orders the reward applies to; one of all, one_time or subscription
+        target_type:
+          type: string
+          description: What the reward applies to; one of all, collection, custom, product or shipping
+        target_collections:
+          type: array
+          description: An array of target collections
+          items:
+            $ref: '#/components/schemas/TargetCollection'
+        target_products:
+          type: array
+          description: An array of target products
+          items:
+            $ref: '#/components/schemas/TargetProduct'
+        session_options:
+          $ref: '#/components/schemas/RewardSessionOptions'
+          nullable: true
+          description: A reward session options object (see below)
+    RewardSessionOptions:
+      type: object
+      properties:
+        kind:
+          type: string
+          description: The kind of session the reward links to, one of custom, cart or checkout
+        session_limit:
+          type: integer
+          nullable: true
+          description: The number of times the reward may be claimed in one session, typically 1
+    RewardSite:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID of the target site
+        name:
+          type: string
+          description: The name of the target site
+        url:
+          type: string
+          description: The URL linking to the target site
+    TargetCollection:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID of the target collection
+        url:
+          type: string
+          description: The URL linking to the target collection
+        restriction_text:
+          type: string
+          description: Text shown when the reward isn’t usable due to items not being in the correct collection
+    TargetProduct:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID of the target product
+        variant_id:
+          type: integer
+          description: The variant ID of the target product
+        sku:
+          type:	string
+          description: The SKU of the target product
+        url:
+          type: string
+          description: The URL linking to the target product
+        image_url:
+          type: string
+          description: The URL linking to the image of the target product
+        sort_key:
+          type: integer
+          description: The key used to sort the target product
+        title:
+          type: string
+          description: The title of the target product
+    RewardList:
+      type: object
+      properties:
+        rewards:
+          type: array
+          items:
+            $ref: '#/components/schemas/Reward'
+
+
 
 paths:
   /customers:
@@ -228,5 +371,21 @@ paths:
           description: 'If no customer matching the :merchant_id can be found, then a 404 Not Found response is returned.'
         '422':
           description: 'If the points field is missing or invalid, a 422 Unprocessable Entity response is returned.'
+  /customers/{merchant_id}/available_rewards:
+    get:
+      parameters:
+        - name: merchant_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RewardList'
+
 
 
