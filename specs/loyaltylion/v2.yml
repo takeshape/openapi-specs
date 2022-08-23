@@ -1,0 +1,232 @@
+---
+openapi: 3.1.0
+servers:
+  - url: https://api.loyaltylion.com/v2
+info:
+  version: v2
+  title: Loyalty Lion API
+
+components:
+  schemas:
+    CustomerUpdatePayload:
+      type: object
+      properties:
+        birthday:
+          type: string
+          description: 'A customer’s birthday in YYYY-MM-DD format'
+        blocked:
+          type: boolean
+          description: 'true if the customer should be blocked from the loyalty program, false if they should not'
+    PointsPayload:
+      type: object
+      properties:
+        points:
+          type: integer
+          minValue: 0
+          maxValue: 1000000
+          required: true
+          description: 'The number of points to award. Must be greater than 0 and less than or equal to 1,000,000'
+        reason:
+          type: string
+          description: 'A message that’s visible to customers in the Loyalty Panel and on the customer’s page in your LoyaltyLion merchant account'
+    Customer:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 'Unique id of customer in LoyaltyLion'
+        merchant_id:
+          type: string
+          description: 'Unique id of customer in your store'
+        email:
+          type: string
+          description: 'Email address of customer'
+        points_approved:
+          type: integer
+          description: 'Number of approved points'
+        points_pending:
+          type: integer
+          description: Number of pending points
+        points_spent:
+          type: integer
+          description: Number of spent points
+        rewards_claimed:
+          type: integer
+          description: Number of rewards the customer has claimed
+        properties:
+          type:	object
+          description: Any customer properties provided by your store (for example, name)
+        metadata:
+          type: object
+          description: Depending on your platform, this may include platform specific metadata
+        birthday:
+          type: string
+          format: date-time
+          nullable: true
+          description: An ISO 8601 date representing the customers birthday
+        blocked:
+          type: boolean
+          description: True if this customer has been blocked from the loyalty program
+        guest:
+          type: boolean
+          description: True if we’ve determined this customer isn’t fully registered with your store
+        enrolled:
+          type: boolean
+          description: True if this customer is member of the loyalty program
+        enrolled_at:
+          type: string
+          nullable: true
+          description: If enrolled, an ISO 8601 timestamp representing when they joined the program
+        referred_by:
+          type: object
+          nullable: true
+          description: If customer was referred, an object containing the id and merchant_id of the referring customer
+        loyalty_tier_membership:
+          type: object
+          nullable: true
+          description: If Loyalty Tiers are enabled and the customer is enrolled, an object containing the customer’s current tier
+        insights_segment:
+          type: string
+          nullable: true
+          description: If Insights are enabled, a string containing the customer’s current segment. One of At Risk, Win Back, Loyal
+        referral_url:
+          type: string
+          description: This customer’s unique referral link, for example, https://prz.io/KzByQ2Fa
+        created_at:
+          type: string
+          format: date-time
+          description: An ISO 8601 timestamp representing when this customer was created in LoyaltyLion
+        updated_at:
+          type: string
+          format: date-time
+          description: An ISO 8601 timestamp representing when this customer was last updated in LoyaltyLion
+    CustomerList:
+      type: object
+      properties:
+        customers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Customer'
+    CustomerObject:
+      type: object
+      properties:
+        customer:
+          $ref: '#/components/schemas/Customer'
+
+paths:
+  /customers:
+    get:
+      description: Returns a pageable list of all customers.
+      parameters:
+        - name: email
+          in: query
+          description: 'Return only customers whose email contains the specified string'
+          schema:
+            type: string
+        - name: since_id
+          in: query
+          description: 'Return only customers whose id is after the specified id'
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: 'Number of customers to return per request. Must be 1-500 (default: 100)'
+          schema:
+            type: integer
+        - name: created_at_min
+          in: query
+          description: 'Return only customers created after this date (ISO 8601 format)'
+          schema:
+            type: string
+            format: date-time
+        - name: created_at_max
+          in: query
+          description: 'Return only customers created before this date (ISO 8601 format)'
+          schema:
+            type: string
+            format: date-time
+        - name: updated_at_min
+          in: query
+          description: 'Return only customers last updated after this date (ISO 8601 format)'
+          schema:
+            type: string
+            format: date-time
+        - name: updated_at_max
+          in: query
+          description: 'Return only customers last updated before this date (ISO 8601 format)'
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerList'
+  /customers/{merchant_id}/:
+    patch:
+      parameters:
+        - name: merchant_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: 'None of the properties are required, but you must provide at least one to update the customer'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerUpdatePayload'
+
+      responses:
+        '200':
+          description: 'Returns with the updated body of the customer if the update was successful.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerObject'
+  /customers/{merchant_id}/points:
+    post:
+      parameters:
+        - name: merchant_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PointsPayload'
+      responses:
+        '201':
+          description: 'Returns a 201 Created response if adding points was successful.'
+        '404':
+          description: 'If no customer matching the :merchant_id can be found, then a 404 Not Found response is returned.'
+        '422':
+          description: 'If the points field is missing or invalid, a 422 Unprocessable Entity response is returned.'
+  /customers/{merchant_id}/remove_points:
+    post:
+      parameters:
+        - name: merchant_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PointsPayload'
+      responses:
+        '204':
+          description: 'Returns a 204 No Content response if adding points was successful.'
+        '404':
+          description: 'If no customer matching the :merchant_id can be found, then a 404 Not Found response is returned.'
+        '422':
+          description: 'If the points field is missing or invalid, a 422 Unprocessable Entity response is returned.'
+
+
