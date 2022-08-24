@@ -8,6 +8,105 @@ info:
 
 components:
   schemas:
+    Activity:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique id of activity in LoyaltyLion
+        merchant_id:
+          type: string
+          description: If this activity is linked to a resource in your store, merchant_id is the id of the resource
+        state:
+          type: string
+          enum:
+            - pending
+            - declined
+            - approved
+            - void
+          description: The state of this activity
+        rule:
+          $ref: '#/components/schemas/Rule'
+          description: An object containing the linked activity rule’s id and name (for example, ”$purchase“)
+        customer:
+          $ref: '#/components/schemas/Customer'
+          description: An object containing the linked customer’s id and other fields
+        created_at:
+          type: string
+          format: date-time
+          description: An ISO 8601 timestamp representing when this activity was completed in LoyaltyLion
+    ActivityList:
+      type: object
+      properties:
+        activities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Activity'
+    Rule:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+    TrackActivityPayload:
+      type: object
+      properties:
+        name:
+          type: string
+          description: A built-in or custom activity rule name. If you’re tracking a custom rule, this should be the rule identifier; if you’re tracking a built-in activity, the name must be prefixed with a $, for example, ”$signup”
+        customer_id:
+          type: string
+          description: A unique ID for the customer involved in the activity. This should be your internal ID for this customer
+        customer_email:
+          type: string
+          description: The email address for the customer
+        merchant_id:
+          type: string
+          description: A unique ID used to link this activity to an internal resource in your system. If provided, you can update the state of this activity later using the activity update endpoint
+        state:
+          type: string
+          enum:
+            - pending
+            - approved
+          description: The initial state of this activity. If provided, is used for any applicable rule processing.
+        date:
+          type: string
+          format: date-time
+          description: The date this activity occurred, as an ISO 8601 timestamp. Defaults to now if not provided
+        ip_address:
+          type: string
+          format: 'ip-address'
+          description: The IP address of the customer involved in this activity. Used in combination with user_agent to track referrals
+        user_agent:
+          type: string
+          description: The full user agent string of the customer involved in this activity. Used in combination with ip_address to track referrals
+        properties:
+          type: object
+          description: A JSON object which is stored along with this activity and used in rules or searching
+        referral_id:
+          type: string
+          description: 	A LoyaltyLion referral ID - more details
+        tracking_id:
+          type: string
+          description: A LoyaltyLion email tracking ID - more details
+        guest:
+          type: boolean
+          description: A boolean value indicating if the customer is a guest. The default is true.
+      required:
+        - name
+        - customer_id
+        - customer_email
+    UpdateActivityPayload:
+      type: object
+      properties:
+        state:
+          type: string
+          enum:
+            - approved
+            - declined
+      required:
+        - state
     CustomerUpdatePayload:
       type: object
       properties:
@@ -22,13 +121,40 @@ components:
       properties:
         points:
           type: integer
-          minValue: 0
-          maxValue: 1000000
+          minimum: 0
+          maximum: 1000000
           required: true
           description: 'The number of points to award. Must be greater than 0 and less than or equal to 1,000,000'
         reason:
           type: string
           description: 'A message that’s visible to customers in the Loyalty Panel and on the customer’s page in your LoyaltyLion merchant account'
+      required:
+        - points
+    LoyaltyTier:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique ID of the tier
+        name:
+          type: string
+          description: Name of the tier
+        number:
+          type: integer
+          description: Where the tier sits in the hierarchy of your tiers
+        default:
+          type: boolean
+          description: A boolean value indicating if this tier is the default tier
+        hidden:
+          type: boolean
+          description: A boolean value indicating if this tier is hidden
+        lower_bound:
+          type: string
+          description: String representation of the lower bounds of this tier
+        upper_bound:
+          type: string
+          nullable: true
+          description: String representation of the upper bounds of this tier
     Customer:
       type: object
       properties:
@@ -82,7 +208,7 @@ components:
           nullable: true
           description: If customer was referred, an object containing the id and merchant_id of the referring customer
         loyalty_tier_membership:
-          type: object
+          $ref: '#/components/schemas/LoyaltyTier'
           nullable: true
           description: If Loyalty Tiers are enabled and the customer is enrolled, an object containing the customer’s current tier
         insights_segment:
@@ -253,10 +379,404 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Reward'
-
-
+    ClaimedReward:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique ID of the claimed reward in LoyaltyLion
+        claimed_at:
+          type: string
+          format: date-time
+          description: An ISO 8601 string representing the time the reward was claimed
+        point_cost:
+          type: integer
+          description: The points the customer spent to claim the reward
+        redeemable:
+          oneOf:
+            - $ref: '#/components/schemas/Voucher'
+            - $ref: '#/components/schemas/Fulfilment'
+          description: The specific redeemable that was allocated to the customer
+        reward:
+          $ref: '#/components/schemas/Reward'
+          description: The base reward that was claimed
+        state:
+          type: string
+          description: The claimed reward state (approved, void)
+        session:
+          $ref: '#/components/schemas/ClaimedRewardSession'
+          nullable: true
+          description: The session a claimed reward is linked to, only applicable to some rewards (for example, checkout redemption, buy with points)
+    Voucher:
+      type: object
+      properties:
+        code:
+          type: string
+          description: The voucher code
+        discount_amount:
+          type: integer
+          nullable: true
+          description: The voucher’s discount amount, if different from the associated Reward’s base amount
+        usage_count:
+          type: integer
+          description: The number of times the voucher has been applied
+        usage_limit:
+          type: integer
+          description: The number of times the voucher may be applied
+    Fulfilment:
+      type: object
+      properties:
+        fulfilled:
+          type: boolean
+          description: true if the custom reward has been fulfilled
+        fulfilled_at:
+          type: string
+          nullable: true
+          description: The ISO 8601 string that the reward was fulfilled
+    ClaimedRewardSession:
+      type: object
+      properties:
+        kind:
+          type: string
+          description: The kind of session the claimed reward links to, one of custom, cart or checkout
+        token:
+          type: string
+          description: The token associated with the session
+    ClaimedRewardsPayload:
+      type: object
+      properties:
+        reward_id:
+          type: integer
+          description: The ID of the reward the customer is claiming
+        multiplier:
+          type: integer
+          nullable: true
+          description: The multiplier of the reward being claimed. Only supported for custom discount type
+      required:
+        - reward_id
+    RefundResponse:
+      type: object
+      properties:
+        claimed_reward:
+          $ref: '#/components/schemas/ClaimedReward'
+          description: The claimed reward that was refunded
+        remote_resource_deleted:
+          type: boolean
+          description: true if the remote resource was deleted, false if it wasn’t
+    Unsubscribe:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique id of unsubscribe in LoyaltyLion
+        email:
+          type: string
+          description: Email address of customer who unsubscribed
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique id of the order in LoyaltyLion
+        merchant_id:
+          type: string
+          description: Unique id of order in your store
+        merchant_number:
+          type: string
+          description: If applicable, a human readable order number in your store
+        total:
+          type: string
+          description: Order total, after shipping and tax, before discounts (for example, ‘99.95’)
+        total_tax:
+          type: string
+          description: Total tax (for example, ‘0.50’)
+        total_shipping:
+          type: string
+          description: Total shipping (for example, ‘2.50’)
+        total_discounts:
+          type: string
+          description: Total discounts (for example, ‘5.00’)
+        total_paid:
+          type: string
+          description: Total paid (for example, ‘50.00’)
+        total_refunded:
+          type: string
+          description: Total refunded (for example, ‘25.50’)
+        payment_status:
+          type: string
+          description: One of paid, partially_paid and not_paid
+        fulfillment_status:
+          type: string
+          description: One of fulfilled, partially_fulfilled and not_fulfilled
+        refund_status:
+          type: string
+          description: One of refunded, partially_refunded and not_refunded
+        cancellation_status:
+          type: string
+          description: One of cancelled, not_cancelled
+        customer:
+          $ref: '#/components/schemas/Customer'
+          description: An object containing the linked customer’s id and other fields
+        metadata:
+          type: object
+          description: Depending on your platform, this may include platform specific metadata
+        created_at:
+          type: string
+          format: date-time
+          description: An ISO 8601 timestamp representing when this order was created in LoyaltyLion
+        updated_at:
+          type: string
+          format: date-time
+          description: An ISO 8601 timestamp representing when this order was last updated in LoyaltyLion
+    OrderList:
+      type: object
+      properties:
+        orders:
+          type: array
+          items:
+            $ref: '#/components/schemas/Order'
+    CreateOrderPayload:
+      type: object
+      properties:
+        customer_id:
+          type: string
+          description: Unique ID for the customer who placed this order. This should be your internal ID for this customer
+        customer_email:
+          type: string
+          description: The email address for the customer who placed this order
+        merchant_id:
+          type: string
+          description: Unique ID your system uses to refer to this order. You’ll use this ID to update this order later
+        total:
+          type: string
+          description: Order total, after shipping and tax, before discounts (for example, ‘99.95’)
+        total_shipping:
+          type: string
+          description: Total shipping cost for the order
+        payment_status:
+          type: string
+          description: 'The payment status of this order. Must be one of: not_paid, partially_paid and paid'
+        total_paid:
+          type: string
+          description: The total amount that has been paid for this order. This is required if the order’s payment status is partially_paid - otherwise it defaults to 0.00 (for not_paid orders) or the order’s total (for paid orders)
+        merchant_number:
+          type: string
+          description: Human-readable ID for this order. If supplied, we’ll show this order in the LoyaltyLion admin using this instead of its merchant_id
+        discount_codes:
+          type: array
+          items:
+            $ref: '#/components/schemas/DiscountCode'
+          description: An array of discount code objects (see below). We’ll use this to track when LoyaltyLion discount rewards have been used
+        claimed_reward_ids:
+          type: array
+          items:
+            type: string
+          description: An array of claimed reward IDs. We’ll use this to track when LoyaltyLion rewards have been used with an order
+        date:
+          type: string
+          description: The date this order was placed, as an ISO 8601 timestamp. Defaults to now if not provided
+        ip_address:
+          type: string
+          format: ip-address
+          description: The IP address of the customer who placed this order. Used in combination with user_agent to track referrals
+        user_agent:
+          type: string
+          description: The full user agent string of the customer who placed this order. Used in combination with ip_address to track referrals
+        referral_id:
+          type: string
+          description: A LoyaltyLion referral ID - more details
+        tracking_id:
+          type: string
+          description: A LoyaltyLion email tracking ID - more details
+        guest:
+          type: boolean
+          description: A boolean value indicating if the customer who placed this order is a guest. The default is false.
+      required:
+        - customer_id
+        - customer_email
+        - merchant_id
+        - total
+        - total_shipping
+        - payment_status
+    DiscountCode:
+      type: object
+      properties:
+        code:
+          type: string
+          description: The discount code as entered by the customer, for example, “AU7X-8Q7L”
+        amount:
+          type: string
+          description: The discount provided, for example, 5.00
+      required:
+        - code
+        - amount
+    UpdateOrderPayload:
+      type: object
+      properties:
+        payment_status:
+          type: string
+          description: 'The payment status of this order. Must be one of: not_paid, partially_paid and paid'
+        cancellation_status:
+          type: string
+          description: 'The cancellation status of this order. Must be one of: not_cancelled and cancelled'
+        refund_status:
+          type: string
+          description: 'The refund status of this order. Must be one of: not_refunded, partially_refunded and refunded'
+        total_paid:
+          type: string
+          description: The total amount that has been paid for this order. If the payment status is paidthis must equal the order total
+        total_refunded:
+          type: string
+          description: The total amount that has been refunded for this order
+      required:
+        - payment_status
+        - cancellation_status
+        - refund_status
+        - total_paid
+        - total_refunded
+    MerchantOrder:
+      type: object
+      properties:
+        merchant_id:
+          type: string
+          description: Unique id of order in your store
+        total:
+          type: string
+          description: Order total, after shipping and tax, before discounts (for example, ‘99.95’)
+        total_shipping:
+          type: string
+          description: Total shipping (for example, ‘2.50’)
+        total_paid:
+          type: string
+          description: Total paid (for example, ‘50.00’)
+        payment_status:
+          type: string
+          enum:
+            - partially_paid
+            - not_paid
+        refund_status:
+          type: string
+          enum:
+            - partially_refunded
+            - not_refunded
+        cancellation_status:
+          type: string
+          enum:
+            - cancelled
+            - not_cancelled
+        payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Payment'
+          description: List of payment objects
+        refunds:
+          type: array
+          items:
+            $ref: '#/components/schemas/Refund'
+          description: List of refund objects
+        merchant_created_at:
+          type: string
+          format: date-time
+          description: An ISO 8601 timestamp representing when this order was created at your store
+        merchant_updated_at:
+          type: string
+          format: date-time
+          description: An ISO 8601 timestamp representing when this order was last updated at your store
+    Payment:
+      type: object
+      properties:
+        gateway:
+          type: string
+          description: The payment gateway identifier, if supplied
+        created_at:
+          type: string
+          format: date-time
+          description: An ISO 8601 timestamp representing the time of this payment
+        amount:
+          type: string
+          description: The payment amount, for example, ‘20.00’
+    Refund:
+      type: object
+      properties:
+        created_at:
+          type: string
+          format: date-time
+          description: An ISO 8601 timestamp representing the time of this refund
+        amount:
+          type: string
+          description: The refund amount, for example, ‘15.00’
 
 paths:
+  /activities:
+    get:
+      parameters:
+        - name: since_id
+          in: query
+          description: Return only activities whose id is after the specified id
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: 'Number of activities to return per request. Must be 1-500 (default: 100)'
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 500
+        - name: created_at_min
+          in: query
+          description: Return only activities created after this date (ISO 8601 format)
+          schema:
+            type: string
+            format: date-time
+        - name: created_at_max
+          in: query
+          description: Return only activities created before this date (ISO 8601 format)
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActivityList'
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrackActivityPayload'
+      responses:
+        '201':
+          description: The activity is tracked successfully
+        '422':
+          description: The activity is invalid
+  /activities/{name}/{merchant_id}:
+    put:
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: merchant_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateActivityPayload'
+      responses:
+        '204':
+          description: The update is applied.
+        '422':
+          description: The activity fails to update.
   /customers:
     get:
       description: Returns a pageable list of all customers.
@@ -316,6 +836,7 @@ paths:
           schema:
             type: string
       requestBody:
+        required: true
         description: 'None of the properties are required, but you must provide at least one to update the customer'
         content:
           application/json:
@@ -338,6 +859,7 @@ paths:
           schema:
             type: string
       requestBody:
+        required: true
         description: ''
         content:
           application/json:
@@ -359,6 +881,7 @@ paths:
           schema:
             type: string
       requestBody:
+        required: true
         description: ''
         content:
           application/json:
@@ -386,6 +909,171 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RewardList'
+  /customers/{merchant_id}/claimed_rewards:
+    post:
+      parameters:
+        - name: merchant_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClaimedRewardsPayload'
+      responses:
+        '422':
+          description: The customer has insufficient points.
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClaimedReward'
+  /customers/{merchant_id}/claimed_rewards/{id}/refund:
+    post:
+      parameters:
+        - name: merchant_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '422':
+          description: The reward has already been refunded
+        '404':
+          description: No customer matching the :merchant_id can be found or no reward matching the :id can be found
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefundResponse'
+  /loyalty_emails/unsubscribes:
+    get:
+      parameters:
+        - name: since_id
+          in: query
+          description: 'Return only unsubscribes whose id is after the specified id'
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: 'Number of unsubscribes to return per request. Must be 1-500 (default: 100)'
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 500
+      responses:
 
-
-
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Unsubscribe'
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+      responses:
+        '201':
+          description: The activity was tracked successfully
+        '200':
+          description: The email address is already unsubscribed
+        '422':
+          description: The email address provided is invalid
+  /orders:
+    get:
+      description: Returns a list of orders in LoyaltyLion
+      parameters:
+        - name: since_id
+          in: query
+          description: 'Return only orders whose id is after the specified id'
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: 'Number of orders to return per request. Must be 1-500 (default: 100)'
+          schema:
+            type: integer
+        - name: created_at_min
+          in: query
+          description: 'Return only orders created after this date (ISO 8601 format)'
+          schema:
+            type: string
+            format: date-time
+        - name: created_at_max
+          in: query
+          description: 'Return only orders created before this date (ISO 8601 format)'
+          schema:
+            type: string
+            format: date-time
+        - name: updated_at_min
+          in: query
+          description: 'Return only orders last updated after this date (ISO 8601 format)'
+          schema:
+            type: string
+            format: date-time
+        - name: updated_at_max
+          in: query
+          description: 'Return only orders last updated before this date (ISO 8601 format)'
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderList'
+    post:
+      description: Track a new order in LoyaltyLion.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOrderPayload'
+      responses:
+        '201':
+          description: The order was created successfully
+        '422':
+           description: The order was invalid
+  /orders/:merchant_id:
+    parameters:
+      - name: merchant_id
+        in: path
+        required: true
+        schema:
+          type: string
+    put:
+      description: Update an existing order in LoyaltyLion, using your internal merchant_id to identify the order.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateOrderPayload'
+      responses:
+        '204':
+          description: The update was valid
+        '422':
+          description: The order couldn’t be updated
