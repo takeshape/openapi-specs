@@ -708,6 +708,7 @@ components:
 paths:
   /activities:
     get:
+      operationId: listActivities
       parameters:
         - name: since_id
           in: query
@@ -741,6 +742,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ActivityList'
     post:
+      operationId: trackActivity
       requestBody:
         required: true
         content:
@@ -754,6 +756,7 @@ paths:
           description: The activity is invalid
   /activities/{name}/{merchant_id}:
     put:
+      operationId: updateActivity
       parameters:
         - name: name
           in: path
@@ -779,6 +782,7 @@ paths:
   /customers:
     get:
       description: Returns a pageable list of all customers.
+      operationId: listCustomers
       parameters:
         - name: email
           in: query
@@ -828,6 +832,7 @@ paths:
                 $ref: '#/components/schemas/CustomerList'
   /customers/{merchant_id}/:
     patch:
+      operationId: updateCustomer
       parameters:
         - name: merchant_id
           in: path
@@ -851,6 +856,7 @@ paths:
                 $ref: '#/components/schemas/CustomerObject'
   /customers/{merchant_id}/points:
     post:
+      operationId: addPoints
       parameters:
         - name: merchant_id
           in: path
@@ -873,6 +879,7 @@ paths:
           description: 'If the points field is missing or invalid, a 422 Unprocessable Entity response is returned.'
   /customers/{merchant_id}/remove_points:
     post:
+      operationId: removePoints
       parameters:
         - name: merchant_id
           in: path
@@ -895,6 +902,7 @@ paths:
           description: 'If the points field is missing or invalid, a 422 Unprocessable Entity response is returned.'
   /customers/{merchant_id}/available_rewards:
     get:
+      operationId: listAvailableRewards
       parameters:
         - name: merchant_id
           in: path
@@ -910,6 +918,7 @@ paths:
                 $ref: '#/components/schemas/RewardList'
   /customers/{merchant_id}/claimed_rewards:
     post:
+      operationId: claimReward
       parameters:
         - name: merchant_id
           in: path
@@ -934,6 +943,7 @@ paths:
                 $ref: '#/components/schemas/ClaimedReward'
   /customers/{merchant_id}/claimed_rewards/{id}/refund:
     post:
+      operationId: refundReward
       parameters:
         - name: merchant_id
           in: path
@@ -958,6 +968,7 @@ paths:
                 $ref: '#/components/schemas/RefundResponse'
   /loyalty_emails/unsubscribes:
     get:
+      operationId: listEmailUnsubscribes
       parameters:
         - name: since_id
           in: query
@@ -982,6 +993,8 @@ paths:
                 items:
                   $ref: '#/components/schemas/Unsubscribe'
     post:
+      description: Unsubscribe a customer from your loyalty emails.
+      operationId: unsubscribeEmail
       requestBody:
         required: true
         content:
@@ -1000,6 +1013,7 @@ paths:
           description: The email address provided is invalid
   /orders:
     get:
+      operationId: listOrders
       description: Returns a list of orders in LoyaltyLion
       parameters:
         - name: since_id
@@ -1044,6 +1058,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/OrderList'
     post:
+      operationId: trackOrder
       description: Track a new order in LoyaltyLion.
       requestBody:
         required: true
@@ -1057,14 +1072,15 @@ paths:
         '422':
            description: The order was invalid
   /orders/:merchant_id:
-    parameters:
-      - name: merchant_id
-        in: path
-        required: true
-        schema:
-          type: string
     put:
+      operationId: updateOrder
       description: Update an existing order in LoyaltyLion, using your internal merchant_id to identify the order.
+      parameters:
+        - name: merchant_id
+          in: path
+          required: true
+          schema:
+            type: string
       requestBody:
         required: true
         content:
