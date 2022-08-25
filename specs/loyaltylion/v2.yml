@@ -154,6 +154,20 @@ components:
           type: string
           nullable: true
           description: String representation of the upper bounds of this tier
+    LoyaltyTierMembership:
+      type: object
+      properties:
+        started_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          nullable: true
+          format: date-time
+        manual:
+          type: boolean
+        loyalty_tier:
+          $ref: '#/components/schemas/LoyaltyTier'
     Customer:
       type: object
       properties:
@@ -406,6 +420,11 @@ components:
           $ref: '#/components/schemas/ClaimedRewardSession'
           nullable: true
           description: The session a claimed reward is linked to, only applicable to some rewards (for example, checkout redemption, buy with points)
+    ClaimedRewardObject:
+      type: object
+      properties:
+        claimed_reward:
+          $ref: '#/components/schemas/ClaimedReward'
     Voucher:
       type: object
       properties:
@@ -940,7 +959,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ClaimedReward'
+                $ref: '#/components/schemas/ClaimedRewardObject'
   /customers/{merchant_id}/claimed_rewards/{id}/refund:
     post:
       operationId: refundReward
