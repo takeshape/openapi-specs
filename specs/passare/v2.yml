@@ -1,0 +1,1890 @@
+openapi: 3.0.1
+info:
+  title: Passare Public API
+  description: |-
+    Welcome to Passare’s Public API V2. Below you will find the endpoints that are available through your unique token.
+    To get started, click `Authorize` and copy and paste the Token that was provided.
+    Click `Authorize`.
+    Now you are able to test out the endpoints listed below.
+    Simply click on the endpoint, click `Try it out` and then `Execute`.
+  version: 2.0.0
+servers:
+  - url: /
+security:
+  - bearerAuth: [ ]
+paths:
+  /api/public/v2/organizations:
+    get:
+      tags:
+        - Organizations
+      summary: Gets organizations
+      description: Gets all organizations that the given JWT has access to
+      responses:
+        200:
+          description: Array of Organizations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/OrganizationList'
+  /api/public/v2/branches:
+    get:
+      tags:
+        - Branches
+      description: Retrieves the list of accessible Branches.
+      responses:
+        200:
+          description: OK response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BranchModel'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+  /api/public/v2/branches/{branch_uuid}:
+    get:
+      tags:
+        - Branches
+      description: Retrieve the specified Branch.
+      parameters:
+        - name: branch_uuid
+          in: path
+          description: UUID of the Branch
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OK response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BranchModel'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+  /api/public/v2/branches/{branch_uuid}/races:
+    get:
+      tags:
+        - Branches
+      description: Returns information about the decedent settings, filtered by race,
+        for the given branch.
+      parameters:
+        - name: branch_uuid
+          in: path
+          description: UUID of Case
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OK Response
+          content:
+            application/json:
+              schema:
+                type: object
+        default:
+          description: Error Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+  /api/public/v2/branches/{branch_uuid}/ethnicities:
+    get:
+      tags:
+        - Branches
+      description: Returns information about the decedent settings, filtered by ethnicity,
+        for the given branch.
+      parameters:
+        - name: branch_uuid
+          in: path
+          description: UUID of Case
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OK Response
+          content:
+            application/json:
+              schema:
+                type: object
+        default:
+          description: Error Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+  /api/public/v2/branches/{branch_uuid}/educations:
+    get:
+      tags:
+        - Branches
+      description: Returns information about the decedent settings, filtered by education,
+        for the given branch.
+      parameters:
+        - name: branch_uuid
+          in: path
+          description: UUID of Case
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OK Response
+          content:
+            application/json:
+              schema:
+                type: object
+        default:
+          description: Error Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+  /api/public/v2/cases:
+    get:
+      tags:
+        - Case
+      summary: Search for cases
+      description: Returns cases that match passed criteria
+      parameters:
+        - name: organization_uuid
+          in: query
+          description: Organization UUID to search for cases under
+          required: true
+          schema:
+            type: string
+        - name: branch_uuids
+          in: query
+          description: Comma seperated Branch UUIDs to search for cases under
+          schema:
+            type: string
+        - name: ssn
+          in: query
+          description: Use to find cases with the given SSN
+          schema:
+            type: string
+        - name: event_type
+          in: query
+          description: 'Defines the which date event to filter on, accepted values:
+          date_death, created_at'
+          schema:
+            type: string
+        - name: date_start
+          in: query
+          description: Date to search for cases where the date of death is AFTER given
+            date.
+          schema:
+            type: string
+            format: date
+        - name: date_end
+          in: query
+          description: Date to search for cases where the date of death is BEFORE given
+            date.
+          schema:
+            type: string
+            format: date
+        - name: decedent_name
+          in: query
+          description: Use to find cases where the first, middle, or last name is LIKE
+            the given name.
+          schema:
+            type: string
+        - name: obituary_locked
+          in: query
+          description: Whether or not the case's obituary is currently editable
+          schema:
+            type: boolean
+        - name: case_identifier
+          in: query
+          description: A case identifier to filter by
+          schema:
+            type: string
+        - name: updated_after
+          in: query
+          description: Used to find cases where an obituary, memorial donation, or public
+            event was updated after this date
+          schema:
+            type: string
+            format: date
+        - name: items_per_page
+          in: query
+          description: Number of cases that will be returned per "page" or request.
+            Max is 100
+          schema:
+            type: integer
+        - name: obituary_synced_after
+          in: query
+          description: Date when obituaries were last synced or after
+          schema:
+            type: string
+            format: date
+        - name: case_types
+          in: query
+          description: 'Comma separated string of case types to search for. Acceptable
+          values are: "pre_need", "at_need", "cash_sale", "transfer", "imminent_need",
+          "trade_case", "pet_case" '
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Page to be returned
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Array of cases
+          content:
+            application/json:
+              schema:
+                type: object
+    post:
+      tags:
+        - Case
+      summary: Create a Case
+      description: Creates a case on the specified Branch
+      requestBody:
+        description: Case Data (JSON)
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CaseModelInput'
+        required: true
+      responses:
+        200:
+          description: case response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaseApiModel'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+      x-codegen-request-body-name: body
+  /api/public/v2/cases/{case_uuid}:
+    get:
+      tags:
+        - Case
+      summary: Find Case information by UUID
+      description: Returns information about a decedent (person or animal) based on
+        the Case UUID.
+      operationId: findByCaseUUID
+      parameters:
+        - name: case_uuid
+          in: path
+          description: UUID of Case
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: case response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaseApiModel'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+    put:
+      tags:
+        - Case
+      summary: Update a Case
+      description: Updates a case by UUID
+      parameters:
+        - name: case_uuid
+          in: path
+          description: UUID of Case
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: Case Data (JSON)
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CaseModelInputNoBranch'
+        required: true
+      responses:
+        200:
+          description: case response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaseApiModel'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+      x-codegen-request-body-name: body
+  /api/public/v2/cases/{case_uuid}/obituary/memorial_donations:
+    get:
+      tags:
+        - Memorial Donations
+      summary: Find Memorial Donation information by Case UUID
+      description: Returns information on memorial donations for a service by Case
+        UUID.
+      operationId: findMemorialDonationByCaseUUID
+      parameters:
+        - name: case_uuid
+          in: path
+          description: UUID of Case
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: memorial_donations response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemorialDonationApiModel'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+  /api/public/v2/cases/{case_uuid}/obituary:
+    get:
+      tags:
+        - Obituary
+      summary: Find Obituary information by Case UUID
+      description: Returns Obituary information about a decedent based on Case UUID
+      operationId: findObituaryByCaseUUID
+      parameters:
+        - name: case_uuid
+          in: path
+          description: UUID of Case
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: obituary response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObituaryApiModel'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+  /api/public/v2/cases/{case_uuid}/services:
+    get:
+      tags:
+        - Case
+      summary: Gets all public events
+      description: Gets all public events for the given case
+      parameters:
+        - name: case_uuid
+          in: path
+          description: Case UUID that will be used to find public events under
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: All public events for the case
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaseEventListModel'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+  /api/public/v2/cases/{case_uuid}/decedent:
+    get:
+      tags:
+        - Case
+      summary: Gets the decedent on the specified case
+      parameters:
+        - name: case_uuid
+          in: path
+          description: Case UUID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: The decedent of the specified case
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DecedentModel'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+  /api/public/v2/cases/{case_uuid}/acquaintances:
+    get:
+      tags:
+        - Case
+      summary: Gets the acquaintances for a specified case
+      parameters:
+        - name: case_uuid
+          in: path
+          description: Case UUID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: The acquaintances of the specified case
+          content:
+            application/json:
+              schema:
+                type: object
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+  /api/public/v2/contact_informations/{contact_information_uuid}:
+    get:
+      tags:
+        - Contact Information
+      description: Retrieve the specified contact information.
+      parameters:
+        - name: contact_information_uuid
+          in: path
+          description: UUID of the Contact Information
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: contact_info response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactInformationModel'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+    put:
+      tags:
+        - Contact Information
+      description: Update a specific contact information record.
+      parameters:
+        - name: contact_information_uuid
+          in: path
+          description: UUID of the Contact Information
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: Contact Information request body
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+        required: true
+      responses:
+        200:
+          description: contact_info response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactInformationModel'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+      x-codegen-request-body-name: body
+  /api/public/v2/contact_informations:
+    post:
+      tags:
+        - Contact Information
+      description: Create a contact information record.
+      requestBody:
+        description: Contact Information input body
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+        required: true
+      responses:
+        200:
+          description: contact_info response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactInformationModel'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+      x-codegen-request-body-name: body
+  /api/public/v2/contact_informations/{contact_information_uuid}/phone_number:
+    get:
+      tags:
+        - Contact Information
+      description: Retrieve the phone number information for a specified contact information.
+      parameters:
+        - name: contact_information_uuid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Home, Mobile, and Work phone numbers
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactInformationPhoneNumberModel'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+    put:
+      tags:
+        - Contact Information
+      description: Update a new phone number(s) for a specified contact information.
+      parameters:
+        - name: contact_information_uuid
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Phone Number Data (JSON)
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactInformationPhoneNumberModelInput'
+        required: true
+      responses:
+        200:
+          description: The updated record.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactInformationPhoneNumberModel'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+      x-codegen-request-body-name: body
+  /api/public/v2/acquaintance_types:
+    get:
+      tags:
+        - Acquaintances
+      description: Retrieve all the available acquaintance types
+      responses:
+        200:
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AcquaintanceTypesModel'
+  /api/public/v2/acquaintances:
+    post:
+      tags:
+        - Acquaintances
+      description: "Creates an acquaintance record. \n            <i>Additional Notes\
+        \ on Acquaintances:</i>\n            <div>\n              <b>Automatically\
+        \ Created Records</b>\n                <ul>\n                  <li>If an address\
+        \ or contact information uuid is not provided, a record will be created for\
+        \ you.</li>\n                </ul>\n            </div>"
+      requestBody:
+        description: Acquaintance Data (JSON)
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcquaintanceInput'
+        required: true
+      responses:
+        200:
+          description: Acquaintance record
+          content:
+            application/json:
+              schema:
+                type: object
+        default:
+          description: An error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+      x-codegen-request-body-name: body
+  /api/public/v2/acquaintances/{acquaintance_uuid}:
+    get:
+      tags:
+        - Acquaintances
+      description: Retrieves an acquaintance record.
+      parameters:
+        - name: acquaintance_uuid
+          in: path
+          description: UUID of Acquaintance
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: A single acquaintance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Acquaintance'
+        default:
+          description: An error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+    put:
+      tags:
+        - Acquaintances
+      description: "Updates an acquaintance record. \n            <i>Additional Notes\
+        \ on Acquaintances:</i>\n            <div>\n              <b>Updating Address,\
+        \ Birth Address, and Contact Informations</b>\n                <ul>\n    \
+        \              <li>If the acquaintance record already has an Address, Birth\
+        \ Address, or Contact Information record\n                      and a new\
+        \ one is given, an error message will be returned.</li>\n                \
+        \  <li>Please use their respective endpoints to update these resources.</li>\n\
+        \                  <li>Birth Address uses the Address endpoints.</li>\n  \
+        \              </ul>\n            </div>"
+      parameters:
+        - name: acquaintance_uuid
+          in: path
+          description: UUID of Acquaintance
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: Acquaintance Data (JSON)
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcquaintanceInput'
+        required: true
+      responses:
+        200:
+          description: Acquaintance record
+          content:
+            application/json:
+              schema:
+                type: object
+        default:
+          description: An error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+      x-codegen-request-body-name: body
+  /api/public/v2/addresses/{address_uuid}:
+    get:
+      tags:
+        - Address
+      description: Retrieves a specific address by UUID.
+      parameters:
+        - name: address_uuid
+          in: path
+          description: UUID of Address
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: An address
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddressModel'
+        default:
+          description: An error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+    put:
+      tags:
+        - Address
+      description: "Updates the address record. \n  <i>Additional Notes on Addresses:</i>\n\
+        <div>\n  <b>Country = “US” or “United States”</b>\n    <ul><li>all fields,\
+        \ except fsa, ldu, address3, and address4, will be saved.</li></ul>\n  <b>Country\
+        \ = “MX” or “Mexico”</b>\n    <ul><li>all fields, except fsa, ldu, address3,\
+        \ address4, and county, will be saved.</li></ul>\n  <b>Country = “CA” or “\
+        Canada”</b>\n    <ul><li>all fields, except zip, county, address3, address4,\
+        \ will be saved.</li></ul>\n  <b>Any other Country name</b>\n    <ul>\n  \
+        \    <li>address1-4 is saved.</li>\n      <li>other fields will also be saved\
+        \ to the record but not show up on Passare.</li>\n    </ul>\n</div>"
+      parameters:
+        - name: address_uuid
+          in: path
+          description: UUID of Address
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: Address Data (JSON)
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddressModelInput'
+        required: true
+      responses:
+        200:
+          description: An address
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddressModel'
+        default:
+          description: An error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+      x-codegen-request-body-name: body
+  /api/public/v2/addresses:
+    post:
+      tags:
+        - Address
+      description: "Create a new address record. \n  <i>Additional Notes on Addresses:</i>\n\
+        <div>\n  <b>Country = “US” or “United States”</b>\n    <ul><li>all fields,\
+        \ except fsa, ldu, address3, and address4, will be saved.</li></ul>\n  <b>Country\
+        \ = “MX” or “Mexico”</b>\n    <ul><li>all fields, except fsa, ldu, address3,\
+        \ address4, and county, will be saved.</li></ul>\n  <b>Country = “CA” or “\
+        Canada”</b>\n    <ul><li>all fields, except zip, county, address3, address4,\
+        \ will be saved.</li></ul>\n  <b>Any other Country name</b>\n    <ul>\n  \
+        \    <li>address1-4 is saved.</li>\n      <li>other fields will also be saved\
+        \ to the record but not show up on Passare.</li>\n    </ul>\n</div>"
+      requestBody:
+        description: Address Data (JSON)
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddressModelInput'
+        required: true
+      responses:
+        200:
+          description: An address
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddressModel'
+        default:
+          description: An error occurred.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+      x-codegen-request-body-name: body
+  /api/public/v2/cases/{case_uuid}/notes:
+    get:
+      tags:
+        - Note
+      summary: List of case notes
+      description: Case notes for the case.
+      parameters:
+        - name: case_uuid
+          in: path
+          description: UUID of the Case.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Case Notes Response
+          content:
+            application/json:
+              schema:
+                type: object
+        default:
+          description: Error Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+    post:
+      tags:
+        - Note
+      summary: create case note
+      description: Create new Case note.
+      parameters:
+        - name: case_uuid
+          in: path
+          description: UUID of the Case.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: Case data to POST.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotePostModel'
+        required: true
+      responses:
+        200:
+          description: Case Note Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoteModel'
+        default:
+          description: Error Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+      x-codegen-request-body-name: case_file_note
+  /api/public/v2/cases/{case_uuid}/notes/{note_uuid}:
+    put:
+      tags:
+        - Note
+      summary: update case note
+      description: Update new Case note.
+      parameters:
+        - name: case_uuid
+          in: path
+          description: UUID of the Case.
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: note_uuid
+          in: path
+          description: Note UUID to update.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: Note data to POST.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotePostModel'
+        required: true
+      responses:
+        200:
+          description: Case Note Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoteModel'
+        default:
+          description: Error Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+      x-codegen-request-body-name: case_file_note
+  /api/public/v2/decedent_settings/{decedent_settings_uuid}:
+    get:
+      tags:
+        - Decedent Settings
+      description: Returns the specified information about a decedent setting for
+        the branch of the client's case.
+      parameters:
+        - name: decedent_settings_uuid
+          in: path
+          description: UUID of Decedent Setting
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OK Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DecedentSettingModel'
+        default:
+          description: Error Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+  /api/public/v2/cases/{case_uuid}/documents:
+    get:
+      tags:
+        - Documents
+      description: Get documents associated with the specified Case.
+      parameters:
+        - name: case_uuid
+          in: path
+          description: UUID of Case
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OK Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentModel'
+        default:
+          description: Error Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+    post:
+      tags:
+        - Documents
+      description: Upload a document to associate with the specified Case.
+      parameters:
+        - name: case_uuid
+          in: path
+          description: UUID of Case
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: Document data to POST.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentModelInput'
+        required: true
+      responses:
+        200:
+          description: OK Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentModel'
+        default:
+          description: Error Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+      x-codegen-request-body-name: document_data
+  /api/public/v2/cases/{case_uuid}/documents/{document_uuid}:
+    get:
+      tags:
+        - Documents
+      description: Get documents associated with the specified Case.
+      parameters:
+        - name: case_uuid
+          in: path
+          description: UUID of Case
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: document_uuid
+          in: path
+          description: UUID of Document
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: OK Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentModel'
+        default:
+          description: Error Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+  /api/public/v2/decedent/{decedent_uuid}:
+    get:
+      tags:
+        - Decedent
+      summary: Gets the decedent specified by the uuid
+      parameters:
+        - name: decedent_uuid
+          in: path
+          description: Decedent UUID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DecedentModel'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+    put:
+      tags:
+        - Decedent
+      summary: Updates the decedent specified by the uuid
+      parameters:
+        - name: decedent_uuid
+          in: path
+          description: Decedent UUID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: Decedent Data (JSON)
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DecedentModel'
+        required: true
+      responses:
+        200:
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DecedentModel'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+      x-codegen-request-body-name: body
+  /api/public/v2/decedent/{decedent_uuid}/person:
+    get:
+      tags:
+        - Decedent
+      summary: Gets the person information specified by the decedent uuid
+      parameters:
+        - name: decedent_uuid
+          in: path
+          description: Decedent UUID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonModel'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+    put:
+      tags:
+        - Decedent
+      summary: Updates the person information specified by the decedent uuid
+      parameters:
+        - name: decedent_uuid
+          in: path
+          description: Decedent UUID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: Person Data (JSON)
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PersonModel'
+        required: true
+      responses:
+        200:
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonModel'
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorModel'
+      x-codegen-request-body-name: body
+  /api/public/v2/organizations/{organization_uuid}/contacts:
+    get:
+      tags:
+        - Organizations
+      summary: Gets rolodex entries (contacts) for given org
+      parameters:
+        - name: organization_uuid
+          in: path
+          description: Organization UUID
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: provider_types
+          in: query
+          schema:
+            type: string
+        - name: venue
+          in: query
+          schema:
+            type: boolean
+        - name: contact_type
+          in: query
+          description: 'accepted values: person, business, or organization'
+          schema:
+            type: string
+        - name: tags
+          in: query
+          description: comma separated string for multiple values
+          schema:
+            type: string
+      responses:
+        200:
+          description: Array of rolodex entries (contacts)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ContactList'
+  /api/public/v2/organizations/{organization_uuid}/contacts/{contact_uuid}:
+    get:
+      tags:
+        - Organizations
+      summary: Gets a rolodex entry (contact)
+      parameters:
+        - name: organization_uuid
+          in: path
+          description: Organization UUID
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: contact_uuid
+          in: path
+          description: Contact UUID
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Rolodex Entry (contact)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contact'
+components:
+  schemas:
+    OrganizationList:
+      type: object
+      properties:
+        organization_uuid:
+          type: string
+        organization_name:
+          type: string
+    ErrorModel:
+      required:
+        - code
+        - message
+      type: object
+      properties:
+        code:
+          type: number
+        message:
+          type: string
+    CaseApiModel:
+      required:
+        - case_uuid
+        - decedent_animal
+        - decedent_person
+        - events
+        - memorial_donations
+      type: object
+      properties:
+        case_uuid:
+          type: string
+          format: uuid
+        decedent_person:
+          $ref: '#/components/schemas/DecedentPersonModel'
+        decedent_animal:
+          $ref: '#/components/schemas/DecedentAnimalModel'
+        events:
+          $ref: '#/components/schemas/EventModel'
+        memorial_donations:
+          $ref: '#/components/schemas/MemorialDonationModel'
+        case_identifier:
+          type: string
+        case_types:
+          type: array
+          items:
+            type: string
+    CaseModelInput:
+      required:
+        - branch_uuid
+        - case_types
+      type: object
+      properties:
+        branch_uuid:
+          type: string
+          format: uuid
+        case_types:
+          type: string
+          example: ""
+        decedent:
+          type: object
+          properties:
+            person:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+    CaseModelInputNoBranch:
+      required:
+        - case_types
+      type: object
+      properties:
+        case_types:
+          type: string
+          example: ""
+        decedent:
+          type: object
+          properties:
+            person:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+    MemorialDonationApiModel:
+      required:
+        - memorial_donations
+        - uuid
+      type: object
+      properties:
+        case_uuid:
+          type: string
+          format: case_uuid
+        memorial_donations:
+          $ref: '#/components/schemas/MemorialDonationModel'
+        uuid:
+          type: string
+          format: uuid
+    ObituaryApiModel:
+      required:
+        - case_uuid
+        - obituary
+      type: object
+      properties:
+        case_uuid:
+          type: string
+          format: uuid
+        obituary:
+          $ref: '#/components/schemas/ObituaryModel'
+    DecedentPersonModel:
+      required:
+        - address
+        - death
+        - highest_rank
+        - obituary
+        - person
+      type: object
+      properties:
+        person:
+          $ref: '#/components/schemas/PersonModel'
+        address:
+          $ref: '#/components/schemas/AddressModel'
+        death:
+          type: string
+          format: dateTime
+        highest_rank:
+          type: string
+          format: string
+        obituary:
+          $ref: '#/components/schemas/ObituaryModel'
+    DecedentAnimalModel:
+      required:
+        - breed
+        - gender
+        - name
+        - type
+        - weight
+      type: object
+      properties:
+        name:
+          type: string
+          format: string
+        gender:
+          type: string
+          format: string
+        weight:
+          type: integer
+          format: int64
+        type:
+          type: string
+          format: string
+        breed:
+          type: string
+          format: string
+    PersonModel:
+      type: object
+      properties:
+        decedent_uuid:
+          type: string
+          format: uuid
+        title:
+          type: string
+        first_name:
+          type: string
+        middle_name:
+          type: string
+        last_name:
+          type: string
+        suffix:
+          type: string
+        gender:
+          type: string
+        birth_date:
+          type: string
+          format: date
+    AddressModel:
+      allOf:
+        - type: object
+          properties:
+            address_uuid:
+              type: string
+              format: uuid
+        - $ref: '#/components/schemas/Address'
+    EventModel:
+      required:
+        - location
+        - name
+      type: object
+      properties:
+        name:
+          type: string
+          format: string
+        location:
+          $ref: '#/components/schemas/LocationModel'
+        event_uuid:
+          type: string
+          format: uuid
+        last_updated:
+          type: string
+    LocationModel:
+      required:
+        - address
+        - name
+      type: object
+      properties:
+        name:
+          type: string
+          format: string
+        address:
+          $ref: '#/components/schemas/AddressModel'
+    ObituaryModel:
+      required:
+        - content
+        - primary_photo
+        - secondary_photo
+      type: object
+      properties:
+        content:
+          type: string
+        primary_photo:
+          type: string
+          format: url
+        secondary_photo:
+          type: string
+          format: url
+        locked:
+          type: boolean
+        last_updated:
+          type: string
+    MemorialDonationModel:
+      required:
+        - name
+        - website
+      type: object
+      properties:
+        name:
+          type: string
+          format: string
+        website:
+          type: string
+          format: string
+        memorial_donation_uuid:
+          type: string
+          format: string
+        last_updated:
+          type: string
+    CaseEventListModel:
+      required:
+        - events
+        - uuid
+      type: object
+      properties:
+        uuid:
+          type: string
+          format: uuid
+        events:
+          type: array
+          description: Array of events
+          items:
+            $ref: '#/components/schemas/EventModel'
+    AcquaintanceTypesModel:
+      type: object
+      properties:
+        name:
+          type: string
+        acquaintance_type_uuid:
+          type: string
+          format: uuid
+    Acquaintance:
+      type: object
+      properties:
+        acquaintance_uuid:
+          type: string
+          format: uuid
+        title:
+          type: string
+        first_name:
+          type: string
+        middle_name:
+          type: string
+        last_name:
+          type: string
+        last_name_at_birth:
+          type: string
+        suffix:
+          type: string
+        preferred_name_attribute:
+          type: string
+        gender:
+          type: string
+        display_name:
+          type: string
+        is_deceased:
+          type: boolean
+        relationship:
+          type: string
+        birth_date:
+          type: string
+          format: date
+        acquaintance_types:
+          type: array
+          items:
+            type: string
+            format: uuid
+            example: 3228821f-f787-42e0-946b-5bc49ecac5ca
+        spouse_acquaintance_uuid:
+          type: string
+          format: uuid
+        address_uuid:
+          type: string
+          format: uuid
+        birth_address_uuid:
+          type: string
+          format: uuid
+        contact_information_uuid:
+          type: string
+          format: uuid
+    AcquaintanceInput:
+      type: object
+      properties:
+        title:
+          type: string
+        first_name:
+          type: string
+        middle_name:
+          type: string
+        last_name:
+          type: string
+        last_name_at_birth:
+          type: string
+        suffix:
+          type: string
+        preferred_name_attribute:
+          type: string
+        gender:
+          type: string
+        display_name:
+          type: string
+        is_deceased:
+          type: boolean
+        relationship:
+          type: string
+        birth_date:
+          type: string
+          format: date
+        acquaintance_types:
+          type: array
+          items:
+            type: string
+            format: uuid
+            example: 3228821f-f787-42e0-946b-5bc49ecac5ca
+        spouse_acquaintance_uuid:
+          type: string
+          format: uuid
+        address_uuid:
+          type: string
+          format: uuid
+        birth_address_uuid:
+          type: string
+          format: uuid
+        contact_information_uuid:
+          type: string
+          format: uuid
+    Address:
+      required:
+        - address1
+        - address2
+        - city
+        - state
+        - zip
+      type: object
+      properties:
+        address1:
+          type: string
+        address2:
+          type: string
+        address3:
+          type: string
+        address4:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zip:
+          type: string
+        fsa:
+          type: string
+        ldu:
+          type: string
+        county:
+          type: string
+        country:
+          type: string
+        borough:
+          type: string
+        township:
+          type: string
+        village:
+          type: string
+        other_township:
+          type: string
+        identifier:
+          type: string
+        inside_city_limits:
+          type: boolean
+    AddressModelInput:
+      allOf:
+        - $ref: '#/components/schemas/Address'
+    ContactInformationModel:
+      type: object
+      properties:
+        contact_information_uuid:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+    ContactInformationPhoneNumberModel:
+      type: object
+      properties:
+        contact_information_uuid:
+          type: string
+          format: uuid
+        home_phone:
+          type: string
+          example: 555-123-4567
+        mobile_phone:
+          type: string
+          example: 444-765-4321
+        work_phone:
+          type: string
+          example: 333-098-7654
+    ContactInformationPhoneNumberModelInput:
+      type: object
+      properties:
+        phone_numbers:
+          type: array
+          items:
+            type: object
+            properties:
+              value:
+                type: string
+                example: 123-456-7890
+              phone_type:
+                type: string
+                enum:
+                  - Home
+                  - Mobile
+                  - Office
+              rank:
+                type: number
+    NoteModel:
+      type: object
+      properties:
+        note_uuid:
+          type: string
+          format: uuid
+        note_text:
+          type: string
+          example: case note text
+    NotePostModel:
+      type: object
+      properties:
+        note:
+          type: object
+          properties:
+            note_text:
+              type: string
+              example: note text
+    BranchModel:
+      type: object
+      properties:
+        branch_uuid:
+          type: string
+          format: uuid
+        branch_name:
+          type: string
+        branch_address_uuid:
+          type: string
+          format: uuid
+        organization_uuid:
+          type: string
+          format: uuid
+        organization_name:
+          type: string
+    DecedentSettingModel:
+      type: object
+      properties:
+        decedent_settings_uuid:
+          type: string
+          format: uuid
+        name:
+          type: string
+    DocumentModelInput:
+      type: object
+      properties:
+        name:
+          type: string
+          example: my_cool_file
+        file:
+          type: string
+          example: data:image/png;base64,...
+    DocumentModel:
+      type: object
+      properties:
+        document_uuid:
+          type: string
+          format: uuid
+        file:
+          type: string
+        name:
+          type: string
+    DecedentModel:
+      type: object
+      properties:
+        decedent_uuid:
+          type: string
+          format: uuid
+        death_date:
+          type: string
+          format: date
+        ssn:
+          type: string
+        marital_status:
+          type: string
+        race_uuid:
+          type: string
+          format: uuid
+        ethnicity_uuid:
+          type: string
+          format: uuid
+        citizenship:
+          type: string
+        education_uuid:
+          type: string
+          format: uuid
+        occupation:
+          type: string
+        industry:
+          type: string
+        employer:
+          type: string
+        address_uuid:
+          type: string
+          format: uuid
+        birth_address_uuid:
+          type: string
+          format: uuid
+        death_address_uuid:
+          type: string
+          format: uuid
+        acquaintances:
+          type: array
+          items:
+            type: object
+            properties:
+              acquaintance_uuid:
+                type: string
+                format: uuid
+    ContactList:
+      type: object
+      properties:
+        contact_uuid:
+          type: string
+        name:
+          type: string
+        contact_type:
+          type: array
+          items:
+            type: string
+        provider_types:
+          type: array
+          items:
+            type: string
+    Contact:
+      type: object
+      properties:
+        contact_uuid:
+          type: string
+        name:
+          type: string
+        contact_type:
+          type: array
+          items:
+            type: string
+        provider_types:
+          type: array
+          items:
+            type: string
+        venue:
+          type: boolean
+        tags:
+          type: array
+          items:
+            type: string
+        notes:
+          type: string
+        contact_information_uuid:
+          type: string
+    CaseListModel:
+      type: object
+      properties:
+        case_uuid:
+          type: integer
+        full_name:
+          type: string
+        branch_name:
+          type: string
+        branch_uuid:
+          type: string
+          format: uuid
+        case_identifier:
+          type: string
+        case_type_permissions:
+          type: string
+        created_at:
+          type: string
+          format: date
+    PetCaseListModel:
+      type: object
+      properties:
+        case_uuid:
+          type: integer
+        full_name:
+          type: string
+        branch_name:
+          type: string
+        branch_uuid:
+          type: string
+          format: uuid
+        case_identifier:
+          type: string
+        case_types:
+          type: string
+        created_at:
+          type: string
+          format: date
+  securitySchemes:
+    bearerAuth:
+      type: apiKey
+      name: Authorization
+      in: header
