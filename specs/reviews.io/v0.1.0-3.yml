@@ -117,6 +117,7 @@ components:
           type: string
         title:
           type: string
+          nullable: true
         rating:
           type: integer
           minimum: 0
@@ -171,7 +172,6 @@ components:
         - name
         - sku
         - review
-        - title
         - rating
         - date_created
         - timeago
