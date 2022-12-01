@@ -1302,6 +1302,7 @@ components:
       properties:
         organization_uuid:
           type: string
+          format: uuid
         organization_name:
           type: string
     ErrorModel:
@@ -1388,7 +1389,7 @@ components:
       properties:
         case_uuid:
           type: string
-          format: case_uuid
+          format: uuid
         memorial_donations:
           $ref: '#/components/schemas/MemorialDonationModel'
         uuid:
@@ -1423,7 +1424,6 @@ components:
           format: dateTime
         highest_rank:
           type: string
-          format: string
         obituary:
           $ref: '#/components/schemas/ObituaryModel'
     DecedentAnimalModel:
@@ -1437,19 +1437,15 @@ components:
       properties:
         name:
           type: string
-          format: string
         gender:
           type: string
-          format: string
         weight:
           type: integer
           format: int64
         type:
           type: string
-          format: string
         breed:
           type: string
-          format: string
     PersonModel:
       type: object
       properties:
@@ -1487,7 +1483,6 @@ components:
       properties:
         name:
           type: string
-          format: string
         location:
           $ref: '#/components/schemas/LocationModel'
         event_uuid:
@@ -1503,7 +1498,6 @@ components:
       properties:
         name:
           type: string
-          format: string
         address:
           $ref: '#/components/schemas/AddressModel'
     ObituaryModel:
@@ -1533,13 +1527,11 @@ components:
       properties:
         name:
           type: string
-          format: string
         website:
           type: string
-          format: string
         memorial_donation_uuid:
           type: string
-          format: string
+          format: uuid
         last_updated:
           type: string
     CaseEventListModel:
@@ -1861,6 +1853,7 @@ components:
       properties:
         contact_uuid:
           type: string
+          format: uuid
         name:
           type: string
         contact_type:
@@ -1876,6 +1869,7 @@ components:
       properties:
         contact_uuid:
           type: string
+          format: uuid
         name:
           type: string
         contact_type:
@@ -1896,11 +1890,13 @@ components:
           type: string
         contact_information_uuid:
           type: string
+          format: uuid
     CaseListModel:
       type: object
       properties:
         case_uuid:
-          type: integer
+          type: string
+          format: uuid
         full_name:
           type: string
         branch_name:
