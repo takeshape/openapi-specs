@@ -1409,9 +1409,9 @@ components:
     DecedentPersonModel:
       required:
         - address
-        - death
-        - highest_rank
-        - obituary
+#        - death
+#        - highest_rank
+#        - obituary
         - person
       type: object
       properties:
