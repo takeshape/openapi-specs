@@ -332,9 +332,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/CaseApiModel'
+                $ref: '#/components/schemas/CaseApiModel'
         default:
           description: unexpected error
           content:
@@ -425,9 +423,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ObituaryApiModel'
+                $ref: '#/components/schemas/ObituaryApiModel'
         default:
           description: unexpected error
           content:
@@ -1505,10 +1501,6 @@ components:
         address:
           $ref: '#/components/schemas/AddressModel'
     ObituaryModel:
-      required:
-        - content
-        - primary_photo
-        - secondary_photo
       type: object
       properties:
         content:
