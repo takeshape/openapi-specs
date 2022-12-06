@@ -1476,9 +1476,6 @@ components:
               format: uuid
         - $ref: '#/components/schemas/Address'
     EventModel:
-      required:
-        - location
-        - name
       type: object
       properties:
         name:
