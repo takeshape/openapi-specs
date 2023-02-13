@@ -1,0 +1,2891 @@
+openapi: 3.0.0
+info:
+  title: No API Explorer (for destructive calls & not well defined parameters)
+  version: '1.0'
+servers:
+  - url: https://app.salsify.com/api/v1/orgs/{org_id}
+    variables:
+      org_id:
+        description: The Salsify organization's unique identifier. Visit your Salsify organization and pull from the URL path, immediately following /orgs/
+        default: ''
+components:
+  securitySchemes:
+    sec0:
+      type: apiKey
+      in: header
+      name: Authorization
+      x-bearer-format: bearer
+      x-default: ''
+  schemas:
+    Product:
+      type: object
+      properties:
+        salsify:id:
+          type: string
+          example: '102918'
+        salsify:created_at:
+          type: string
+          format: 'date-time'
+          example: '2016-02-29T20:42:44.488Z'
+        salsify:updated_at:
+          type: string
+          format: 'date-time'
+          example: '2017-11-28T17:24:45.515Z'
+        salsify:version:
+          type: integer
+          example: 61
+          default: 0
+        salsify:relations_updated_at:
+          type: string
+          example: '2016-11-07T20:09:53.188Z'
+        salsify:profile_asset_id:
+          type: string
+        salsify:parent_id:
+          type: string
+          example: MCS269
+        salsify:system_id:
+          type: string
+          example: s-999-999-999-999
+        salsify:relations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Relation'
+        salsify:digital_assets:
+          type: array
+          items:
+            $ref: '#/components/schemas/DigitalAsset'
+    Relation:
+      type: object
+      properties:
+        relation_type:
+          type: string
+          example: Cross-Sell
+        salsify:target_product_id:
+          type: string
+          example: '241029'
+        salsify:created_at:
+          type: string
+          example: '2016-11-07T20:09:36.914Z'
+        salsify:updated_at:
+          type: string
+          example: '2016-11-07T20:09:36.914Z'
+    DigitalAsset:
+      type: object
+      properties:
+        salsify:id:
+          type: string
+          example: 8d538dcbfd2d5547f7080f2408e7457e96c0451a
+        salsify:url:
+          type: string
+          example: http://images.salsify.com/image/upload/s--u92Eqptx--/u4lc6fg1w17qzturwna3.jpg
+        salsify:name:
+          type: string
+          example: purple-carryon.jpg
+        salsify:created_at:
+          type: string
+          format: 'date-time'
+          example: '2016-02-28T00:23:28.777Z'
+        salsify:updated_at:
+          type: string
+          format: 'date-time'
+          example: '2017-05-21T03:18:00.302Z'
+        salsify:status:
+          type: string
+          example: completed
+        salsify:asset_height:
+          type: integer
+          example: 2000
+          default: 0
+        salsify:asset_width:
+          type: integer
+          example: 2000
+          default: 0
+        salsify:asset_resource_type:
+          type: string
+          example: image
+        salsify:filename:
+          type: string
+          example: purple-carryon.jpg
+        salsify:bytes:
+          type: integer
+          example: 231018
+          default: 0
+        salsify:format:
+          type: string
+          example: jpg
+        salsify:etag:
+          type: string
+          example: 593ea8d4b29d40c1ed7ef339966a6408
+        salsify:system_id:
+          type: string
+          example: s-d94cfcde-cb76-403a-80d3-1d6cbfaa48d9
+    Record:
+      type: object
+      properties:
+        salsify:id:
+          type: string
+          example: '102918'
+        salsify:created_at:
+          type: string
+          format: 'date-time'
+          example: '2016-02-29T20:42:44.488Z'
+        salsify:updated_at:
+          type: string
+          format: 'date-time'
+          example: '2017-11-28T17:24:45.515Z'
+        salsify:version:
+          type: integer
+          example: 61
+          default: 0
+        salsify:relations_updated_at:
+          type: string
+          example: '2016-11-07T20:09:53.188Z'
+        salsify:profile_asset_id:
+          type: string
+        salsify:parent_id:
+          type: string
+          example: MCS269
+        salsify:system_id:
+          type: string
+          example: s-999-999-999-999
+        salsify:digital_assets:
+          type: array
+          items:
+            $ref: '#/components/schemas/DigitalAsset'
+    RecordType:
+      type: object
+      properties:
+        salsify:id:
+          type: string
+          example: Products
+        salsify:name:
+          type: string
+          example: Products
+        salsify:created_at:
+          type: string
+          format: 'date-time'
+          example: '2021-09-03T14:42:49.970Z'
+        salsify:updated_at:
+          type: string
+          format: 'date-time'
+          example: '2021-09-03T14:42:49.970Z'
+    DataType:
+      enum:
+        - string
+        - number
+        - enumerated
+        - boolean
+        - date
+        - html
+        - rich_text
+        - link
+        - digital_asset
+    EntityType:
+      enum:
+        - products
+        - properties
+        - digital_assets
+    PropertyType:
+      enum:
+        - property
+        - computed_property
+    Property:
+      type: object
+      properties:
+        salsify:id:
+          type: string
+          example: ASIN
+        salsify:name:
+          type: string
+          example: ASIN
+        salsify:data_type:
+          $ref: '#/components/schemas/DataType'
+        salsify:entity_types:
+          type: array
+          items:
+            $ref: '#/components/schemas/EntityType'
+        salsify:is_facetable:
+          type: boolean
+          default: true
+        salsify:attribute_group:
+          type: string
+          example: General
+        salsify:position:
+          type: integer
+        salsify:help_text:
+          type: string
+        salsify:manage_permissions:
+          type: array
+          items:
+            type: string
+        salsify:read_permissions:
+          type: array
+          items:
+            type: string
+        salsify:hidden_permissions:
+          type: array
+          items:
+            type: string
+        salsify:created_at:
+          type: string
+          format: 'date-time'
+          example: '2017-12-18T14:44:06.991Z'
+        salsify:updated_at:
+          type: string
+          format: 'date-time'
+          example: '2017-12-18T14:46:09.370Z'
+        salsify:type:
+          $ref: '#/components/schemas/PropertyType'
+        salsify:system_id:
+          type: string
+          example: s-999-999-999-999
+    PaginationMeta:
+      type: object
+      properties:
+        current_page:
+          type: integer
+          example: 1
+          default: 0
+        per_page:
+          type: integer
+          example: 30
+          default: 0
+        total_entries:
+          type: integer
+          example: 2
+          default: 0
+
+security:
+  - sec0: []
+paths:
+  /products/:
+    post:
+      summary: Create Product
+      description: ''
+      operationId: add-a-product
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product_name:
+                  type: string
+                  description: Property ID for the property that is set as the product name role in Salsify. Product name will be left blank if not included.
+                additional_properties:
+                  type: string
+                  description: 'Additional information to store in properties associated with the product, sent in value pairs of `property_id : property_value`. Property IDs that don''t exist in the Salsify org will be created as default string data type. Accepts multiple property values as arrays.'
+      responses:
+        '201':
+          description: '201'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                        "salsify:id": "My New Product",
+                        "salsify:created_at": "2017-12-04T16:29:38.181Z",
+                        "salsify:updated_at": "2017-12-04T16:29:38.181Z",
+                        "salsify:version": 0,
+                        "salsify:profile_asset_id": null,
+                        "salsify:system_id": "s-999-999-999-999",
+                        "Product ID": "My New Product",
+                        "Product Name": "New Product Name",
+                        "Manufacturer": "Wildflower Imports, Inc."
+                    }
+              schema:
+                $ref: '#/components/schemas/Product'
+        '422':
+          description: '422'
+          content:
+            application/json:
+              examples:
+                Product ID property missing:
+                  value: |-
+                    {
+                        "errors": [
+                            "Missing required property your-product-id"
+                        ]
+                    }
+
+                    //where your-product-id is the property ID of the property that serves the salsify:id role.
+                Product ID value is not unique:
+                  value: |-
+                    {
+                        "errors": [
+                            "A product already exists with the same id."
+                        ]
+                    }
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                      example: A product already exists with the same id.
+      deprecated: false
+  /products:
+    post:
+      summary: Bulk Create Products
+      description: ''
+      operationId: bulk-create-products
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - product_ID
+              properties:
+                product_ID:
+                  type: string
+                  description: Property ID of the property that is set as the product ID role in Salsify. Product ID value cannot begin with  `=`, `_`, or `salsify`. Must be unique, and is case sensitive.
+                product_name:
+                  type: string
+                  description: Property ID for the property that is set as the product name role in Salsify. Product name will be left blank if not included.
+                additional_properties:
+                  type: string
+                  description: 'Additional information to store in properties associated with the product, sent in value pairs of `property_id : property_value`. Property IDs that don''t exist in the Salsify org will be created as default string data type. Accepts multiple property values as arrays.'
+      responses:
+        '201':
+          description: '201'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    [
+                        {
+                            "salsify:id": "123",
+                            "salsify:created_at": "2018-10-04T22:30:03.910Z",
+                            "salsify:updated_at": "2018-10-04T22:30:03.910Z",
+                            "salsify:version": 0,
+                            "salsify:profile_asset_id": null,
+                            "salsify:system_id": "s-73cae1fc-f7c2-45c7-bce4-3cc8185ac5a5",
+                            "Product ID": "123",
+                            "Product Name": "Product 123",
+                            "Short Description": "These colorful Traveller headphones have a sturdy yet comfortable headband with padded ear cups for long term listening. The specially designed ear cups surround the ear cancelling out any ambient noise.",
+                            "Manufacturer": "Wildflower Imports, Inc."
+                        },
+                        {
+                            "salsify:id": "456",
+                            "salsify:created_at": "2018-10-04T22:30:03.910Z",
+                            "salsify:updated_at": "2018-10-04T22:30:03.910Z",
+                            "salsify:version": 0,
+                            "salsify:profile_asset_id": null,
+                            "salsify:system_id": "s-d158ff9d-e327-4c8e-bc13-1139b250ed56",
+                            "Product ID": "456",
+                            "Product Name": "Product 456",
+                            "Material": "plastic",
+                            "Tags": [
+                                "headphones",
+                                "noise cancelling"
+                            ],
+                            "Manufacturer": "Wildflower Imports, Inc."
+                        }
+                    ]
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        '422':
+          description: '422'
+          content:
+            application/json:
+              examples:
+                Product ID property missing:
+                  value: |-
+                    {
+                        "errors": [
+                            "Missing required property your-product-id"
+                        ]
+                    }
+
+                    //where your-product-id is the property ID of the property that serves the salsify:id role.
+                Product ID value is not unique:
+                  value: |-
+                    {
+                        "errors": [
+                            "A product already exists with the same id."
+                        ]
+                    }
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                      example: A product already exists with the same id.
+      deprecated: false
+    put:
+      summary: Bulk Update Products
+      description: ''
+      operationId: bulk-update-products
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - product_id
+              properties:
+                product_id:
+                  type: string
+                  description: Value to identify product, stored in property with unique product identifier role in your Salsify organization.
+                properties:
+                  type: string
+                  description: 'Properties can be added in value pairs. {property_id} : {property_value} where property_id is a Salsify property, and property_value is the corresponding property value. If property_id does not exist in org, property will be created.'
+      responses:
+        '204':
+          description: '204'
+          content:
+            text/plain:
+              examples:
+                Result:
+                  value: Returned when content is successfully updated in Salsify.
+        '404':
+          description: '404'
+          content:
+            text/plain:
+              examples:
+                Result:
+                  value: Returned when salsify:id does not exist or org ID is incorrect.
+        '422':
+          description: '422'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                        "errors": [
+                            [
+                                "Product '123' does not exist."
+                            ],
+                            []
+                        ]
+                    }
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: array
+                      items:
+                        type: string
+                        example: Product '123' does not exist.
+      deprecated: false
+    delete:
+      summary: Bulk Delete Products
+      description: ''
+      operationId: bulk-delete-products
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - product_id
+              properties:
+                product_id:
+                  type: string
+                  description: Unique value that identifies product and stored in the property that holds the product identifier role in Salsify. Send as an array of product ID values; property id label is not sent.
+      responses:
+        '204':
+          description: '204'
+          content:
+            text/plain:
+              examples:
+                Result:
+                  value: Returned when content is successfully updated in Salsify.
+        '422':
+          description: '422'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                        "errors": [
+                            "Updates must be applied to existing assets."
+                        ]
+                    }
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                      example: Updates must be applied to existing assets.
+      deprecated: false
+  /products/{product_id}:
+    get:
+      summary: Read Product Record
+      description: ''
+      operationId: read-product-record
+      parameters:
+        - name: product_id
+          in: path
+          description: Salsify product ID
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                        "salsify:id": "102918",
+                        "salsify:created_at": "2016-02-29T20:42:44.488Z",
+                        "salsify:updated_at": "2017-11-28T17:24:45.515Z",
+                        "salsify:version": 61,
+                        "salsify:relations_updated_at": "2016-11-07T20:09:53.188Z",
+                        "salsify:profile_asset_id": null,
+                        "salsify:parent_id": "MCS269",
+                        "salsify:system_id": "s-999-999-999-999",
+                        "Product ID": "102918",
+                        "Product Name": "Jetsetter Carry On Roller - Purple",
+                        "Main Image": "8d538dcbfd2d5547f7080f2408e7457e96c0451a",
+                        "UPC": "143287212918",
+                        "Certifications": "TSA-Approved",
+                        "Assembly Country of Origin": "US",
+                        "Component Country of Origin": "China",
+                        "Warnings": "<p>WARNING: To avoid danger of suffocation, keep inner plastic bag away from babies and children. Do not use bag in cribs, beds, carriages or play pens. This bag is not a toy.</p>",
+                        "Active Date": [
+                            "2015-05-01",
+                            "2017-10-17"
+                        ],
+                        "HTML Description": "<p>The 21\" Spinner is part of the Jetsetter Collection. Pack away any travel worries and woes with the efficient design of the Jettsetter rolling bag. Features top and side carrying handles for easy lifting, dual-tube handle with push-button extension. Maneuvers easily on four 360 degree wheels. Easy upright rolling for minimal arm strain. Jetset in style!</p>\n<ul>\n\t<li>Constructed of 100% polycarbonate material.</li>\n\t<li>Four spinner wheels provide a silent and smooth roll.</li>\n\t<li>Fully-lined interior with two compartments for organized packing.</li>\n</ul>",
+                        "Link": "http://salsify.com",
+                        "YouTube video": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+                        "Formatted Retail Price": "$100.74",
+                        "Formatted Base Wholesale Price": "$89.45",
+                        "Sellable Package Length - Metric": "54.991",
+                        "Formatted MSRP": "$110.99",
+                        "Variant Type": "Color",
+                        "Manufacturer": "Wildflower, LLC",
+                        "Sellable Package Width - Metric": "52.5018",
+                        "Sellable Package Height - Metric": "63.1444",
+                        "Warranty Length (in years)": "5",
+                        "salsify:relations": [
+                            {
+                                "relation_type": "Cross-Sell",
+                                "salsify:target_product_id": "241029",
+                                "salsify:created_at": "2016-11-07T20:09:36.914Z",
+                                "salsify:updated_at": "2016-11-07T20:09:36.914Z"
+                            }
+                        ],
+                        "salsify:digital_assets": [
+                            {
+                                "salsify:id": "8d538dcbfd2d5547f7080f2408e7457e96c0451a",
+                                "salsify:url": "http://images.salsify.com/image/upload/s--u92Eqptx--/u4lc6fg1w17qzturwna3.jpg",
+                                "salsify:name": "purple-carryon.jpg",
+                                "salsify:created_at": "2016-02-28T00:23:28.777Z",
+                                "salsify:updated_at": "2017-05-21T03:18:00.302Z",
+                                "salsify:status": "completed",
+                                "salsify:asset_height": 2000,
+                                "salsify:asset_width": 2000,
+                                "salsify:asset_resource_type": "image",
+                                "salsify:filename": "purple-carryon.jpg",
+                                "salsify:bytes": 231018,
+                                "salsify:format": "jpg",
+                                "salsify:etag": "593ea8d4b29d40c1ed7ef339966a6408",
+                                "salsify:system_id": "s-d94cfcde-cb76-403a-80d3-1d6cbfaa48d9",
+                                "Brand": "Jetsetter",
+                                "Color": "Purple"
+                            }
+                        ]
+                    }
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+    put:
+      summary: Update Product
+      description: ''
+      operationId: update-product
+      parameters:
+        - name: product_id
+          in: path
+          description: Salsify product ID
+          schema:
+            type: string
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product_id:
+                  type: string
+                  description: Value to identify product, stored in property with unique product identifier role in your Salsify organization.
+                properties:
+                  type: string
+                  description: 'Properties can be added in value pairs. {property_id} : {property_value} where property_id is a Salsify property, and property_value is the corresponding property value. If property_id does not exist in org, property will be created.'
+      responses:
+        '204':
+          description: '204'
+          content:
+            text/plain:
+              examples:
+                Result:
+                  value: Returned when content is successfully updated in Salsify.
+        '404':
+          description: '404'
+          content:
+            text/plain:
+              examples:
+                Result:
+                  value: Returned when salsify:id does not exist or org ID is incorrect.
+        '422':
+          description: '422'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                        "errors": [
+                            "s-e62b9a19-6443-4f61-bfce-6540a86c511z is not a valid salsify uuid"
+                        ]
+                    }
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                      example: s-e62b9a19-6443-4f61-bfce-6540a86c511z is not a valid salsify uuid
+      deprecated: false
+    delete:
+      summary: Delete Product
+      description: ''
+      operationId: delete-product
+      parameters:
+        - name: product_id
+          in: path
+          description: Unique value that identifies product and stored in the property that holds the product identifier role in Salsify. Send as an array of product ID values; property id label is not sent.
+          schema:
+            type: string
+          required: true
+      responses:
+        '204':
+          description: '204'
+          content:
+            text/plain:
+              examples:
+                Result:
+                  value: Returned when content is successfully updated in Salsify.
+        '422':
+          description: '422'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                        "errors": [
+                            "Updates must be applied to existing assets."
+                        ]
+                    }
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                      example: Updates must be applied to existing assets.
+      deprecated: false
+  /products/_upsert:
+    put:
+      summary: Bulk Upsert Products
+      description: Upserts allow you to update and create a product in the same call.
+      operationId: bulk-upsert-products
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                product_id:
+                  type: string
+                  description: Value to identify product, stored in property with unique product identifier role in your Salsify organization.
+                properties:
+                  type: string
+                  description: 'Properties can be added in value pairs. {property_id} : {property_value} where property_id is a Salsify property, and property_value is the corresponding property value. If property_id does not exist in org, property will be created.'
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    [
+                        {
+                            "salsify:id": "123",
+                            "salsify:created_at": "2020-01-23T17:37:53.817Z",
+                            "salsify:updated_at": "2020-06-23T15:16:49.838Z",
+                            "salsify:version": 14,
+                            "salsify:profile_asset_id": null,
+                            "salsify:system_id": "s-0e218edb-6896-4bfd-ae5d-1b8186fa9f1f",
+                            "Product ID": "2010028",
+                            "Product Name": "Updating Existing Product",
+                            "Category": "Accesories",
+                            "Additional Product Images": "b1f8814701086a42e6a528858c2dde4095e0cc72",
+                            "Color": "Blue",
+                            "Cost": "14.99",
+                            "Description": "Add edited description here."
+                        },
+                        {
+                            "salsify:id": "456",
+                            "salsify:created_at": "2020-06-22T21:05:29.269Z",
+                            "salsify:updated_at": "2020-06-23T15:16:49.844Z",
+                            "salsify:version": 0,
+                            "salsify:profile_asset_id": null,
+                            "salsify:system_id": "s-7b50012e-0e34-4176-992a-8624ab44ba34",
+                            "Product ID": "456",
+                            "Product Name": "Creates New Product",
+                            "Product Status": "In Process",
+                            "Last Workflow Update": "2020-06-22",
+                            "Description": "These colorful Traveller headphones have a sturdy yet comfortable headband with padded ear cups for long term listening. The specially designed ear cups surround the ear cancelling out any ambient noise."
+                        }
+                    ]
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: ''
+        '422':
+          description: '422'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                        "errors": [
+                            [
+                                "A locale must be specified to update localizable property Short Description"
+                            ],
+                            [
+                                "A locale must be specified to update localizable property Short Description"
+                            ]
+                        ]
+                    }
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: array
+                      items:
+                        type: string
+                        example: A locale must be specified to update localizable property Short Description
+      deprecated: false
+  /records/:
+    post:
+      summary: Create Record
+      description: ''
+      operationId: create-record
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                record_name:
+                  type: string
+                  description: Property ID for the property that is set as the record name role in Salsify. Record name will be left blank if not included.
+                additional_properties:
+                  type: string
+                  description: 'Additional information to store in properties associated with the record, sent in value pairs of `property_id : property_value`. Property IDs that don''t exist in the Salsify org will be created as default string data type. Accepts multiple property values as arrays.'
+      responses:
+        '201':
+          description: '201'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                        "salsify:id": "My New Record",
+                        "salsify:created_at": "2017-12-04T16:29:38.181Z",
+                        "salsify:updated_at": "2017-12-04T16:29:38.181Z",
+                        "salsify:version": 0,
+                        "salsify:profile_asset_id": null,
+                        "salsify:system_id": "s-999-999-999-999",
+                        "Record ID": "My New Record",
+                        "Record Name": "New Record Name",
+                        "Manufacturer": "Wildflower Imports, Inc."
+                    }
+              schema:
+                $ref: '#/components/schemas/Record'
+        '422':
+          description: '422'
+          content:
+            application/json:
+              examples:
+                Record ID property missing:
+                  value: |-
+                    {
+                        "errors": [
+                            "Missing required property your-record-id"
+                        ]
+                    }
+
+                    //where your-record-id is the property ID of the property that serves the salsify:id role.
+                Record ID value is not unique:
+                  value: |-
+                    {
+                        "errors": [
+                            "A record already exists with the same id."
+                        ]
+                    }
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                      example: A record already exists with the same id.
+      deprecated: false
+  /records:
+    post:
+      summary: Bulk Create Records
+      description: ''
+      operationId: bulk-create-records
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - record_id
+              properties:
+                record_id:
+                  type: string
+                  description: Property ID of the property that is set as the record ID role in Salsify. Record ID value cannot begin with `=`, `_`, or `salsify`. Must be unique, and is case sensitive.
+                record_name:
+                  type: string
+                  description: Property ID for the property that is set as the record name role in Salsify. Record name will be left blank if not included.
+                additional_properties:
+                  type: string
+                  description: 'Additional information to store in properties associated with the record, sent in value pairs of `property_id : property_value`. Property IDs that don''t exist in the Salsify org will be created with a default string data type. Accepts multiple property values as arrays.'
+      responses:
+        '201':
+          description: '201'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    [
+                        {
+                            "salsify:id": "123",
+                            "salsify:created_at": "2018-10-04T22:30:03.910Z",
+                            "salsify:updated_at": "2018-10-04T22:30:03.910Z",
+                            "salsify:version": 0,
+                            "salsify:profile_asset_id": null,
+                            "salsify:system_id": "s-73cae1fc-f7c2-45c7-bce4-3cc8185ac5a5",
+                            "Record ID": "123",
+                            "Record Name": "Record 123",
+                            "Short Description": "These colorful Traveller headphones have a sturdy yet comfortable headband with padded ear cups for long term listening. The specially designed ear cups surround the ear cancelling out any ambient noise.",
+                            "Manufacturer": "Wildflower Imports, Inc."
+                        },
+                        {
+                            "salsify:id": "456",
+                            "salsify:created_at": "2018-10-04T22:30:03.910Z",
+                            "salsify:updated_at": "2018-10-04T22:30:03.910Z",
+                            "salsify:version": 0,
+                            "salsify:profile_asset_id": null,
+                            "salsify:system_id": "s-d158ff9d-e327-4c8e-bc13-1139b250ed56",
+                            "Record ID": "456",
+                            "Record Name": "Record 456",
+                            "Material": "plastic",
+                            "Tags": [
+                                "headphones",
+                                "noise cancelling"
+                            ],
+                            "Manufacturer": "Wildflower Imports, Inc."
+                        }
+                    ]
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Record'
+        '422':
+          description: '422'
+          content:
+            application/json:
+              examples:
+                Record ID property missing:
+                  value: |-
+                    {
+                        "errors": [
+                            "Missing required property your-record-id"
+                        ]
+                    }
+
+                    //where your-record-id is the property ID of the property that serves the salsify:id role.
+                Record ID value is not unique:
+                  value: |-
+                    {
+                        "errors": [
+                            "A record already exists with the same id."
+                        ]
+                    }
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                      example: A record already exists with the same id.
+      deprecated: false
+    put:
+      summary: Bulk Update Records
+      description: ''
+      operationId: bulk-update-records
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - record_id
+              properties:
+                record_id:
+                  type: string
+                  description: Value to identify record, stored in property with unique record identifier role in your Salsify organization.
+                properties:
+                  type: string
+                  description: 'Properties can be added in value pairs. {property_id} : {property_value} where property_id is a Salsify property, and property_value is the corresponding property value. If property_id does not exist in org, property will be created.'
+      responses:
+        '204':
+          description: '204'
+          content:
+            text/plain:
+              examples:
+                Result:
+                  value: Returned when content is successfully updated in Salsify.
+        '404':
+          description: '404'
+          content:
+            text/plain:
+              examples:
+                Result:
+                  value: Returned when salsify:id does not exist or org ID is incorrect.
+        '422':
+          description: '422'
+          content:
+            application/json:
+              examples:
+                Record Does not Exist:
+                  value: |-
+                    {
+                        "errors": [
+                            [
+                                "Record '123' does not exist."
+                            ],
+                            []
+                        ]
+                    }
+                Missing Record ID Property:
+                  value: |-
+                    {
+                        "errors": [
+                            [
+                                "Missing required property Record ID"
+                            ]
+                        ]
+                    }
+              schema:
+                oneOf:
+                  - title: Record Does not Exist
+                    type: object
+                    properties:
+                      errors:
+                        type: array
+                        items:
+                          type: array
+                          items:
+                            type: string
+                            example: Record '123' does not exist.
+                  - title: Missing Record ID Property
+                    type: object
+                    properties:
+                      errors:
+                        type: array
+                        items:
+                          type: array
+                          items:
+                            type: string
+                            example: Missing required property Record ID
+      deprecated: false
+    delete:
+      summary: Bulk Delete Records
+      description: ''
+      operationId: bulk-delete-records
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+            default: application/json
+        - name: Authorization
+          in: header
+          description: Your Authentication Bearer Token
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - record_id
+              properties:
+                record_id:
+                  type: string
+                  description: Unique value that identifies records and stored in the property that holds the record identifier role in Salsify. Send as an array of record ID values; property id label is not sent.
+      responses:
+        '204':
+          description: '204'
+          content:
+            text/plain:
+              examples:
+                Result:
+                  value: Returned when content is successfully updated in Salsify.
+        '403':
+          description: '403'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: Returned when the action is forbidden for the user.
+        '422':
+          description: '422'
+          content:
+            application/json:
+              examples:
+                Record Not Found:
+                  value: |-
+                    {
+                        "errors": [
+                            [
+                                "Record 123 not found"
+                            ]
+                        ]
+                    }
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: array
+                      items:
+                        type: string
+                        example: Record 123 not found
+      deprecated: false
+  /records/{record_id}:
+    get:
+      summary: Read Record
+      description: ''
+      operationId: read-record
+      parameters:
+        - name: record_id
+          in: path
+          description: Salsify record ID for uniquely identifying a record.
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                        "salsify:id": "102918",
+                        "salsify:created_at": "2016-02-29T20:42:44.488Z",
+                        "salsify:updated_at": "2017-11-28T17:24:45.515Z",
+                        "salsify:version": 61,
+                        "salsify:relations_updated_at": "2016-11-07T20:09:53.188Z",
+                        "salsify:profile_asset_id": null,
+                        "salsify:parent_id": "MCS269",
+                        "salsify:system_id": "s-999-999-999-999",
+                        "Record ID": "102918",
+                        "Record Name": "Jetsetter Carry On Roller - Purple",
+                        "Main Image": "8d538dcbfd2d5547f7080f2408e7457e96c0451a",
+                        "UPC": "143287212918",
+                        "Certifications": "TSA-Approved",
+                        "Assembly Country of Origin": "US",
+                        "Component Country of Origin": "China",
+                        "Warnings": "<p>WARNING: To avoid danger of suffocation, keep inner plastic bag away from babies and children. Do not use bag in cribs, beds, carriages or play pens. This bag is not a toy.</p>",
+                        "Active Date": [
+                            "2015-05-01",
+                            "2017-10-17"
+                        ],
+                        "HTML Description": "<p>The 21\" Spinner is part of the Jetsetter Collection. Pack away any travel worries and woes with the efficient design of the Jettsetter rolling bag. Features top and side carrying handles for easy lifting, dual-tube handle with push-button extension. Maneuvers easily on four 360 degree wheels. Easy upright rolling for minimal arm strain. Jetset in style!</p>\n<ul>\n\t<li>Constructed of 100% polycarbonate material.</li>\n\t<li>Four spinner wheels provide a silent and smooth roll.</li>\n\t<li>Fully-lined interior with two compartments for organized packing.</li>\n</ul>",
+                        "Link": "http://salsify.com",
+                        "YouTube video": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+                        "Formatted Retail Price": "$100.74",
+                        "Formatted Base Wholesale Price": "$89.45",
+                        "Sellable Package Length - Metric": "54.991",
+                        "Formatted MSRP": "$110.99",
+                        "Variant Type": "Color",
+                        "Manufacturer": "Wildflower, LLC",
+                        "Sellable Package Width - Metric": "52.5018",
+                        "Sellable Package Height - Metric": "63.1444",
+                        "Warranty Length (in years)": "5",
+                        "salsify:digital_assets": [
+                            {
+                                "salsify:id": "8d538dcbfd2d5547f7080f2408e7457e96c0451a",
+                                "salsify:url": "http://images.salsify.com/image/upload/s--u92Eqptx--/u4lc6fg1w17qzturwna3.jpg",
+                                "salsify:name": "purple-carryon.jpg",
+                                "salsify:created_at": "2016-02-28T00:23:28.777Z",
+                                "salsify:updated_at": "2017-05-21T03:18:00.302Z",
+                                "salsify:status": "completed",
+                                "salsify:asset_height": 2000,
+                                "salsify:asset_width": 2000,
+                                "salsify:asset_resource_type": "image",
+                                "salsify:filename": "purple-carryon.jpg",
+                                "salsify:bytes": 231018,
+                                "salsify:format": "jpg",
+                                "salsify:etag": "593ea8d4b29d40c1ed7ef339966a6408",
+                                "salsify:system_id": "s-d94cfcde-cb76-403a-80d3-1d6cbfaa48d9",
+                                "Brand": "Jetsetter",
+                                "Color": "Purple"
+                            }
+                        ]
+                    }
+              schema:
+                $ref: '#/components/schemas/Record'
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+    put:
+      summary: Update Record
+      description: ''
+      operationId: update-record
+      parameters:
+        - name: record_id
+          in: path
+          description: Value to identify record, stored in property with unique record identifier role in your Salsify organization.
+          schema:
+            type: string
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - properties
+              properties:
+                properties:
+                  type: string
+                  description: 'Properties can be added in value pairs. `{property_id} : {property_value}` where property_id is a Salsify property, and property_value is the corresponding property value. If property_id does not exist in the org, the property will be auto-created. The record_id must also be included in the body parameters.'
+      responses:
+        '204':
+          description: '204'
+          content:
+            text/plain:
+              examples:
+                Result:
+                  value: Returned when content is successfully updated in Salsify.
+        '404':
+          description: '404'
+          content:
+            text/plain:
+              examples:
+                Result:
+                  value: Returned when salsify:id does not exist or org ID is incorrect.
+        '422':
+          description: '422'
+          content:
+            application/json:
+              examples:
+                Invalid Salsify UUID:
+                  value: '{ "errors": [ "s-e62b9a19-6443-4f61-bfce-6540a86c511z is not a valid salsify uuid" ] }'
+                Missing Required Record ID Property:
+                  value: |-
+                    {
+                        "errors": [
+                            [
+                                "Missing required property Record ID"
+                            ]
+                        ]
+                    }
+              schema:
+                oneOf:
+                  - title: Invalid Salsify UUID
+                    type: object
+                    properties:
+                      errors:
+                        type: array
+                        items:
+                          type: string
+                          example: s-e62b9a19-6443-4f61-bfce-6540a86c511z is not a valid salsify uuid
+                  - title: Missing Required Record ID Property
+                    type: object
+                    properties:
+                      errors:
+                        type: array
+                        items:
+                          type: array
+                          items:
+                            type: string
+                            example: Missing required property Record ID
+      deprecated: false
+    delete:
+      summary: Delete Record
+      description: ''
+      operationId: delete-record
+      parameters:
+        - name: record_id
+          in: path
+          description: Unique value that identifies records and stored in the property that holds the record identifier role in Salsify.
+          schema:
+            type: string
+          required: true
+      responses:
+        '204':
+          description: '204'
+          content:
+            text/plain:
+              examples:
+                Result:
+                  value: Returned when content is successfully updated in Salsify
+        '403':
+          description: '403'
+          content:
+            text/plain:
+              examples:
+                Result:
+                  value: Returned when the user does not have permission to delete the record
+        '404':
+          description: '404'
+          content:
+            text/plain:
+              examples:
+                Record Doesn't Exist:
+                  value: Returned when the record id specified does not exist
+      deprecated: false
+  /record_types:
+    get:
+      summary: Read Record Types
+      description: Used to query for all available record types.
+      operationId: read-record-types
+      parameters: []
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                        "data": [
+                            {
+                                "salsify:id": "Products",
+                                "salsify:name": "Products",
+                                "salsify:created_at": "2021-09-03T14:42:49.970Z",
+                                "salsify:updated_at": "2021-09-03T14:42:49.970Z"
+                            },
+                            {
+                                "salsify:id": "Colors",
+                                "salsify:name": "Colors",
+                                "salsify:created_at": "2021-09-03T14:43:02.107Z",
+                                "salsify:updated_at": "2021-09-03T14:43:02.107Z"
+                            }
+                        ],
+                        "meta": {
+                            "current_page": 1,
+                            "per_page": 30,
+                            "total_entries": 2
+                        }
+                    }
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RecordType'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+        '400':
+          description: '400'
+          content:
+            text/plain:
+              examples:
+                Result:
+                  value: Returned when a request is malformed and cannot be found
+      deprecated: false
+  /records/_upsert:
+    put:
+      summary: Bulk Upsert Records
+      description: Upsert allows you to update and create a record in the same call.
+      operationId: bulk-upsert-records
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - record_id
+              properties:
+                record_id:
+                  type: string
+                  description: Value to identify record, stored in property with unique record identifier role in your Salsify organization.
+                properties:
+                  type: string
+                  description: 'Properties can be added in value pairs. {property_id} : {property_value} where property_id is a Salsify property, and property_value is the corresponding property value. If property_id does not exist in org, a property with that id will be created.'
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    [
+                        {
+                            "salsify:id": "123",
+                            "salsify:created_at": "2020-01-23T17:37:53.817Z",
+                            "salsify:updated_at": "2020-06-23T15:16:49.838Z",
+                            "salsify:version": 14,
+                            "salsify:profile_asset_id": null,
+                            "salsify:system_id": "s-0e218edb-6896-4bfd-ae5d-1b8186fa9f1f",
+                            "Record ID": "2010028",
+                            "Record Name": "Updating Existing Record",
+                            "Category": "Accesories",
+                            "Additional Record Images": "b1f8814701086a42e6a528858c2dde4095e0cc72",
+                            "Color": "Blue",
+                            "Cost": "14.99",
+                            "Description": "Add edited description here."
+                        },
+                        {
+                            "salsify:id": "456",
+                            "salsify:created_at": "2020-06-22T21:05:29.269Z",
+                            "salsify:updated_at": "2020-06-23T15:16:49.844Z",
+                            "salsify:version": 0,
+                            "salsify:profile_asset_id": null,
+                            "salsify:system_id": "s-7b50012e-0e34-4176-992a-8624ab44ba34",
+                            "Record ID": "456",
+                            "Record Name": "Creates New Record",
+                            "Record Status": "In Process",
+                            "Last Workflow Update": "2020-06-22",
+                            "Description": "These colorful Traveller headphones have a sturdy yet comfortable headband with padded ear cups for long term listening. The specially designed ear cups surround the ear cancelling out any ambient noise."
+                        }
+                    ]
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Record'
+        '400':
+          description: '400'
+          content:
+            text/plain:
+              examples:
+                Result:
+                  value: Returned when the request is malformed.
+        '422':
+          description: '422'
+          content:
+            application/json:
+              examples:
+                Missing locale for localized properties:
+                  value: |-
+                    {
+                        "errors": [
+                            [
+                                "A locale must be specified to update localizable property Short Description"
+                            ],
+                            [
+                                "A locale must be specified to update localizable property Short Description"
+                            ]
+                        ]
+                    }
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: array
+                      items:
+                        type: string
+                        example: A locale must be specified to update localizable property Short Description
+      deprecated: false
+  /properties:
+    post:
+      summary: Bulk Create New Properties
+      description: ''
+      operationId: bulk-create-new-properties
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - salsify:id
+              properties:
+                salsify:id:
+                  type: string
+                  description: Unique identifier for property. Used in report headers, channel mapping, etc. Cannot start with `salsify`,  `=`, or `_`. Case sensitive.
+                salsify:name:
+                  type: string
+                  description: Property name, if different from ID. Best practice is for property ID and name to match. If not specified, property name will be filled with property ID value.
+                system_metadata:
+                  type: string
+                  description: Include values for any system metadata you want to set for the property. See Properties Overview for full list.
+                custom_metadata:
+                  type: string
+                  description: Set any custom metadata you want to include with the property.
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    [
+                        {
+                            "salsify:id": "test_ID",
+                            "salsify:name": "test_name",
+                            "salsify:data_type": "string",
+                            "salsify:entity_types": [],
+                            "salsify:is_facetable": true,
+                            "salsify:attribute_group": "General",
+                            "salsify:position": null,
+                            "salsify:help_text": "This is a test property",
+                            "salsify:manage_permissions": null,
+                            "salsify:read_permissions": null,
+                            "salsify:hidden_permissions": null,
+                            "salsify:created_at": "2018-09-10T13:43:12.128Z",
+                            "salsify:updated_at": "2018-09-10T13:43:12.128Z",
+                            "salsify:type": "property",
+                            "salsify:system_id": "s-999-999-999-999"
+                        },
+                        {
+                            "salsify:id": "test_ID2",
+                            "salsify:name": "test_name2",
+                            "salsify:data_type": "string",
+                            "salsify:entity_types": [],
+                            "salsify:is_facetable": true,
+                            "salsify:attribute_group": "General",
+                            "salsify:position": null,
+                            "salsify:help_text": "This is a test property",
+                            "salsify:manage_permissions": null,
+                            "salsify:read_permissions": null,
+                            "salsify:hidden_permissions": null,
+                            "salsify:created_at": "2018-09-10T13:43:12.128Z",
+                            "salsify:updated_at": "2018-09-10T13:43:12.128Z",
+                            "salsify:type": "property",
+                            "salsify:system_id": "s-999-999-999-999"
+                        }
+                    ]
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Property'
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+    delete:
+      summary: Bulk Delete Properties
+      description: ''
+      operationId: bulk-delete-properties
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - salsify:id
+              properties:
+                salsify:id:
+                  type: string
+                  description: Unique identifier for each property, sent as an array.
+      responses:
+        '204':
+          description: '204'
+          content:
+            text/plain:
+              examples:
+                Result:
+                  value: Returned when content is successfully updated in Salsify.
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+  /properties/{property_id}:
+    get:
+      summary: Read Property
+      description: ''
+      operationId: read-property
+      parameters:
+        - name: property_id
+          in: path
+          description: Unique identifier for the property. Used in report headers, channel mapping, etc.
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                        "salsify:id": "ASIN",
+                        "salsify:name": "ASIN",
+                        "salsify:data_type": "string",
+                        "salsify:entity_types": [
+                            "products"
+                        ],
+                        "salsify:is_facetable": true,
+                        "salsify:attribute_group": "General",
+                        "salsify:position": null,
+                        "salsify:help_text": null,
+                        "salsify:manage_permissions": null,
+                        "salsify:read_permissions": null,
+                        "salsify:hidden_permissions": null,
+                        "salsify:created_at": "2017-12-18T14:44:06.991Z",
+                        "salsify:updated_at": "2017-12-18T14:46:09.370Z",
+                        "salsify:type": "property",
+                        "salsify:system_id": "s-999-999-999-999"
+                    }
+              schema:
+                $ref: '#/components/schemas/Property'
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+    put:
+      summary: Update Property
+      description: ''
+      operationId: update-property
+      parameters:
+        - name: property_id
+          in: path
+          description: Unique identifier for the property. Used in report headers, channel mapping, etc.
+          schema:
+            type: string
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                metadata_id:
+                  type: string
+                  description: 'Property metadata can be added in value pairs. `{metadata_id} : {metadata_value}` where `metadata_id` is the metadata id being associated with the Salsify property, and `metadata_value` is the corresponding metadata value. If `metadata_id` does not exist in org, metadata property will be created.'
+      responses:
+        '204':
+          description: '204'
+          content:
+            text/plain:
+              examples:
+                Result:
+                  value: Returned when content is successfully updated in Salsify.
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+    delete:
+      summary: Delete Property
+      description: ''
+      operationId: delete-property
+      parameters:
+        - name: property_id
+          in: path
+          description: Unique identifier for the property. Used in report headers, channel mapping, etc.
+          schema:
+            type: string
+          required: true
+      responses:
+        '204':
+          description: '204'
+          content:
+            text/plain:
+              examples:
+                Result:
+                  value: Returned when content is successfully updated in Salsify.
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+  /properties/_upsert:
+    put:
+      summary: Bulk Upsert Properties
+      description: ''
+      operationId: bulk-upsert-properties
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                salsify:id:
+                  type: string
+                  description: Unique identifier for property. Used in report headers, channel mapping, etc. Cannot start with `salsify`,  `=`, or `_`. Case sensitive.
+                salsify:name:
+                  type: string
+                  description: Property name, if different from ID. Best practice is for property ID and name to match. If not specified, property name will be filled with property ID value.
+                salsify:system_metadata:
+                  type: string
+                  description: Include values for any system metadata you want to set for the property. See Properties Overview for full list.
+                salsify:custom_metadata:
+                  type: string
+                  description: Set any custom metadata you want to include with the property.
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    [
+                        null,
+                        null
+                    ]
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Property'
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+        '422':
+          description: '422'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: "{\n    \"errors\": [\n        [],\n        [\n        \"salsify:data_type must be in string, rich_text, link, html, enumerated, \tdigital_asset, boolean, number, date, compound, complex, product, quantified_product\"\n        ]\n    ]\n}"
+      deprecated: false
+  /imports/upload_mounts:
+    post:
+      summary: Create a Mount Point
+      description: ''
+      operationId: create-a-mount-point
+      parameters:
+        - name: 'Authorization: Bearer'
+          in: header
+          description: User API Key
+          required: true
+          schema:
+            type: string
+        - name: Content-Type
+          in: header
+          required: true
+          schema:
+            type: string
+            default: application/json
+      responses:
+        '201':
+          description: '201'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                        "url": "https://salsify-dandelion.s3-external-1.amazonaws.com",
+                        "form_data": {
+                            "key": "1/16569/user_data_import/1/2018/05/08/22:34:49-fe493802",
+                            "x-amz-server-side-encryption": "aws:kms",
+                            "acl": "private",
+                            "policy": "...",
+                            "x-amz-credential": "AKIARRX37GWVL5YUBHGV/20221021/us-east-1/s3/aws4_request",
+                            "x-amz-algorithm": "AWS4-HMAC-SHA256",
+                            "x-amz-date": "20221021T183947Z",
+                            "x-amz-signature": "ABCDEFGHIJKLMNOPQRSTUVWXYZZYXWUTSRQPOMNLKJIHGFDECBA"
+                        }
+                    }
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    example: https://salsify-dandelion.s3-external-1.amazonaws.com
+                  form_data:
+                    type: object
+                    properties:
+                      key:
+                        type: string
+                        example: 1/16569/user_data_import/1/2018/05/08/22:34:49-fe493802
+                      x-amz-server-side-encryption:
+                        type: string
+                        example: aws:kms
+                      acl:
+                        type: string
+                        example: private
+                      policy:
+                        type: string
+                        example: ...
+                      x-amz-credential:
+                        type: string
+                        example: AKIARRX37GWVL5YUBHGV/20221021/us-east-1/s3/aws4_request
+                      x-amz-algorithm:
+                        type: string
+                        example: AWS4-HMAC-SHA256
+                      x-amz-date:
+                        type: string
+                        example: 20221021T183947Z
+                      x-amz-signature:
+                        type: string
+                        example: ABCDEFGHIJKLMNOPQRSTUVWXYZZYXWUTSRQPOMNLKJIHGFDECBA
+        '401':
+          description: '401'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                        "error": "You need to sign in before continuing."
+                    }
+
+                    # This indicates that an invalid Bearer Token was provided
+      deprecated: false
+  /imports:
+    post:
+      summary: Creating a JSON Import from FTP
+      description: ''
+      operationId: creating-a-json-import-from-ftp
+      parameters:
+        - name: 'Authorization: Bearer'
+          in: header
+          description: User API Key
+          schema:
+            type: string
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+            default: application/json
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                import:
+                  type: object
+                  required:
+                    - name
+                  properties:
+                    name:
+                      type: string
+                      description: Name of the import
+                    import_format:
+                      type: object
+                      required:
+                        - type
+                      properties:
+                        type:
+                          type: string
+                          description: JSON or JSONL import format
+                          enum:
+                            - json_import_format
+                            - jsonl_import_format
+                            - schema_json_import_format
+                            - schema_jsonl_import_format
+                      description: Import format parameters
+                    import_source:
+                      type: object
+                      required:
+                        - file
+                        - host
+                        - username
+                        - password
+                        - protocol
+                      properties:
+                        file:
+                          type: string
+                          description: Import filename
+                        type:
+                          type: string
+                          default: ftp_import_source
+                          description: FTP import source
+                        upload_path:
+                          type: string
+                          description: Upload path, key from mount point form data
+                        host:
+                          type: string
+                          description: FTP hostname
+                        port:
+                          type: string
+                          description: FTP port
+                        username:
+                          type: string
+                          description: FTP username
+                        password:
+                          type: string
+                          description: FTP password
+                        protocol:
+                          type: string
+                          description: FTP or SFTP
+                          enum:
+                            - ftp
+                            - sftp
+                      description: Import source parameters
+      responses:
+        '201':
+          description: '201'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                        "id": 626975,
+                        "system_id": "s-a78dc0ff-e10a-46bd-84ef-1bebce2499e2",
+                        "name": "My Import from SFTP",
+                        "import_source": {
+                            "type": "ftp_import_source",
+                            "type_label": "FTP",
+                            "host": "salsify.files.com",
+                            "username": "...",
+                            "file": "/Testing/test.json",
+                            "protocol": "sftp",
+                            "port": null
+                        },
+                        "import_format": {
+                            "type": "json_import_format",
+                            "type_label": "JSON"
+                        },
+                        "webhook_notification": null,
+                        "email_notification": null,
+                        "schedule": null,
+                        "last_import_run": null
+                    }
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 626975
+                    default: 0
+                  system_id:
+                    type: string
+                    example: s-a78dc0ff-e10a-46bd-84ef-1bebce2499e2
+                  name:
+                    type: string
+                    example: My Import from SFTP
+                  import_source:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        example: ftp_import_source
+                      type_label:
+                        type: string
+                        example: FTP
+                      file:
+                        type: string
+                        example: /Testing/test.json
+                      upload_path:
+                        type: string
+                        example: 1/16569/user_data_import/1/2021/07/26/13:50:10-d7006a32
+                      host:
+                        type: string
+                        example: salsify.files.com
+                      username:
+                        type: string
+                        example: ...
+                      protocol:
+                        type: string
+                        example: sftp
+                      port: {}
+                  import_format:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        example: json_import_format
+                      type_label:
+                        type: string
+                        example: JSON
+                  webhook_notification: {}
+                  email_notification: {}
+                  schedule: {}
+                  last_import_run: {}
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+  /imports/{import_id}:
+    put:
+      summary: Updating an Import to Point at a New Mount Point
+      description: ''
+      operationId: updating-an-import-to-point-at-a-new-mount-point
+      parameters:
+        - name: import_id
+          in: path
+          description: Identifier for the import run either created manually in the App for a csv/excel import or generated with a mount point creation.
+          schema:
+            type: string
+          required: true
+        - name: 'Authorization: Bearer'
+          in: header
+          description: User API Key
+          schema:
+            type: string
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+            default: application/json
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                import:
+                  type: object
+                  required:
+                    - file
+                    - upload_path
+                  properties:
+                    file:
+                      type: string
+                      description: Import filename
+                    type:
+                      type: string
+                      default: upload_import_source
+                    upload_path:
+                      type: string
+                      description: Upload path, key from mount point form data
+      responses:
+        '204':
+          description: '204'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: ''
+      deprecated: false
+  /imports/{import_id}/runs:
+    post:
+      summary: Starting an Import Run
+      description: ''
+      operationId: starting-an-import-run
+      parameters:
+        - name: import_id
+          in: path
+          description: Identifier for the import run either created manually in the application for a csv/excel import or generated with a mount point creation.
+          schema:
+            type: string
+          required: true
+        - name: 'Authorization: Bearer'
+          in: header
+          description: User API Key
+          schema:
+            type: string
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+            default: application/json
+      responses:
+        '201':
+          description: '201'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                      "id":856,
+                      "status":"running",
+                      "start_time":"2013-10-17T17:56:21.585Z",
+                      "end_time":null,
+                      "duration":0.240623376,
+                      "failure_reason":null,
+                      "progress":0,
+                      "stage_data":[
+                        {
+                          "id":"schema",
+                          "statistics":[...],
+                          "messages":[],
+                          "total_errors":0,
+                          "progress":0,
+                          "begin":"2013-10-17T17:56:21Z",
+                          "end":null,
+                          "duration":1
+                        }
+                      ],
+                      "import":{
+                        "id":462,
+                        "import_source":{
+                          "type":"cloud_import_source",
+                          "type_label":"Upload",
+                          "file":"export (13).xlsx",
+                          "upload_path":"1/103/user_data_import/1/2013/10/17/17:56:12-6c1b4797"
+                        },
+                        "import_format":{
+                          "type":"attribute_import_format",
+                          "import_mode":"upsert",
+                          "type_label":"Schema"
+                        }
+                      }
+                    }
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+  /imports/runs/{import_run_id}:
+    get:
+      summary: Getting the Status of an Import Run
+      description: ''
+      operationId: getting-the-status-of-an-import-run
+      parameters:
+        - name: import_run_id
+          in: path
+          description: the ID of the import run to retrieve status for
+          schema:
+            type: string
+          required: true
+        - name: 'Authorization: Bearer'
+          in: header
+          description: User API Key
+          schema:
+            type: string
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+            default: application/json
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                        "id": 1017693,
+                        "system_id": "s-d76fae6d-4c20-401b-ab4a-57b7d8ae317e",
+                        "status": "completed",
+                        "status_summary": "",
+                        "start_time": "2022-10-21T15:44:28.997Z",
+                        "end_time": "2022-10-21T15:46:29.736Z",
+                        "duration": 120.739104,
+                        "failure_reason": null,
+                        "progress": 100,
+                        "stage_data": [...],
+                        "import_source_filename": "/Testing/molly_test/folder/full_test.json",
+                        "import": {
+                            "id": 626956,
+                            "system_id": "s-9fa034e1-46ad-4cf0-82b8-a459bc9223fc",
+                            "name": "test.json",
+                            "import_source": {
+                                ...
+                            },
+                            "import_format": {
+                                "type": "json_import_format",
+                                "type_label": "JSON"
+                            },
+                            "webhook_notification": null,
+                            "email_notification": null,
+                            "schedule": null
+                        }
+                    }
+        '404':
+          description: '404'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: Returned when the given import ID cannot be found.
+      deprecated: false
+  /export_runs:
+    post:
+      summary: Start Export Run
+      description: ''
+      operationId: start-export-run
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - entity_type
+              properties:
+                entity_type:
+                  type: string
+                  description: 'Defines the type of entity you want to export. **Allowed Values**: `all` `product` `digital_asset` `attribute` `attribute_value`'
+                  default: all
+                format:
+                  type: string
+                  description: Format file is output in. If not specified, default format for all entity_types is `xlsx`. Note that for entity_type `all`, the only valid output formats are `json` and `jsonl`.  **Allowed Values:** `json` `jsonl` `csv` `xlsx`
+                  default: xlsx
+                compress:
+                  type: boolean
+                  description: If `true` is specified, returns a compressed file in gzip format. (.gz)
+                  default: false
+                include_all_columns:
+                  type: boolean
+                  description: Returns all content properties for product entities, or all custom metadata stored with digital asset entities. Default is `true`. Use `properties` to define the scope for `false`.
+                  default: true
+                properties:
+                  type: string
+                  description: For exports where `include_all_columns` is `false`, specify property IDs for properties to be included in the export and formatted as a single value of single quote and comma-separated values. ie. `"'Property ID 1','Property ID 2',Property ID 3'"`
+                filter:
+                  type: string
+                  description: Limit the scope of entities included in export file based on filter specifications.
+                sort_order:
+                  type: string
+                  description: 'Sorts results in either ascending or descending order by. **Allowed Values**: `asc` `desc`'
+                sort_property:
+                  type: string
+                  description: Sorts results by the values stored in the Salsify Property ID specified.
+      responses:
+        '201':
+          description: '201'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                        "id": 19350473,
+                        "status": "running",
+                        "start_time": "2019-12-06T19:38:11.753Z",
+                        "end_time": null,
+                        "duration": 0.044245656,
+                        "url": "",
+                        "progress": 10,
+                        "failure_reason": null,
+                        "estimated_time_remaining": ""
+                    }
+
+                    #where the export_run id = 19350473
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+      security: []
+  /export_runs/{export_id}:
+    get:
+      summary: Get Export Status
+      description: ''
+      operationId: get-export-status
+      parameters:
+        - name: export_id
+          in: path
+          description: The ID for the export you want to retrieve status for. Found in the response from Start Export Run POST call.
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                        "id": 19350473,
+                        "status": "completed",
+                        "start_time": "2019-12-06T19:38:11.753Z",
+                        "end_time": "2019-12-06T19:38:15.104Z",
+                        "duration": 3.350483,
+                        "url": "EXPORT-URL",
+                        "progress": 100,
+                        "includes_changes_before": "2019-12-06T19:38:07.518Z",
+                        "failure_reason": null,
+                        "estimated_time_remaining": ""
+                    }
+
+                    #where the export_run id = 19350473 and EXPORT-URL is the URL to access the downloadable export file.
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+      security: []
+  /digital_assets/:
+    post:
+      summary: Create a Digital Asset & Metadata
+      description: ''
+      operationId: create-a-digital-asset-metadata
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - salsify:source_url
+              properties:
+                salsify:source_url:
+                  type: string
+                  description: An HTTP(S) URL of a public image on the Internet.
+                salsify:id:
+                  type: string
+                  description: The identifier to use for the asset. A randomly generated ID is assigned if not specified.
+                additional_metadata:
+                  type: string
+                  description: 'Additional optional metadata ([system](https://salsify.readme.io/v1.0/reference#section-digital-asset-metadata-attributes) or custom) can be added in value pairs. {metadata_id} : {metadata_value} where metadata_id is a Salsify property, and metadata_value is the corresponding property value. If metadata_id does not exist in org, property will be created.'
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                        "salsify:id": "dandelion_new_10002",
+                        "salsify:source_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/DandelionFlower.jpg/440px-DandelionFlower.jpg",
+                        "salsify:name": "dandelion_flower.png",
+                        "salsify:created_at": "2017-11-28T19:18:17.913Z",
+                        "salsify:updated_at": "2017-11-28T19:18:17.913Z",
+                        "salsify:status": "in_progress",
+                        "salsify:asset_resource_type": "raw",
+                        "salsify:system_id": "s-999-999-999-999",
+                        "Asset Photographer": "LB Jeffreys"
+                    }
+              schema:
+                $ref: '#/components/schemas/DigitalAsset'
+        '422':
+          description: '422'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                        "errors": [
+                            "Given external id (dandelion_new_10002) already exists"
+                        ]
+                    }
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                      example: Given external id (dandelion_new_10002) already exists
+      deprecated: false
+  /digital_assets:
+    post:
+      summary: Create Multiple Digital Assets
+      description: ''
+      operationId: add-multiple-digital-assets
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - salsify:source_URL
+              properties:
+                salsify:source_URL:
+                  type: string
+                  description: A public-facing HTTP(S) URL for the digital asset file.
+                salsify:id:
+                  type: string
+                  description: The identifier to use for the asset. A randomly generated ID is assigned if not specified.
+                salsify:name:
+                  type: string
+                  description: Digital asset name. The filename is used if not specified.
+                additional_metadata:
+                  type: string
+                  description: 'Additional optional metadata ([system](https://salsify.readme.io/v1.0/reference#section-digital-asset-metadata-attributes) or custom) can be added in value pairs. {metadata_id} : {metadata_value} where metadata_id is a Salsify property, and metadata_value is the corresponding property value. If metadata_id does not exist in org, property will be created.'
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    [
+                        {
+                            "salsify:id": "kitty.png",
+                            "salsify:source_url": "https://images.pexels.com/photos/62321/kitten-cat-fluffy-cat-cute-62321.jpeg?auto=compress&cs=tinysrgb&h=650&w=940.png",
+                            "salsify:name": "kitten-cat-fluffy-cat-cute-62321.jpeg",
+                            "salsify:created_at": "2018-04-19T20:24:43.855Z",
+                            "salsify:updated_at": "2018-04-19T20:24:43.855Z",
+                            "salsify:status": "in_progress",
+                            "salsify:asset_resource_type": "raw",
+                            "salsify:system_id": "s-999-999-999-999",
+                            "Manufacturer": "Wildflower Imports, Inc."
+                        },
+                        {
+                            "salsify:id": "9a7e78da65cae09786b8df124c8fcab942d4d5fa",
+                            "salsify:source_url": "https://images.pexels.com/photos/774731/pexels-photo-774731.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
+                            "salsify:name": "pexels-photo-774731.jpeg",
+                            "salsify:created_at": "2018-04-19T20:24:43.855Z",
+                            "salsify:updated_at": "2018-04-19T20:24:43.855Z",
+                            "salsify:status": "in_progress",
+                            "salsify:asset_resource_type": "raw",
+                            "salsify:system_id": "s-999-999-999-999",
+                            "Manufacturer": "Wildflower Imports, Inc."
+                        }
+                    ]
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DigitalAsset'
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+    put:
+      summary: Update Multiple Digital Assets
+      description: ''
+      operationId: update-multiple-digital-assets
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - salsify:id
+              properties:
+                salsify:id:
+                  type: string
+                  description: The identifier to use for the asset. A randomly generated ID is assigned if not specified.
+                source_URL:
+                  type: string
+                  description: An HTTP(S) URL of a public image on the Internet.
+                salsify:name:
+                  type: string
+                  description: Digital asset name. The filename is used if not specified.
+                additional_metadata:
+                  type: string
+                  description: 'Additional optional metadata can be added in value pairs. {metadata_id} : {metadata_value} where metadata_id is a Salsify property, and metadata_value is the corresponding property value. If metadata_id does not exist in org, property will be created.'
+      responses:
+        '204':
+          description: '204'
+          content:
+            text/plain:
+              examples:
+                Result:
+                  value: Returned when content is successfully updated in Salsify.
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+    delete:
+      summary: Delete Multiple Digital Assets
+      description: ''
+      operationId: delete-multiple-digital-assets
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - salsify:id
+              properties:
+                salsify:id:
+                  type: string
+                  description: The identifier to use for the asset. A randomly generated ID is assigned if not specified.
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+        '204':
+          description: '204'
+          content:
+            text/plain:
+              examples:
+                Result:
+                  value: Returned when content is successfully updated in Salsify.
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+        '422':
+          description: '422'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                        "errors": [
+                            "Updates must be applied to existing assets."
+                        ]
+                    }
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                      example: Updates must be applied to existing assets.
+      deprecated: false
+  /digital_assets/{asset_id}:
+    get:
+      summary: Read Digital Asset Metadata
+      description: Where a user has permission and the digital asset exists, complete digital asset JSON object is returned with its most current information.
+      operationId: get-digital-asset
+      parameters:
+        - name: asset_id
+          in: path
+          description: Digital asset unique identifier.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                        "salsify:id": "01d954267e703cb8f9a73c50928e4ca8ed98e115",
+                        "salsify:url": "http://images.salsify.com/image/upload/s--CJemutyy--/cnpfpnp48unsd3n0ok5e.jpg",
+                        "salsify:name": "pink_leather_tote.jpg",
+                        "salsify:created_at": "2016-02-28T00:04:47.191Z",
+                        "salsify:updated_at": "2017-05-21T05:18:34.244Z",
+                        "salsify:status": "completed",
+                        "salsify:asset_height": 2795,
+                        "salsify:asset_width": 2795,
+                        "salsify:asset_resource_type": "image",
+                        "salsify:filename": "pink_leather_tote.jpg",
+                        "salsify:bytes": 1885251,
+                        "salsify:format": "jpg",
+                        "salsify:etag": "5e212cf4ae709184aff2b35ec2d97278",
+                        "salsify:system_id": "s-9999-9999-99999",
+                        "Asset Keywords": [
+                            "front view",
+                            "white isolation",
+                            "leather tote"
+                        ],
+                        "Asset Color": "Blush",
+                        "Asset Created Date ": "2016-05-02",
+                        "Asset Photographer": "LB Jeffreys",
+                        "Manufacturer": "Wildflower Imports, Inc."
+                    }
+              schema:
+                $ref: '#/components/schemas/DigitalAsset'
+        '401':
+          description: '401'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                      "error": "You need to sign in before continuing."
+                    }
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: You need to sign in before continuing.
+        '404':
+          description: '404'
+          content:
+            text/plain:
+              examples:
+                Result:
+                  value: Asset ID does not exist in Salsify.
+      deprecated: false
+    put:
+      summary: Update Digital Asset Metadata
+      description: ''
+      operationId: update-digital-asset-metadata
+      parameters:
+        - name: asset_id
+          in: path
+          description: The identifier for the digital asset you want to replace.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                source_url:
+                  type: string
+                  description: Public-facing, non-login URL for the location of the digital asset you want to replace the current asset with. Don't include if you aren't making an update to the digital asset's source.
+                additional_custom_metadata:
+                  type: string
+                  description: 'Additional optional custom metadata can be added in value pairs. {metadata_id} : {metadata_value} where metadata_id is a Salsify property, and metadata_value is the corresponding property value. If metadata_id does not exist in org, property will be created.'
+      responses:
+        '204':
+          description: '204'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: //Returned when content is successfully updated in Salsify.
+        '422':
+          description: '422'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                        "errors": [
+                            "Invalid reference to category Asset Photographer = 'Seymour Parrish'"
+                        ]
+                    }
+
+                    //occurs where you attempt an update to an enumerated property type, but the value isn't in the enumerated list. Add the value to the property itself, then associate the property value to the digital asset.
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                      example: Updates must be applied to existing assets.
+      deprecated: false
+  /digital_assets/refresh:
+    post:
+      summary: Refresh Digital Assets
+      description: ''
+      operationId: refresh-digital-assets
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+  /digital_assets/_upsert:
+    put:
+      summary: Bulk Upsert Digital Assets
+      description: ''
+      operationId: bulk-upsert-digital-assets
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                salsify:id:
+                  type: string
+                  description: The identifier to use for the asset. A randomly generated ID is assigned if not specified.
+                salsify:url:
+                  type: string
+                  description: An HTTP(S) URL of a public image on the Internet.
+                salsify:name:
+                  type: string
+                  description: Digital asset name. The filename is used if not specified.
+                additional_metadata:
+                  type: string
+                  description: 'Additional optional metadata can be added in value pairs. {metadata_id} : {metadata_value} where metadata_id is a Salsify property, and metadata_value is the corresponding property value. If metadata_id does not exist in org, property will be created.'
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    [
+                        null,
+                        null
+                    ]
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DigitalAsset'
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+  /lists/{list_id}/members:
+    put:
+      summary: Add List Members
+      description: ''
+      operationId: add-list-members
+      parameters:
+        - name: list_id
+          in: path
+          description: Identifier for the list being updated. List ID can be found by navigating to the Salsify list; ID follows `product_lists` or `digital_asset_lists`. See List Membership Overview for how to find the list ID.
+          schema:
+            type: string
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                member_id:
+                  type: string
+                  description: Salsify product ID for the products to be added to the list.
+      responses:
+        '204':
+          description: '204'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+        '422':
+          description: '422'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                        "errors": [
+                            "985050 could not be found or is not a product",
+                            "981929 could not be found or is not a product"
+                        ]
+                    }
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                      example: 985050 could not be found or is not a product
+      deprecated: false
+    delete:
+      summary: Delete List Members
+      description: ''
+      operationId: add-list-members-1
+      parameters:
+        - name: list_id
+          in: path
+          description: Identifier for the list being updated. List ID can be found by navigating to the Salsify list; ID follows `product_lists` or `digital_asset_lists`
+          schema:
+            type: string
+          required: true
+      responses:
+        '204':
+          description: '204'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+        '422':
+          description: '422'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                        "errors": [
+                            "985050 could not be found or is not a product",
+                            "981929 could not be found or is not a product"
+                        ]
+                    }
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                      example: 985050 could not be found or is not a product
+      deprecated: false
