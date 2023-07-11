@@ -981,10 +981,6 @@ paths:
                     type: array
                     items:
                       type: object
-                  settings:
-                    type: array
-                    items:
-                      type: object
 
   "/product/rating-batch":
     get:
