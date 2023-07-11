@@ -6,7 +6,7 @@ servers:
     description: Reviews.io API server
 
 info:
-  version: v0.1.0-1
+  version: v0.1.0-3
   title: Reviews.io API
   x-logo:
     url: https://raw.githubusercontent.com/takeshape/openapi-specs/main/specs/reviews.io/reviews-io.png
