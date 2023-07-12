@@ -168,20 +168,16 @@ components:
               nullable: true
       required: 
         - product_review_id
-        - product_make
-        - name
         - sku
         - review
         - rating
         - date_created
         - timeago
-        - date_formatted
         - product
         - ratings
         - reviewer
         - images
         - replies
-        - tags
         - author
     product_review_all:
       type: object
