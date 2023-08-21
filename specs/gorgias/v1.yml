@@ -2741,6 +2741,23 @@ paths:
                           nullable: true
                           description: When the customer was last updated.
                           example: '2019-09-25T06:18:22.839271'
+                  object:
+                    type: string
+                  uri:
+                    type: string
+                  meta:
+                    type: object
+                    properties:
+                      page:
+                        type: number
+                      per_page:
+                        type: number
+                      current_page:
+                        type: string
+                      item_count:
+                        type: number
+                      nb_pages:
+                        type: number
       tags:
         - Customers
     delete:
@@ -4074,6 +4091,29 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Event'
+                  object:
+                    type: string
+                  uri:
+                    type: string
+                  meta:
+                    type: object
+                    properties:
+                      page:
+                        type: number
+                      per_page:
+                        type: number
+                      current_page:
+                        type: string
+                      item_count:
+                        type: number
+                      nb_pages:
+                        type: number
+                      next_cursor:
+                        type: string
+                        nullable: true
+                      prev_cursor:
+                        type: string
+                        nullable: true
               examples:
                 responses:
                   value:
@@ -4404,6 +4444,29 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Integration'
+                  object:
+                    type: string
+                  uri:
+                    type: string
+                  meta:
+                    type: object
+                    properties:
+                      page:
+                        type: number
+                      per_page:
+                        type: number
+                      current_page:
+                        type: string
+                      item_count:
+                        type: number
+                      nb_pages:
+                        type: number
+                      next_cursor:
+                        type: string
+                        nullable: true
+                      prev_cursor:
+                        type: string
+                        nullable: true
               examples:
                 responses:
                   value:
@@ -4872,6 +4935,29 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Job'
+                  object:
+                    type: string
+                  uri:
+                    type: string
+                  meta:
+                    type: object
+                    properties:
+                      page:
+                        type: number
+                      per_page:
+                        type: number
+                      current_page:
+                        type: string
+                      item_count:
+                        type: number
+                      nb_pages:
+                        type: number
+                      next_cursor:
+                        type: string
+                        nullable: true
+                      prev_cursor:
+                        type: string
+                        nullable: true
               examples:
                 responses:
                   value:
@@ -5321,6 +5407,29 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Macro'
+                  object:
+                    type: string
+                  uri:
+                    type: string
+                  meta:
+                    type: object
+                    properties:
+                      page:
+                        type: number
+                      per_page:
+                        type: number
+                      current_page:
+                        type: string
+                      item_count:
+                        type: number
+                      nb_pages:
+                        type: number
+                      next_cursor:
+                        type: string
+                        nullable: true
+                      prev_cursor:
+                        type: string
+                        nullable: true
               examples:
                 responses:
                   value:
@@ -6749,6 +6858,29 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Rule'
+                  object:
+                    type: string
+                  uri:
+                    type: string
+                  meta:
+                    type: object
+                    properties:
+                      page:
+                        type: number
+                      per_page:
+                        type: number
+                      current_page:
+                        type: string
+                      item_count:
+                        type: number
+                      nb_pages:
+                        type: number
+                      prev_cursor:
+                        type: string
+                        nullable: true
+                      next_cursor:
+                        type: string
+                        nullable: true
               examples:
                 responses:
                   value:
@@ -9788,6 +9920,29 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/SatisfactionSurvey'
+                  object:
+                    type: string
+                  uri:
+                    type: string
+                  meta:
+                    type: object
+                    properties:
+                      page:
+                        type: number
+                      per_page:
+                        type: number
+                      current_page:
+                        type: string
+                      item_count:
+                        type: number
+                      nb_pages:
+                        type: number
+                      next_cursor:
+                        type: string
+                        nullable: true
+                      prev_cursor:
+                        type: string
+                        nullable: true
               examples:
                 responses:
                   value:
@@ -10144,6 +10299,26 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/UserSummary'
+                  object:
+                    type: string
+                  uri:
+                    type: string
+                  meta:
+                    type: object
+                    properties:
+                      page:
+                        type: number
+                      per_page:
+                        type: number
+                      item_count:
+                        type: number
+                      nb_pages:
+                        type: number
+                      next_cursor:
+                        type: string
+                        nullable: true
+                      current_page:
+                        type: string
               examples:
                 responses:
                   value:
@@ -10490,6 +10665,29 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Tag'
+                  object:
+                    type: string
+                  uri:
+                    type: string
+                  meta:
+                    type: object
+                    properties:
+                      page:
+                        type: number
+                      per_page:
+                        type: number
+                      item_count:
+                        type: number
+                      nb_pages:
+                        type: number
+                      next_cursor:
+                        type: string
+                        nullable: true
+                      current_page:
+                        type: string
+                      next_page:
+                        type: string
+                        nullable: true
               examples:
                 responses:
                   value:
@@ -12238,6 +12436,19 @@ paths:
                           description: URI of the ticket.
                       required:
                         - customer
+                  object:
+                    type: string
+                  uri:
+                    type: string
+                  meta:
+                    type: object
+                    properties:
+                      prev_cursor:
+                        type: string
+                        nullable: true
+                      next_cursor:
+                        type: string
+                        nullable: true
       tags:
         - Tickets
   /tickets/{id}/:
@@ -13496,6 +13707,26 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/TicketMessage'
+                  object:
+                    type: string
+                  uri:
+                    type: string
+                  meta:
+                    type: object
+                    properties:
+                      page:
+                        type: number
+                      per_page:
+                        type: number
+                      current_page:
+                        type: string
+                      next_page:
+                        type: string
+                        nullable: true
+                      item_count:
+                        type: number
+                      nb_pages:
+                        type: number
               examples:
                 responses:
                   value:
@@ -14895,6 +15126,29 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/View'
+                  object:
+                    type: string
+                  uri:
+                    type: string
+                  meta:
+                    type: object
+                    properties:
+                      page:
+                        type: number
+                      per_page:
+                        type: number
+                      current_page:
+                        type: string
+                      item_count:
+                        type: number
+                      nb_pages:
+                        type: number
+                      prev_cursor:
+                        type: string
+                        nullable: true
+                      next_cursor:
+                        type: string
+                        nullable: true
               examples:
                 responses:
                   value:
@@ -17233,6 +17487,19 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Widget'
+                  object:
+                    type: string
+                  uri:
+                    type: string
+                  meta:
+                    type: object
+                    properties:
+                      prev_cursor:
+                        type: string
+                        nullable: true
+                      next_cursor:
+                        type: string
+                        nullable: true
               examples:
                 responses:
                   value:
