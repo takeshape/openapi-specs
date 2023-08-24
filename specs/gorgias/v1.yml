@@ -11091,6 +11091,7 @@ paths:
                           id: 8
                         description: The primary receiver of the message. It can be a user or a customer.
                         type: object
+                        nullable: true
                         properties:
                           id:
                             type: integer
