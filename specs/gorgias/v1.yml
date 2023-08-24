@@ -11269,6 +11269,7 @@ paths:
                       - channel
                       - from_agent
                       - via
+                      - sender
                     description: |-
                       A ticket-message represents a message (an email, an SMS, a Facebook comment, chat message, etc..) under a normalized format.
                       There are 3 types of messages:
