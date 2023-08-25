@@ -269,8 +269,6 @@ components:
         - product_url
         - score
         - title
-
-
     Review:
       type: object
       properties:
@@ -419,6 +417,42 @@ components:
           example: false
           default: true
         user_reference: { }
+    CouponError:
+      type: object
+      required:
+        - error_text
+        - error_count
+      properties:
+        error_text:
+          type: string
+        error_count:
+          type: integer
+    Comment:
+      type: object
+      properties:
+        id:
+          type: integer
+        commentable_id:
+          type: integer
+        commentable_type:
+          type: string
+        content:
+          type: string
+        votes_up:
+          type: integer
+        votes_down:
+          type: integer
+        public:
+          type: boolean
+        approved:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        is_store_owner_comment?:
+          type: boolean
+        answerer:
+          "$ref": "#/components/schemas/User"
 security:
   - {}
 paths:
@@ -782,6 +816,8 @@ paths:
                     }
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -898,6 +934,8 @@ paths:
                     }
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -948,6 +986,8 @@ paths:
                     }
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -1020,6 +1060,8 @@ paths:
                     }
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -1150,6 +1192,8 @@ paths:
                     }
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -1211,11 +1255,15 @@ paths:
                 oneOf:
                   - title: Output with async parameter
                     type: object
+                    required:
+                      - status
                     properties:
                       status:
                         $ref: '#/components/schemas/Status'
                   - title: Output with async and validate_data parameters
                     type: object
+                    required:
+                      - status
                     properties:
                       status:
                         $ref: '#/components/schemas/Status'
@@ -1246,6 +1294,8 @@ paths:
                     }
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -1400,6 +1450,8 @@ paths:
                     }
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -1525,6 +1577,8 @@ paths:
                         ]  }}
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -1586,6 +1640,8 @@ paths:
                 oneOf:
                   - title: Output with async and validate_data parameters
                     type: object
+                    required:
+                      - status
                     properties:
                       status:
                         $ref: '#/components/schemas/Status'
@@ -1602,6 +1658,8 @@ paths:
                               example: email type ID is not valid
                   - title: Output with async parameter
                     type: object
+                    required:
+                      - status
                     properties:
                       status:
                         $ref: '#/components/schemas/Status'
@@ -1805,6 +1863,8 @@ paths:
                     }
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -1831,6 +1891,8 @@ paths:
                     }
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -1926,6 +1988,8 @@ paths:
                     }
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -2005,6 +2069,8 @@ paths:
                     }
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -2033,6 +2099,8 @@ paths:
                     }
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -2117,6 +2185,8 @@ paths:
                     }
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -2199,6 +2269,8 @@ paths:
                     }
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -2265,6 +2337,8 @@ paths:
                     }
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -2284,19 +2358,22 @@ paths:
       summary: Upload dynamic coupon codes
       description: ''
       operationId: upload-unique-coupon-codes
+      parameters:
+        - name: utoken
+          in: query
+          description: Your Yotpo account access token. See [Yotpo Authentication](https://apidocs.yotpo.com/reference#yotpo-authentication) to learn how to generate your utoken.
+          required: true
+          schema:
+            type: string
       requestBody:
         content:
           application/json:
             schema:
               type: object
               required:
-                - utoken
                 - coupon_action
                 - codes
               properties:
-                utoken:
-                  type: string
-                  description: Your Yotpo account access token. See [Yotpo Authentication](https://apidocs.yotpo.com/reference#yotpo-authentication) to learn how to generate your utoken.
                 coupon_action:
                   type: string
                   description: Which review request mail to apply the coupon to.
@@ -2344,6 +2421,31 @@ paths:
                         "new-codes": 3
                       }
                     }
+              schema:
+                type: object
+                required:
+                  - status
+                  - response
+                properties:
+                  status:
+                    $ref: '#/components/schemas/Status'
+                  response:
+                    type: object
+                    properties:
+                      total_codes:
+                        type: integer
+                      errors:
+                        type: object
+                        properties:
+                          empty_cell:
+                            $ref: '#/components/schemas/CouponError'
+                          code_length:
+                            $ref: '#/components/schemas/CouponError'
+                          duplicate_code:
+                            $ref: '#/components/schemas/CouponError'
+                      new_codes:
+                        type: integer
+
         '400':
           description: '400'
           content:
@@ -2422,6 +2524,8 @@ paths:
                     }
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -2494,6 +2598,8 @@ paths:
                     }
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -2602,6 +2708,8 @@ paths:
                     }
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -2655,6 +2763,8 @@ paths:
                     }
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -2770,6 +2880,8 @@ paths:
                   value: "{\n\tstatus: {\n\t\tcode: 200,\n\t\tmessage: \"OK\"\n\t},\n\tresponse: {\n\t\tbottomlines: [{\n\t\t\t\tdomain_key: \"yotpo_site_reviews\",\n\t\t\t\tproduct_score: 4.81,\n\t\t\t\ttotal_reviews: 278\n\t\t\t},\n\t\t\t{\n\t\t\t\tdomain_key: \"yotpo_site_reviews\",\n\t\t\t\tproduct_score: 4.67,\n\t\t\t\ttotal_reviews: 81\n\t\t\t},\n\t\t\t{\n\t\t\t\tdomain_key: \"10514291267\",\n\t\t\t\tproduct_score: 4.78,\n\t\t\t\ttotal_reviews: 161\n\t\t\t},\n\t\t\t{\n\t\t\t\tdomain_key: \"10514291267\",\n\t\t\t\tproduct_score: 4.72,\n\t\t\t\ttotal_reviews: 43\n\t\t\t},\n\t\t\t{\n\t\t\t\tdomain_key: \"10514287427\",\n\t\t\t\tproduct_score: 4.76,\n\t\t\t\ttotal_reviews: 448\n\t\t\t},\n\t\t\t{\n\t\t\t\tdomain_key: \"10514287427\",\n\t\t\t\tproduct_score: 4.66,\n\t\t\t\ttotal_reviews: 119\n\t\t\t},\n\t\t\t{\n\t\t\t\tdomain_key: \"10514285763\",\n\t\t\t\tproduct_score: 4.75,\n\t\t\t\ttotal_reviews: 1430\n\t\t\t},\n\t\t\t{\n\t\t\t\tdomain_key: \"10514285763\",\n\t\t\t\tproduct_score: 4.63,\n\t\t\t\ttotal_reviews: 390\n\t\t\t},\n\t\t\t{\n\t\t\t\tdomain_key: \"10514290755\",\n\t\t\t\tproduct_score: 4.82,\n\t\t\t\ttotal_reviews: 271\n\t\t\t},\n\t\t\t{\n\t\t\t\tdomain_key: \"10514290755\",\n\t\t\t\tproduct_score: 4.75,\n\t\t\t\ttotal_reviews: 73\n\t\t\t},\n\t\t\t{\n\t\t\t\tdomain_key: \"10514291843\",\n\t\t\t\tproduct_score: 4.82,\n\t\t\t\ttotal_reviews: 164\n\t\t\t},\n\t\t\t{\n\t\t\t\tdomain_key: \"10514291843\",\n\t\t\t\tproduct_score: 5,\n\t\t\t\ttotal_reviews: 34\n\t\t\t},\n\t\t\t{\n\t\t\t\tdomain_key: \"10514288835\",\n\t\t\t\tproduct_score: 4.86,\n\t\t\t\ttotal_reviews: 294\n\t\t\t},\n\t\t\t{\n\t\t\t\tdomain_key: \"10514288835\",\n\t\t\t\tproduct_score: 4.88,\n\t\t\t\ttotal_reviews: 72\n\t\t\t},\n\t\t\t{\n\t\t\t\tdomain_key: \"1725244538926\",\n\t\t\t\tproduct_score: 4.79,\n\t\t\t\ttotal_reviews: 53\n\t\t\t},\n\t\t\t{\n\t\t\t\tdomain_key: \"1853301456942\",\n\t\t\t\tproduct_score: 4,\n\t\t\t\ttotal_reviews: 4\n\t\t\t},\n\t\t\t{\n\t\t\t\tdomain_key: \"1853301456942\",\n\t\t\t\tproduct_score: 3.67,\n\t\t\t\ttotal_reviews: 3\n\t\t\t}\n\t\t],\n\t\tpage: \"1\",\n\t\tper_page: \"100\"\n\t}\n}"
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -2850,6 +2962,8 @@ paths:
                     }
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -2923,6 +3037,8 @@ paths:
                     }
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -2985,6 +3101,8 @@ paths:
                     }
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -3089,6 +3207,8 @@ paths:
                     }
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -3172,6 +3292,8 @@ paths:
                     }
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -3256,6 +3378,8 @@ paths:
 
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -3392,6 +3516,8 @@ paths:
                     }
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -3695,6 +3821,8 @@ paths:
                     }
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -3824,6 +3952,12 @@ paths:
           schema:
             type: string
           required: true
+        - name: utoken
+          in: query
+          description: Your Yotpo account access token. See [Yotpo Authentication](https://apidocs.yotpo.com/reference#yotpo-authentication) to learn how to generate your utoken.
+          required: true
+          schema:
+            type: string
       requestBody:
         content:
           application/json:
@@ -3833,25 +3967,23 @@ paths:
                 - utoken
                 - answer
               properties:
-                utoken:
-                  type: string
-                  description: Your Yotpo account access token. See [Yotpo Authentication](https://apidocs.yotpo.com/reference#yotpo-authentication) to learn how to generate your utoken.
                 answer:
-                  type: string
-                  description: The contents of your answer to a question
-                public:
-                  type: boolean
-                  description: Public answer=`true`. Private answer=`false`
+                  type: object
+                  properties:
+                    content:
+                      type: string
+                      description: The contents of your answer to a question
+                    public:
+                      type: boolean
+                      description: Public answer=`true`. Private answer=`false`
             examples:
               Public Answer:
                 value:
-                  utoken: '### YOUR UTOKEN ###'
                   answer:
                     content: This is a public answer to a question
                     public: true
               'Private Answer ':
                 value:
-                  utoken: '### YOUR UTOKEN ###'
                   answer:
                     content: This is my private answer to your question
                     public: false
@@ -3886,6 +4018,19 @@ paths:
                             "badges": []
                           }
                         }
+              schema:
+                type: object
+                required:
+                  - status
+                properties:
+                  status:
+                    $ref: '#/components/schemas/Status'
+                  response:
+                    type: object
+                    properties:
+                      comment:
+                        $ref: '#/components/schemas/Comment'
+
         '400':
           description: '400'
           content:
@@ -4001,6 +4146,16 @@ paths:
                       }
                     }
                     }
+
+              schema:
+                type: object
+                required:
+                  - status
+                properties:
+                  status:
+                    $ref: '#/components/schemas/Status'
+                  question:
+                    type: object
         '400':
           description: '400'
           content:
@@ -4010,7 +4165,11 @@ paths:
                   value: '{}'
               schema:
                 type: object
-                properties: {}
+                required:
+                  - status
+                properties:
+                  status:
+                    $ref: '#/components/schemas/Status'
       deprecated: false
   /analytics/v1/emails/{app_key}/{metric_name}:
     get:
@@ -4625,6 +4784,8 @@ paths:
                     }
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -4632,16 +4793,7 @@ paths:
                     type: object
                     properties:
                       bottomline:
-                        type: object
-                        properties:
-                          average_score:
-                            type: number
-                            example: 4.9
-                            default: 0
-                          total_reviews:
-                            type: integer
-                            example: 120
-                            default: 0
+                        $ref: '#/components/schemas/Bottomline'
         '400':
           description: '400'
           content:
@@ -4719,10 +4871,38 @@ paths:
         '200':
           description: '200'
           content:
-            text/plain:
+            application/json:
               examples:
                 Result:
-                  value: ''
+                  value: |
+                    {
+                      "status": {
+                        "code": 200,
+                        "message": "ok"
+                      },
+                      "response": {
+                        "message": "The request will be processed soon",
+                        "uuid": "33f52f7e-5d45-4ee2-8a34-ab12ac9daec0",
+                        "creation_request_id": "33f52f7e-5d45-4ee2-8a34-ab12ac9daec0"
+                      }
+                    }
+              schema:
+                type: object
+                required:
+                  - status
+                properties:
+                  status:
+                    $ref: '#/components/schemas/Status'
+                  response:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                      uuid:
+                        type: string
+                      creation_request_id:
+                        type: string
+
       deprecated: false
   /v1/apps/{app_key}/images/export:
     get:
@@ -5356,6 +5536,8 @@ paths:
                 oneOf:
                   - title: source=social
                     type: object
+                    required:
+                      - status
                     properties:
                       status:
                         $ref: '#/components/schemas/Status'
@@ -5431,6 +5613,8 @@ paths:
                                 instagram_resolution: {}
                   - title: source=review
                     type: object
+                    required:
+                      - status
                     properties:
                       status:
                         $ref: '#/components/schemas/Status'
@@ -5512,6 +5696,8 @@ paths:
                                 albums: {}
                   - title: source=onsite_upload
                     type: object
+                    required:
+                      - status
                     properties:
                       status:
                         $ref: '#/components/schemas/Status'
@@ -5594,6 +5780,8 @@ paths:
                                   example: https://ddcfq0gxiontw.cloudfront.net/Account/199665/81338941/instagram.png?1556781507
                   - title: source=import
                     type: object
+                    required:
+                      - status
                     properties:
                       status:
                         $ref: '#/components/schemas/Status'
@@ -6235,6 +6423,8 @@ paths:
                   value: "{\n\t\"status\": {\n\t\t\"code\": 200,\n\t\t\"message\": \"OK\"\n\t},\n\t\"response\": {\n\t\t\"pagination\": {\n\t\t\t\"page\": 1,\n\t\t\t\"per_page\": 3,\n\t\t\t\"total\": 0\n\t\t},\n\t\t\"images\": [{\n\t\t\t\t\"source\": \"instagram\",\n\t\t\t\t\"image_id\": \"5acc67ab4e904b4f68197b7e\",\n\t\t\t\t\"low_resolution_image_url\": \"//scontent.cdninstagram.com/vp/768b1d9ebd06f60cf12c7847821fbd6d/5B681B7F/t51.2885-15/s320x320/e35/20986874_695325423991497_2749685599597232128_n.jpg\",\n\t\t\t\t\"original_image_url\": \"//scontent.cdninstagram.com/vp/d7ec5f13b54c190010edc3a3511aa348/5B686E3C/t51.2885-15/s640x640/sh0.08/e35/20986874_695325423991497_2749685599597232128_n.jpg\",\n\t\t\t\t\"image_url\": \"//scontent.cdninstagram.com/vp/8548e36d016cdafb184ecad8237aaf8f/5B59C938/t51.2885-15/s150x150/e35/20986874_695325423991497_2749685599597232128_n.jpg\",\n\t\t\t\t\"medium_image_url\": \"//cdn-yotpo-images-production.yotpo.com/Review/208866404/141437668/medium.jpg?1603967988\",\n\t\t\t\t\"external_media_id\": \"1587020048554520701_27693384\",\n\t\t\t\t\"tagged_products\": [{\n\t\t\t\t\t\t\"id\": 23626629,\n\t\t\t\t\t\t\"name\": \"Athletic T-Shirt\",\n\t\t\t\t\t\t\"domain_key\": \"8\",\n\t\t\t\t\t\t\"product_link\": \"https://yotpo.com/go/n78k812O\",\n\t\t\t\t\t\t\"product_url\": \"https://yotpos-demo-store-2.myshopify.com/products/athletic\",\n\t\t\t\t\t\t\"image_url\": \"https://ddcfq0gxiontw.cloudfront.net/Product/23827967/18687701/square.jpg?1499177862\",\n\t\t\t\t\t\t\"score\": null,\n\t\t\t\t\t\t\"reviews_count\": null\n\t\t\t\t\t},\n\t\t\t\t\t{\n\t\t\t\t\t\t\"id\": 23626635,\n\t\t\t\t\t\t\"name\": \"Deep V-Neck\",\n\t\t\t\t\t\t\"domain_key\": \"7\",\n\t\t\t\t\t\t\"product_link\": \"https://yotpo.com/go/ej5VgEIZ\",\n\t\t\t\t\t\t\"product_url\": \"https://yotpos-demo-store-2.myshopify.com/products/deep-cut\",\n\t\t\t\t\t\t\"image_url\": \"https://ddcfq0gxiontw.cloudfront.net/Product/23827971/18687696/square.jpg?1499177861\",\n\t\t\t\t\t\t\"score\": null,\n\t\t\t\t\t\t\"reviews_count\": null\n\t\t\t\t\t},\n\t\t\t\t\t{\n\t\t\t\t\t\t\"id\": 23626639,\n\t\t\t\t\t\t\"name\": \"Striped V-Neck\",\n\t\t\t\t\t\t\"domain_key\": \"3\",\n\t\t\t\t\t\t\"product_link\": \"https://yotpo.com/go/fCH2ZGUC\",\n\t\t\t\t\t\t\"product_url\": \"https://yotpos-demo-store-2.myshopify.com/products/striped-v\",\n\t\t\t\t\t\t\"image_url\": \"https://ddcfq0gxiontw.cloudfront.net/Product/23827975/18687702/square.jpg?1499177861\",\n\t\t\t\t\t\t\"score\": null,\n\t\t\t\t\t\t\"reviews_count\": null\n\t\t\t\t\t}\n\t\t\t\t],\n\t\t\t\t\"media_type\": \"image\",\n\t\t\t\t\"permission_request_status\": \"approved\",\n\t\t\t\t\"post\": {\n\t\t\t\t\t\"profile_picture\": \"https://scontent.cdninstagram.com/vp/071f4a200310eb9eec2beaa53c7eb810/5B5D8455/t51.2885-19/s150x150/10598276_885098761603741_1222504716_a.jpg\",\n\t\t\t\t\t\"username\": \"pakalupapito\",\n\t\t\t\t\t\"location_name\": \"Yotpo\",\n\t\t\t\t\t\"created_time\": \"2017-08-22T13:12:34.000+00:00\",\n\t\t\t\t\t\"hashtags\": [\n\t\t\t\t\t\t\"movingday\",\n\t\t\t\t\t\t\"yotpo\"\n\t\t\t\t\t],\n\t\t\t\t\t\"content\": \"\",\n\t\t\t\t\t\"votes_up\": 0,\n\t\t\t\t\t\"votes_down\": 0\n\t\t\t\t}\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"source\": \"review\",\n\t\t\t\t\"image_id\": 18075918,\n\t\t\t\t\"review_id\": 40490790,\n\t\t\t\t\"low_resolution_image_url\": \"//ddcfq0gxiontw.cloudfront.net/Review/40490790/18075918/medium_square.jpg?1497174598\",\n\t\t\t\t\"image_url\": \"//ddcfq0gxiontw.cloudfront.net/Review/40490790/18075918/square.jpg?1497174598\",\n\t\t\t\t\"original_image_url\": \"//ddcfq0gxiontw.cloudfront.net/Review/40490790/18075918/original.jpg?1497174598\",\n\t\t\t\t\"medium_image_url\": \"//cdn-yotpo-images-production.yotpo.com/Review/208866404/141437668/medium.jpg?1603967988\",\n\t\t\t\t\"review\": {\n\t\t\t\t\t\"id\": 40490790,\n\t\t\t\t\t\"review_type_id\": 1,\n\t\t\t\t\t\"rejected\": false,\n\t\t\t\t\t\"title\": \"Quality product\",\n\t\t\t\t\t\"content\": \"Nice to purchase from a company with a wide selection of products locally. Product was exactly what I wanted and shipment arrived in a couple of days. Quality product and excellent experience. Highly recommend this vendor.\",\n\t\t\t\t\t\"score\": 5,\n\t\t\t\t\t\"created_at\": \"2017-06-11T09:49:59.000Z\",\n\t\t\t\t\t\"verified_buyer\": 1,\n\t\t\t\t\t\"archived\": 0,\n\t\t\t\t\t\"deleted\": 0,\n\t\t\t\t\t\"votes_up\": 0,\n\t\t\t\t\t\"votes_down\": 0,\n\t\t\t\t\t\"user\": {\n\t\t\t\t\t\t\"display_name\": \"jerrod_demetrius_owen_59124\",\n\t\t\t\t\t\t\"social_image\": null,\n\t\t\t\t\t\t\"email\": \"jerrod_demetrius_owen_59124@staging.yotpo.com\"\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\t\"product\": {\n\t\t\t\t\t\"domain_key\": \"8\",\n\t\t\t\t\t\"name\": \"Athletic T-Shirt\",\n\t\t\t\t\t\"product_url\": \"https://yotpos-demo-store-2.myshopify.com/products/athletic\",\n\t\t\t\t\t\"product_link\": \"https://yotpo.com/go/zqQETbVo\",\n\t\t\t\t\t\"image_url\": \"https://ddcfq0gxiontw.cloudfront.net/Product/23827967/18687701/square.jpg?1499177862\"\n\t\t\t\t},\n\t\t\t\t\"album_image\": {\n\t\t\t\t\t\"_id\": {\n\t\t\t\t\t\t\"$oid\": \"5ac9e59d4e904b1529183d4d\"\n\t\t\t\t\t},\n\t\t\t\t\t\"album_id\": {\n\t\t\t\t\t\t\"$oid\": \"5ac9e59d4e904b1529183d4c\"\n\t\t\t\t\t},\n\t\t\t\t\t\"created_at\": \"2018-04-08T09:49:17.402Z\",\n\t\t\t\t\t\"favorite\": false,\n\t\t\t\t\t\"image\": {\n\t\t\t\t\t\t\"_id\": {\n\t\t\t\t\t\t\t\"$oid\": \"5ae9cd331b0ee532a2409b59\"\n\t\t\t\t\t\t},\n\t\t\t\t\t\t\"created_at\": null,\n\t\t\t\t\t\t\"external_id\": \"18075918\",\n\t\t\t\t\t\t\"source\": \"Review\",\n\t\t\t\t\t\t\"updated_at\": null\n\t\t\t\t\t},\n\t\t\t\t\t\"image_created_date\": \"2017-06-11T09:49:59.000+00:00\",\n\t\t\t\t\t\"invalidated\": false,\n\t\t\t\t\t\"updated_at\": \"2018-04-08T09:49:17.402Z\"\n\t\t\t\t}\n\t\t\t}\n\t\t]\n\t}\n}"
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -6546,6 +6736,8 @@ paths:
                   value: "{\n\t\"status\": {\n\t\t\"code\": 200,\n\t\t\"message\": \"OK\"\n\t},\n\t\"response\": {\n\t\t\"pagination\": {\n\t\t\t\"page\": 1,\n\t\t\t\"per_page\": 3,\n\t\t\t\"total\": 0\n\t\t},\n\t\t\"images\": [{\n\t\t\t\t\"source\": \"instagram\",\n\t\t\t\t\"image_id\": \"5a98197f6efb092db231f695\",\n\t\t\t\t\"low_resolution_image_url\": \"//scontent.cdninstagram.com/vp/da9f5101451fa862caabf874716755f6/5B2B50AF/t51.2885-15/e35/p320x320/28156507_165346500940639_6306343443274661888_n.jpg\",\n\t\t\t\t\"original_image_url\": \"//scontent.cdninstagram.com/vp/88cae9a00ac8b10265bd97b7d5ef1159/5B3ECDF8/t51.2885-15/sh0.08/e35/p640x640/28156507_165346500940639_6306343443274661888_n.jpg\",\n\t\t\t\t\"image_url\": \"//scontent.cdninstagram.com/vp/c26ee077c49ceb4567d77ff073439d4e/5B37EEA0/t51.2885-15/s150x150/e35/c0.43.1080.1080/28156507_165346500940639_6306343443274661888_n.jpg\",\n\t\t\t\t\"medium_image_url\": \"//cdn-yotpo-images-production.yotpo.com/Review/208866404/141437668/medium.jpg?1603967988\",\n\t\t\t\t\"external_media_id\": \"1724914648462926403_3220168402\",\n\t\t\t\t\"tagged_products\": [{\n\t\t\t\t\t\"id\": 23626625,\n\t\t\t\t\t\"name\": \"Classy Signature T-Shirt\",\n\t\t\t\t\t\"domain_key\": \"6\",\n\t\t\t\t\t\"product_link\": \"https://yotpos-demo-store-2.myshopify.com/products/classy-signature\",\n\t\t\t\t\t\"product_url\": \"https://yotpos-demo-store-2.myshopify.com/products/classy-signature\",\n\t\t\t\t\t\"image_url\": \"https://ddcfq0gxiontw.cloudfront.net/Product/23827964/18687703/square.jpg?1499177861\",\n\t\t\t\t\t\"score\": null,\n\t\t\t\t\t\"reviews_count\": null\n\t\t\t\t}],\n\t\t\t\t\"media_type\": \"image\",\n\t\t\t\t\"permission_request_status\": \"approved\",\n\t\t\t\t\"post\": {\n\t\t\t\t\t\"profile_picture\": \"https://scontent.cdninstagram.com/vp/ad77096025c93ac62127bc4788dd5350/5B35AAB4/t51.2885-19/s150x150/18879688_1351838138239441_1502256565162344448_a.jpg\",\n\t\t\t\t\t\"username\": \"dey_ag1112\",\n\t\t\t\t\t\"location_name\": \"\",\n\t\t\t\t\t\"created_time\": \"2018-02-28T19:24:31.000+00:00\",\n\t\t\t\t\t\"hashtags\": [\n\t\t\t\t\t\t\"spicyblackbeanburger\",\n\t\t\t\t\t\t\"lemon\",\n\t\t\t\t\t\t\"terradelyssa\",\n\t\t\t\t\t\t\"saladfordays\",\n\t\t\t\t\t\t\"lunchtime\",\n\t\t\t\t\t\t\"himalayansalt\",\n\t\t\t\t\t\t\"homemadedressing\",\n\t\t\t\t\t\t\"morningstarfarms\",\n\t\t\t\t\t\t\"oliveoil\"\n\t\t\t\t\t],\n\t\t\t\t\t\"content\": \"🍴\\n#lunchtime #saladfordays #morningstarfarms #spicyblackbeanburger #homemadedressing #oliveoil #lemon #himalayansalt #terradelyssa\",\n\t\t\t\t\t\"votes_up\": 0,\n\t\t\t\t\t\"votes_down\": 0\n\t\t\t\t}\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"source\": \"review\",\n\t\t\t\t\"image_id\": 29087960,\n\t\t\t\t\"review_id\": 48902637,\n\t\t\t\t\"low_resolution_image_url\": \"//ddcfq0gxiontw.cloudfront.net/Review/48902637/29087960/medium_square.jpg?1511673183\",\n\t\t\t\t\"image_url\": \"//ddcfq0gxiontw.cloudfront.net/Review/48902637/29087960/square.jpg?1511673183\",\n\t\t\t\t\"original_image_url\": \"//ddcfq0gxiontw.cloudfront.net/Review/48902637/29087960/original.jpg?1511673183\",\n\t\t\t\t\"medium_image_url\": \"//cdn-yotpo-images-production.yotpo.com/Review/208866404/141437668/medium.jpg?1603967988\",\n\t\t\t\t\"review\": {\n\t\t\t\t\t\"id\": 48902637,\n\t\t\t\t\t\"review_type_id\": 1,\n\t\t\t\t\t\"rejected\": false,\n\t\t\t\t\t\"title\": \"Excellent\",\n\t\t\t\t\t\"content\": \"Thank you I love them\",\n\t\t\t\t\t\"score\": 5,\n\t\t\t\t\t\"created_at\": \"2017-11-26T05:13:05.000Z\",\n\t\t\t\t\t\"verified_buyer\": 1,\n\t\t\t\t\t\"archived\": 0,\n\t\t\t\t\t\"deleted\": 0,\n\t\t\t\t\t\"votes_up\": 0,\n\t\t\t\t\t\"votes_down\": 0,\n\t\t\t\t\t\"user\": {\n\t\t\t\t\t\t\"display_name\": \"renee\",\n\t\t\t\t\t\t\"social_image\": null,\n\t\t\t\t\t\t\"email\": \"renee_40057171-470c-47d8-abed-6fe8a63e84ba@staging.yotpo.com\"\n\t\t\t\t\t}\n\t\t\t\t},\n\t\t\t\t\"product\": {\n\t\t\t\t\t\"domain_key\": \"1\",\n\t\t\t\t\t\"name\": \"Crewneck Pocket T-Shirt\",\n\t\t\t\t\t\"product_url\": \"https://yotpos-demo-store-2.myshopify.com/products/crewneck-pocket\",\n\t\t\t\t\t\"product_link\": \"https://yotpos-demo-store-2.myshopify.com/products/crewneck-pocket\",\n\t\t\t\t\t\"image_url\": \"https://ddcfq0gxiontw.cloudfront.net/Product/23827969/18687695/square.jpg?1499177859\"\n\t\t\t\t},\n\t\t\t\t\"album_image\": {\n\t\t\t\t\t\"_id\": {\n\t\t\t\t\t\t\"$oid\": \"5ad367f076798169130df80d\"\n\t\t\t\t\t},\n\t\t\t\t\t\"album_id\": {\n\t\t\t\t\t\t\"$oid\": \"5a97d283e31670685bc87539\"\n\t\t\t\t\t},\n\t\t\t\t\t\"image_created_date\": \"2017-11-26T05:13:05.000Z\",\n\t\t\t\t\t\"image\": {\n\t\t\t\t\t\t\"external_id\": \"29087960\",\n\t\t\t\t\t\t\"source\": \"Review\",\n\t\t\t\t\t\t\"_id\": {\n\t\t\t\t\t\t\t\"$oid\": \"5ae9c7131b0ee527fb4098e7\"\n\t\t\t\t\t\t}\n\t\t\t\t\t},\n\t\t\t\t\t\"favorite\": false,\n\t\t\t\t\t\"invalidated\": false,\n\t\t\t\t\t\"created_at\": \"2018-04-15T14:55:44.423Z\",\n\t\t\t\t\t\"updated_at\": \"2018-04-15T14:55:44.423Z\",\n\t\t\t\t\t\"album_name\": \"UGC Gallery\"\n\t\t\t\t}\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"source\": \"instagram\",\n\t\t\t\t\"image_id\": \"59f73c3b3fa5a35e927847ae\",\n\t\t\t\t\"low_resolution_image_url\": \"//scontent.cdninstagram.com/vp/b4fbe8dc582627cd755d961533559c7b/5B4EB108/t51.2885-15/s320x320/e35/22860435_1627650820618673_6136770394897514496_n.jpg\",\n\t\t\t\t\"original_image_url\": \"//scontent.cdninstagram.com/vp/af4b4d91706d4f7e4ac281c8c8c6884e/5B544D45/t51.2885-15/s640x640/sh0.08/e35/22860435_1627650820618673_6136770394897514496_n.jpg\",\n\t\t\t\t\"image_url\": \"//scontent.cdninstagram.com/vp/9a1be59c71d9258922e947ff484c3f4a/5B6FD538/t51.2885-15/s150x150/e35/22860435_1627650820618673_6136770394897514496_n.jpg\",\n\t\t\t\t\"medium_image_url\": \"//cdn-yotpo-images-production.yotpo.com/Review/208866404/141437668/medium.jpg?1603967988\",\n\t\t\t\t\"external_media_id\": \"1636642758793837508_4065356078\",\n\t\t\t\t\"tagged_products\": [],\n\t\t\t\t\"media_type\": \"image\",\n\t\t\t\t\"permission_request_status\": \"approved\",\n\t\t\t\t\"post\": {\n\t\t\t\t\t\"profile_picture\": \"https://scontent.cdninstagram.com/vp/d2a9ff0d24c73924ed59ef664b0a9082/5B397663/t51.2885-19/s150x150/14717358_368701900129822_7310002550739042304_a.jpg\",\n\t\t\t\t\t\"username\": \"boz_rich\",\n\t\t\t\t\t\"location_name\": \"\",\n\t\t\t\t\t\"created_time\": \"2017-10-30T00:24:02.000+00:00\",\n\t\t\t\t\t\"hashtags\": [\n\t\t\t\t\t\t\"wornandwound\",\n\t\t\t\t\t\t\"danhenrywatches\",\n\t\t\t\t\t\t\"windupnyc\"\n\t\t\t\t\t],\n\t\t\t\t\t\"content\": \"Not too crazy about quartz these days but if there is ever a quartz to have in my collection, this is the one. Enter the Dan Henry Multiscale Chronograph 1939. Saw this at Wind-up Watch Fair today. And yes I will get this soon. @danhenrywatches @wornandwound  #danhenrywatches #windupnyc #wornandwound\",\n\t\t\t\t\t\"votes_up\": 0,\n\t\t\t\t\t\"votes_down\": 0\n\t\t\t\t}\n\t\t\t}\n\t\t]\n\t}\n}"
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -6703,6 +6895,8 @@ paths:
                     }
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -6754,6 +6948,8 @@ paths:
                     }
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -7606,6 +7802,8 @@ paths:
                     }
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -7775,6 +7973,8 @@ paths:
                     }
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -8200,6 +8400,8 @@ paths:
                     }
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -8434,6 +8636,8 @@ paths:
                   value: "{\n\t\"status\": {\n\t\t\"code\": 200,\n\t\t\"message\": \"OK\"\n\t},\n\t\"pagination\": null,\n\t\"webhook_events\": {\n\t\t\"webhook_events\": [{\n\t\t\t\t\"name\": \"review_create\",\n\t\t\t\t\"description\": \"review created\"\n\t\t\t},\n\t\t\t{\n\t\t\t\t\"name\": \"review_updated\",\n\t\t\t\t\"description\": \"review updated\"\n\t\t\t}\n\t\t]\n\t}\n}"
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -8547,6 +8751,8 @@ paths:
 
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -8646,6 +8852,8 @@ paths:
                     }
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
@@ -8683,6 +8891,8 @@ paths:
                     }
               schema:
                 type: object
+                required:
+                  - status
                 properties:
                   status:
                     $ref: '#/components/schemas/Status'
