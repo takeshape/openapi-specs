@@ -1,0 +1,1490 @@
+openapi: 3.1.0
+info:
+  title: Partner API
+  version: '2.0'
+servers:
+  - url: https://api.postscript.io
+components:
+  securitySchemes:
+    sec0:
+      type: apiKey
+      in: header
+      name: Authorization
+      x-bearer-format: bearer
+security:
+  - sec0: []
+paths:
+  /api/v2/keywords/{id}:
+    get:
+      summary: Get Keyword
+      description: Get a Keyword by its ID
+      operationId: get-keyword
+      parameters:
+        - name: id
+          in: path
+          description: ID of the keyword you'd like to receive.
+          schema:
+            type: string
+          required: true
+        - name: X-Postscript-Shop-Token
+          in: header
+          description: Shop API Token. **Required for partners**. This header should be used *only* by partners. Shops should include their API token in the *Authorization* header.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |2-
+                      {
+                        "created_at": "2021-10-01T03:17:09.306630",
+                        "id": "kw_31afjew824892ks",
+                        "keyword": "YOUROCK",
+                        "triggered_count": 10,
+                        "updated_at": "2021-10-01T03:17:09.306639"
+                      }
+              schema:
+                type: object
+                properties:
+                  created_at:
+                    type: string
+                    example: '2021-10-01T03:17:09.306630'
+                  id:
+                    type: string
+                    example: kw_31afjew824892ks
+                  keyword:
+                    type: string
+                    example: YOUROCK
+                  triggered_count:
+                    type: integer
+                    example: 10
+                    default: 0
+                  updated_at:
+                    type: string
+                    example: '2021-10-01T03:17:09.306639'
+        '404':
+          description: '404'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                      "error_code": 3001,
+                      "error_message": "Could not find keyword matching that information",
+                      "success": false
+                    }
+              schema:
+                type: object
+                properties:
+                  error_code:
+                    type: integer
+                    example: 3001
+                    default: 0
+                  error_message:
+                    type: string
+                    example: Could not find keyword matching that information
+                  success:
+                    type: boolean
+                    example: false
+                    default: true
+      deprecated: false
+  /api/v2/keywords:
+    get:
+      summary: Get Keywords
+      description: Get a list of all active keywords for a shop.
+      operationId: get-keywords
+      parameters:
+        - name: X-Postscript-Shop-Token
+          in: header
+          description: Shop API Token. **Required for partners**. This header should be used *only* by partners. Shops should include their API token in the *Authorization* header.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                      "keywords": [{
+                        "created_at": "2021-10-01T03:17:09.306630",
+                        "id": "kw_31afjew824892ks",
+                        "keyword": "YOUROCK",
+                        "triggered_count": 10,
+                        "updated_at": "2021-10-01T03:17:09.306639"
+                      }]
+                    }
+              schema:
+                type: object
+                properties:
+                  keywords:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        created_at:
+                          type: string
+                          example: '2021-10-01T03:17:09.306630'
+                        id:
+                          type: string
+                          example: kw_31afjew824892ks
+                        keyword:
+                          type: string
+                          example: YOUROCK
+                        triggered_count:
+                          type: integer
+                          example: 10
+                          default: 0
+                        updated_at:
+                          type: string
+                          example: '2021-10-01T03:17:09.306639'
+        '403':
+          description: '403'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                      "error": "You do not have permission to do that."
+                    }
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: You do not have permission to do that.
+      deprecated: false
+  /api/v2/subscribers/{id}:
+    patch:
+      summary: Update Subscriber
+      description: Updates data for a given subscriber.
+      operationId: update-subscriber-by-id
+      parameters:
+        - name: id
+          in: path
+          description: ID of the subscriber you'd like to update.
+          schema:
+            type: string
+          required: true
+        - name: X-Postscript-Shop-Token
+          in: header
+          description: Shop API Token. **Required for partners**. This header should be used *only* by partners. Shops should include their API token in the *Authorization* header.
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: Email address for the subscriber. **Note:** when updating an email address, we will only update it if none previously existed on the subscriber or we haven't linked a Shopify customer to them yet. We also can only link a Shopify customer if they already exist, not retrospectively.
+                tags:
+                  type: array
+                  description: Tags you would like to add to the subscriber. **Note:** tags are additive, so whatever you include here will be added to the existing tags on a subscriber.
+                  items:
+                    type: string
+                properties:
+                  type: string
+                  description: 'Custom properties as key/value pairs. Values can be: strings, integers, string arrays, or ISO 8601 date(time). Subscribers can have up to 20 custom properties. If properties is unset or `null`, it will be ignored.'
+                  default: '{"key": "value"}'
+                  format: json
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: "{\n  \"created_at\": \"2019-08-24T14:15:22Z\",\n  \"data\": {},\n  \"email\": \"string\",\n  \"id\": \"string\",\n  \"phone_number\": \"string\",\n \t\"properties\": {\n     \"has_purchased\": True,\n     \"days_since_purchase\": 5,\n     \"categories\": [\"Beauty\", \"Home Goods\"],\n     \"birthday\": \"1991-01-01\"\n  },\n  \"shopify_customer_id\": 0,\n  \"subscriptions\": {\n    \"promotional\": {\n      \"can_send\": true\n    },\n    \"transactional\": {\n      \"can_send\": true\n    }\n  },\n  \"tags\": [\"VIP\"],\n  \"updated_at\": \"2019-08-24T14:15:22Z\"\n}"
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+    get:
+      summary: Get Subscriber
+      description: Get an individual subscriber for a shop.
+      operationId: get-subscriber
+      parameters:
+        - name: X-Postscript-Shop-Token
+          in: header
+          description: Shop API Token. **Required for partners**. This header should be used *only* by partners. Shops should include their API token in the *Authorization* header.
+          schema:
+            type: string
+        - name: id
+          in: path
+          description: The ID for the subscriber you'd like to get.
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: "{\n  \"created_at\": \"2019-08-24T14:15:22Z\",\n  \"data\": {},\n  \"email\": \"string\",\n  \"id\": \"string\",\n  \"phone_number\": \"string\",\n \t\"properties\": {\n     \"has_purchased\": True,\n     \"days_since_purchase\": 5,\n     \"categories\": [\"Beauty\", \"Home Goods\"],\n     \"birthday\": \"1991-01-01\"\n  },\n  \"shopify_customer_id\": 0,\n  \"subscriptions\": {\n    \"promotional\": {\n      \"can_send\": true\n    },\n    \"transactional\": {\n      \"can_send\": true\n    }\n  },\n  \"tags\": [\"VIP\"],\n  \"updated_at\": \"2019-08-24T14:15:22Z\"\n}"
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+  /api/v2/subscribers:
+    post:
+      summary: Create Subscriber
+      description: Create a single subscriber.
+      operationId: create-subscriber
+      parameters:
+        - name: X-Postscript-Shop-Token
+          in: header
+          description: Shop API Token. **Required for partners**. This header should be used *only* by partners. Shops should include their API token in the *Authorization* header.
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - keyword_id
+                - keyword
+                - phone_number
+              properties:
+                keyword_id:
+                  type: string
+                  description: ID of the Keyword that the subscriber should be added to.
+                keyword:
+                  type: string
+                  description: The Keyword to which the subscriber should be subscribed to.
+                phone_number:
+                  type: string
+                  description: The phone number for the subscriber
+                origin:
+                  type: string
+                  description: Where the subscriber originated from.
+                  default: other
+                  enum:
+                    - website
+                    - social
+                    - other
+                shopify_customer_id:
+                  type: integer
+                  description: A reference to the Shopify Customer record for the subscriber
+                  format: int32
+                email:
+                  type: string
+                  description: In addition to storing an email on a subscriber, an email address is also used to look up a Shopify Customer record if `shopify_customer_id` isn't provided.
+                tags:
+                  type: array
+                  description: An array of string tag values that can be used in user segmentation or filtering.
+                  items:
+                    type: string
+                properties:
+                  type: string
+                  description: 'Custom properties as key/value pairs. Values can be: strings, integers, string arrays, or ISO 8601 date(time). Subscribers can have up to 20 custom properties. If properties is unset or `null`, it will be ignored.'
+                  default: '{"key": "value"}'
+                  format: json
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: "{\n  \"created_at\": \"2019-08-24T14:15:22Z\",\n  \"data\": {},\n  \"email\": \"string\",\n  \"id\": \"string\",\n  \"phone_number\": \"string\",\n \t\"properties\": {\n     \"has_purchased\": True,\n     \"days_since_purchase\": 5,\n     \"categories\": [\"Beauty\", \"Home Goods\"],\n     \"birthday\": \"1991-01-01\"\n  },\n  \"shopify_customer_id\": 0,\n  \"tags\": [\"VIP\"],\n  \"updated_at\": \"2019-08-24T14:15:22Z\"\n}"
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+    get:
+      summary: Get Subscribers
+      description: Get a list of subscribers for a shop.
+      operationId: get-subscribers
+      parameters:
+        - name: created_at__eq
+          in: query
+          description: Created at is equal to
+          schema:
+            type: string
+            format: date
+        - name: created_at__gt
+          in: query
+          description: Created at is greater than
+          schema:
+            type: string
+            format: date
+        - name: created_at__gte
+          in: query
+          description: Created at is greater than or equal to
+          schema:
+            type: string
+            format: date
+        - name: created_at__lt
+          in: query
+          description: Created at is less than
+          schema:
+            type: string
+            format: date
+        - name: created_at__lte
+          in: query
+          description: Created at is less than or equal to
+          schema:
+            type: string
+            format: date
+        - name: email__contains
+          in: query
+          description: Email contains
+          schema:
+            type: string
+        - name: email__eq
+          in: query
+          description: Email is equal to
+          schema:
+            type: string
+        - name: email__in
+          in: query
+          description: Email is in
+          schema:
+            type: array
+            items:
+              # Changed from invalid string "mixed type"
+              type: string
+        - name: page
+          in: query
+          description: Page number of results to start from
+          schema:
+            type: integer
+            format: int32
+        - name: phone_number__contains
+          in: query
+          description: Phone number contains
+          schema:
+            type: string
+        - name: phone_number__eq
+          in: query
+          description: Phone number is equal to
+          schema:
+            type: string
+        - name: phone_number__in
+          in: query
+          description: Phone number is in
+          schema:
+            type: array
+            items:
+              # Changed from invalid string "mixed type"
+              type: string
+        - name: shopify_customer_id__contains
+          in: query
+          description: Shopify customer id contains
+          schema:
+            type: string
+        - name: shopify_customer_id__eq
+          in: query
+          description: Shopify customer id is equal to
+          schema:
+            type: string
+        - name: shopify_customer_id__in
+          in: query
+          description: Shopify customer id is in
+          schema:
+            type: array
+            items:
+              # Changed from invalid string "mixed type"
+              type: string
+        - name: sort
+          in: query
+          description: 'Sorting Order. In `{field}__asc` or `{field}__desc` format. Valid fields:  `created_at`, `updated_at`, `phone_number`, `shopify_customer_id`'
+          schema:
+            type: string
+        - name: updated_at__eq
+          in: query
+          description: Updated at is equal to
+          schema:
+            type: string
+            format: date
+        - name: updated_at__gt
+          in: query
+          description: Updated at is greater than
+          schema:
+            type: string
+            format: date
+        - name: updated_at__gte
+          in: query
+          description: Updated at is greater than or equal to
+          schema:
+            type: string
+            format: date
+        - name: updated_at__lt
+          in: query
+          description: Updated at is less than
+          schema:
+            type: string
+            format: date
+        - name: updated_at__lte
+          in: query
+          description: Updated at is less than or equal to
+          schema:
+            type: string
+            format: date
+        - name: X-Postscript-Shop-Token
+          in: header
+          description: Shop API Token. **Required for partners**. This header should be used *only* by partners. Shops should include their API token in the *Authorization* header.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: "{\n  \"page_info\": {\n    \"page\": 1,\n    \"total_pages\": 1\n  },\n  \"subscribers\": [\n    {\n      \"created_at\": \"2019-08-24T14:15:22Z\",\n      \"data\": {},\n      \"email\": \"string\",\n      \"id\": \"string\",\n      \"phone_number\": \"string\",\n      \"properties\": {\n         \"has_purchased\": True,\n         \"days_since_purchase\": 5,\n         \"categories\": [\"Beauty\", \"Home Goods\"],\n         \"birthday\": \"1991-01-01\"\n      },\n      \"shopify_customer_id\": 0,\n      \"subscriptions\": {\n      \t\"promotional\": {\n        \t\"can_send\": true\n      \t},\n      \t\"transactional\": {\n        \t\"can_send\": true\n      \t}\n    \t},\n      \"tags\": [\"VIP\"],\n      \"updated_at\": \"2019-08-24T14:15:22Z\"\n    }\n  ]\n}"
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+  /api/v2/message_requests:
+    post:
+      summary: Send Message
+      description: Send a message to a subscriber.
+      operationId: create-message
+      parameters:
+        - name: X-Postscript-Shop-Token
+          in: header
+          description: Shop API Token. **Required for partners**. This header should be used *only* by partners. Shops should include their API token in the *Authorization* header.
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - body
+              properties:
+                subscriber_id:
+                  type: string
+                  description: The ID of the subscriber to send the message to. Either `subscriber_id` or `phone` is **required**.
+                phone:
+                  type: string
+                  description: The phone number of the subscriber to send the message to. The subscriber must exist. Either `phone` or `subscriber_id` is **required**. The phone number of the subscriber you want to send the message to.
+                country:
+                  type: string
+                  description: ISO Alpha-2 country code, used to parse `phone` more accurately.
+                  default: US
+                body:
+                  type: string
+                  description: The message body that you want to send to the subscriber.
+                category:
+                  type: string
+                  description: The category of message you are sending.
+                  default: promotional
+                  enum:
+                    - promotional
+                    - transactional
+                    - conversational
+                scheduled_at:
+                  type: string
+                  description: 'ISO 8601 datetime to schedule delivery in the future. Default: `null` (deliver ASAP)'
+                  format: date-time
+                media_url:
+                  type: string
+                  description: The URL of the media to send with the message. The media can be of type `gif`, `png`, and `jpeg` and will be formatted correctly on the recipient's device. The media size limit is 1MB for supported file types (JPEG, PNG, GIF) and 500KB for other types of accepted media. Please note that if you include a media url with your message, then it gets sent as an MMS message, which has different costs and character limits than SMS messages.
+            examples:
+              Request Example:
+                value:
+                  phone: '15555555555'
+                  body: Hello, world
+                  category: promotional
+                  media_url: https://example.com/great_pic.png
+      responses:
+        '202':
+          description: '202'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                      "body": "string",
+                      "category": "promotional",
+                      "created_at": "2019-08-24T14:15:22Z",
+                      "id": "string",
+                      "phone": "string",
+                      "scheduled_at": "2019-08-24T14:15:22Z",
+                      "sent_message": {
+                        "body": "string",
+                        "created_at": "2019-08-24T14:15:22Z",
+                        "credits_used": 0,
+                        "id": "string",
+                        "media_url": "string",
+                        "phone": "string",
+                        "shop_id": "string",
+                        "subscriber_id": "string"
+                      },
+                      "status": "processing",
+                      "status_code": 0,
+                      "subscriber_id": "string",
+                      "updated_at": "2019-08-24T14:15:22Z"
+                    }
+              schema:
+                type: object
+                properties:
+                  body:
+                    type: string
+                    example: string
+                  category:
+                    type: string
+                    example: promotional
+                  created_at:
+                    type: string
+                    example: '2019-08-24T14:15:22Z'
+                  id:
+                    type: string
+                    example: string
+                  phone:
+                    type: string
+                    example: string
+                  scheduled_at:
+                    type: string
+                    example: '2019-08-24T14:15:22Z'
+                  sent_message:
+                    type: object
+                    properties:
+                      body:
+                        type: string
+                        example: string
+                      created_at:
+                        type: string
+                        example: '2019-08-24T14:15:22Z'
+                      credits_used:
+                        type: integer
+                        example: 0
+                        default: 0
+                      id:
+                        type: string
+                        example: string
+                      media_url:
+                        type: string
+                        example: string
+                      phone:
+                        type: string
+                        example: string
+                      shop_id:
+                        type: string
+                        example: string
+                      subscriber_id:
+                        type: string
+                        example: string
+                  status:
+                    type: string
+                    example: processing
+                  status_code:
+                    type: integer
+                    example: 0
+                    default: 0
+                  subscriber_id:
+                    type: string
+                    example: string
+                  updated_at:
+                    type: string
+                    example: '2019-08-24T14:15:22Z'
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+  /api/v2/me:
+    get:
+      summary: Verify Identity
+      description: ''
+      operationId: verify-identity
+      parameters:
+        - name: X-Postscript-Shop-Token
+          in: header
+          schema:
+            type: string
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                      "resource_id": "shop_1234567abcde",
+                      "resource_name": "Postscript",
+                      "resource_type": "shop"
+                    }
+              schema:
+                type: object
+                properties:
+                  resource_id:
+                    type: string
+                    example: shop_1234567abcde
+                  resource_name:
+                    type: string
+                    example: Postscript
+                  resource_type:
+                    type: string
+                    example: shop
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                      "errors": [
+                        {
+                          "ctx": {},
+                          "log": [
+                            "string"
+                          ],
+                          "msg": "string",
+                          "type": "string"
+                        }
+                      ]
+                    }
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        ctx:
+                          type: object
+                          properties: {}
+                        log:
+                          type: array
+                          items:
+                            type: string
+                            example: string
+                        msg:
+                          type: string
+                          example: string
+                        type:
+                          type: string
+                          example: string
+      deprecated: false
+  /api/v2/webhooks/test:
+    post:
+      summary: Test Shop Webhook
+      description: ''
+      operationId: test-shop-webhook
+      parameters:
+        - name: X-Postscript-Shop-Token
+          in: header
+          description: Shop API Token. **Required for partners**. This header should be used *only* by partners. Shops should include their API token in the *Authorization* header.
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - event
+              properties:
+                event:
+                  type: string
+                  description: Webhook subscription event type.
+                  default: shop.test
+                  enum:
+                    - shop.test
+                    - shop.incoming_message
+                    - shop.subscriber.opt_in
+                    - shop.subscriber.opt_out
+                    - shop.email_collected
+      responses:
+        '202':
+          description: '202'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                      "message": "OK"
+                    }
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: OK
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                      "errors": [
+                        {
+                          "ctx": {},
+                          "log": [
+                            "string"
+                          ],
+                          "msg": "string",
+                          "type": "string"
+                        }
+                      ]
+                    }
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        ctx:
+                          type: object
+                          properties: {}
+                        log:
+                          type: array
+                          items:
+                            type: string
+                            example: string
+                        msg:
+                          type: string
+                          example: string
+                        type:
+                          type: string
+                          example: string
+      deprecated: false
+  /api/v2/message_requests/{id}:
+    get:
+      summary: Get Message Request
+      description: ''
+      operationId: get-message-request
+      parameters:
+        - name: id
+          in: path
+          description: ID of the message request to look up.
+          schema:
+            type: string
+          required: true
+        - name: X-Postscript-Shop-Token
+          in: header
+          description: Shop API Token. **Required for partners**. This header should be used *only* by partners. Shops should include their API token in the *Authorization* header.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                      "body": "string",
+                      "category": "conversational",
+                      "created_at": "2019-08-24T14:15:22Z",
+                      "id": "string",
+                      "phone": "string",
+                      "scheduled_at": "2019-08-24T14:15:22Z",
+                      "sent_message": {
+                        "body": "string",
+                        "created_at": "2019-08-24T14:15:22Z",
+                        "credits_used": 0,
+                        "id": "string",
+                        "media_url": "string",
+                        "phone": "string",
+                        "shop_id": "string",
+                        "subscriber_id": "string"
+                      },
+                      "status": "processing",
+                      "status_code": 0,
+                      "subscriber_id": "string",
+                      "updated_at": "2019-08-24T14:15:22Z"
+                    }
+              schema:
+                type: object
+                properties:
+                  body:
+                    type: string
+                    example: string
+                  category:
+                    type: string
+                    example: conversational
+                  created_at:
+                    type: string
+                    example: '2019-08-24T14:15:22Z'
+                  id:
+                    type: string
+                    example: string
+                  phone:
+                    type: string
+                    example: string
+                  scheduled_at:
+                    type: string
+                    example: '2019-08-24T14:15:22Z'
+                  sent_message:
+                    type: object
+                    properties:
+                      body:
+                        type: string
+                        example: string
+                      created_at:
+                        type: string
+                        example: '2019-08-24T14:15:22Z'
+                      credits_used:
+                        type: integer
+                        example: 0
+                        default: 0
+                      id:
+                        type: string
+                        example: string
+                      media_url:
+                        type: string
+                        example: string
+                      phone:
+                        type: string
+                        example: string
+                      shop_id:
+                        type: string
+                        example: string
+                      subscriber_id:
+                        type: string
+                        example: string
+                  status:
+                    type: string
+                    example: processing
+                  status_code:
+                    type: integer
+                    example: 0
+                    default: 0
+                  subscriber_id:
+                    type: string
+                    example: string
+                  updated_at:
+                    type: string
+                    example: '2019-08-24T14:15:22Z'
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+  /api/v2/sent_messages/{id}:
+    get:
+      summary: Get Sent Message
+      description: ''
+      operationId: get-sent-message
+      parameters:
+        - name: id
+          in: path
+          description: ID of sent message to fetch.
+          schema:
+            type: string
+          required: true
+        - name: X-Postscript-Shop-Token
+          in: header
+          description: Shop API Token. **Required for partners**. This header should be used *only* by partners. Shops should include their API token in the *Authorization* header.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                      "body": "string",
+                      "created_at": "2019-08-24T14:15:22Z",
+                      "credits_used": 0,
+                      "id": "string",
+                      "media_url": "string",
+                      "phone": "string",
+                      "shop_id": "string",
+                      "subscriber_id": "string"
+                    }
+              schema:
+                type: object
+                properties:
+                  body:
+                    type: string
+                    example: string
+                  created_at:
+                    type: string
+                    example: '2019-08-24T14:15:22Z'
+                  credits_used:
+                    type: integer
+                    example: 0
+                    default: 0
+                  id:
+                    type: string
+                    example: string
+                  media_url:
+                    type: string
+                    example: string
+                  phone:
+                    type: string
+                    example: string
+                  shop_id:
+                    type: string
+                    example: string
+                  subscriber_id:
+                    type: string
+                    example: string
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                      "errors": [
+                        {
+                          "ctx": {},
+                          "log": [
+                            "string"
+                          ],
+                          "msg": "string",
+                          "type": "string"
+                        }
+                      ]
+                    }
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        ctx:
+                          type: object
+                          properties: {}
+                        log:
+                          type: array
+                          items:
+                            type: string
+                            example: string
+                        msg:
+                          type: string
+                          example: string
+                        type:
+                          type: string
+                          example: string
+      deprecated: false
+  /api/v2/webhooks:
+    post:
+      summary: Create Webhook Subscription
+      description: ''
+      operationId: create-webhook-subscription
+      parameters:
+        - name: X-Postscript-Shop-Token
+          in: header
+          description: Shop API Token. **Required for partners**. This header should be used only by partners. Shops should include their API token in the *Authorization* header.
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - callback_url
+                - event
+              properties:
+                callback_url:
+                  type: string
+                  description: Destination URL for webhook deliveries (HTTPS only).
+                event:
+                  type: string
+                  description: Webhook subscription event type.
+                  default: shop.test
+                  enum:
+                    - shop.test
+                    - shop.incoming_message
+                    - shop.subscriber.opt_in
+                    - shop.subscriber.opt_out
+                    - shop.shop.email_collected
+                headers:
+                  type: object
+                  description: Custom key:value pairs to be sent as headers in every callback.
+                  properties: {}
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                      "callback_url": "http://example.com",
+                      "created_at": "2019-08-24T14:15:22Z",
+                      "event": "shop.test",
+                      "headers": {},
+                      "id": "a47606a1-5b39-4a81-9480-c2cb738ff675",
+                      "updated_at": "2019-08-24T14:15:22Z",
+                    }
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+    get:
+      summary: List Webhook Subscriptions
+      description: ''
+      operationId: list-webhook-subscriptions
+      parameters:
+        - name: X-Postscript-Shop-Token
+          in: header
+          description: Shop API Token. **Required for partners**. This header should be used only by partners. Shops should include their API token in the *Authorization* header.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                      "webhook_subscriptions": [
+                        {
+                          "callback_url": "http://example.com",
+                          "created_at": "2019-08-24T14:15:22Z",
+                          "event": "shop.test",
+                          "headers": {},
+                          "id": "a47606a1-5b39-4a81-9480-c2cb738ff675",
+                          "updated_at": "2019-08-24T14:15:22Z",
+                        }
+                      ]
+                    }
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+  /api/v2/webhooks/{id}:
+    delete:
+      summary: Delete Webhook Subscription
+      description: ''
+      operationId: delete-webhook-subscription
+      parameters:
+        - name: id
+          in: path
+          description: The ID of the webhook subscription to delete.
+          schema:
+            type: string
+          required: true
+        - name: X-Postscript-Shop-Token
+          in: header
+          description: Shop API Token. **Required for partners**. This header should be used only by partners. Shops should include their API token in the *Authorization* header.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+    get:
+      summary: Get Webhook Subscription
+      description: ''
+      operationId: get-webhook-subscription
+      parameters:
+        - name: id
+          in: path
+          description: ID of the webhook subscription to fetch.
+          schema:
+            type: string
+          required: true
+        - name: X-Postscript-Shop-Token
+          in: header
+          description: Shop API Token. **Required for partners**. This header should be used only by partners. Shops should include their API token in the *Authorization* header.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                      "callback_url": "http://example.com",
+                      "created_at": "2019-08-24T14:15:22Z",
+                      "event": "shop.test",
+                      "headers": {},
+                      "id": "a47606a1-5b39-4a81-9480-c2cb738ff675",
+                      "updated_at": "2019-08-24T14:15:22Z",
+                    }
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+    patch:
+      summary: Update Webhook Subscription
+      description: ''
+      operationId: update-webhook-subscription
+      parameters:
+        - name: id
+          in: path
+          description: ID of the webhook subscription to update.
+          schema:
+            type: string
+          required: true
+        - name: X-Postscript-Shop-Token
+          in: header
+          description: Shop API Token. **Required for partners**. This header should be used only by partners. Shops should include their API token in the *Authorization* header.
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                callback_url:
+                  type: string
+                  description: Destination URL for webhook deliveries (HTTPS only).
+                headers:
+                  type: object
+                  description: Custom key:value pairs to be sent as headers in every callback.
+                  properties: {}
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                      "callback_url": "http://example.com",
+                      "created_at": "2019-08-24T14:15:22Z",
+                      "event": "shop.test",
+                      "headers": {},
+                      "id": "a47606a1-5b39-4a81-9480-c2cb738ff675",
+                      "updated_at": "2019-08-24T14:15:22Z",
+                    }
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+  /api/v2/webhooks/token:
+    get:
+      summary: Get Webhook Signing Token
+      description: ''
+      operationId: get-webhook-signing-token
+      parameters:
+        - name: X-Postscript-Shop-Token
+          in: header
+          description: Shop API Token. **Required for partners**. This header should be used only by partners. Shops should include their API token in the *Authorization* header.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                      "token": "string"
+                    }
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: string
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+  /api/v2/webhooks/example:
+    get:
+      summary: Example Event
+      description: ''
+      operationId: example-event
+      parameters:
+        - name: event
+          in: query
+          description: Webhook subscription `event` type.
+          required: true
+          schema:
+            type: string
+            enum:
+              - shop.test
+              - shop.incoming_message
+              - shop.subscriber.opt_in
+              - shop.subscriber.opt_out
+              - shop.email_collected
+            default: shop.test
+        - name: X-Postscript-Shop-Token
+          in: header
+          description: Shop API Token. **Required for partners**. This header should be used only by partners. Shops should include their API token in the *Authorization* header.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                      "webhook_id": "89066f0a-eb36-4ed8-b98c-606e6dcac715",
+                      "resource_type": "shop",
+                      "resource_id": "shop_1234567abcd",
+                      "event_time": "2021-11-04T21:52:41.025455",
+                      "event": "shop.incoming_message",
+                      "event_data": {
+                        "id": "im_1b2a005a386281c9",
+                        "subscriber_id": "s_1234567abcd",
+                        "shop_id": "shop_1234567abcd",
+                        "is_opt_out": false,
+                        "shopify_customer_id": null,
+                        "from_number": "+15555555555",
+                        "created_at": "2021-11-04T21:52:41.025455",
+                        "body": "Hello, world"
+                      }
+                    }
+              schema:
+                type: object
+                properties:
+                  webhook_id:
+                    type: string
+                    example: 89066f0a-eb36-4ed8-b98c-606e6dcac715
+                  resource_type:
+                    type: string
+                    example: shop
+                  resource_id:
+                    type: string
+                    example: shop_1234567abcd
+                  event_time:
+                    type: string
+                    example: '2021-11-04T21:52:41.025455'
+                  event:
+                    type: string
+                    example: shop.incoming_message
+                  event_data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: im_1b2a005a386281c9
+                      subscriber_id:
+                        type: string
+                        example: s_1234567abcd
+                      shop_id:
+                        type: string
+                        example: shop_1234567abcd
+                      is_opt_out:
+                        type: boolean
+                        example: false
+                        default: true
+                      shopify_customer_id:
+                        type: number
+                        nullable: true
+                      from_number:
+                        type: string
+                        example: '+15555555555'
+                      created_at:
+                        type: string
+                        example: '2021-11-04T21:52:41.025455'
+                      body:
+                        type: string
+                        example: Hello, world
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+  /api/v2/events:
+    post:
+      summary: Create Custom Event
+      description: ''
+      operationId: create-custom-event
+      parameters:
+        - name: X-Postscript-Shop-Token
+          in: header
+          description: Shop API Token. **Required for partners**. This header should be used *only* by partners. Shops should include their API token in the *Authorization* header.
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - type
+                - subscriber_id
+              properties:
+                type:
+                  type: string
+                  description: 'The type of event that you are creating. This is the name of the event that will show in the Postscript application. **Note:** when creating this event, we will *automatically* prefix your partner/shop name in front of the event. For example, if sending an event called "OrderPlaced", we''ll show it in our UI as "[Your Partner/Shop Name] - OrderPlaced" to distinguish it from others of a similar name. We accept the follow characters in the value field: lowercase letters (a-z), uppercase letters (A-Z), digits (0-9), and underscores (_).'
+                subscriber_id:
+                  type: string
+                  description: The id of the subscriber that you are creating the event for.
+                occurred_at:
+                  type: string
+                  description: When the event occurred. This parameter is optional but allows you to set the exact time that the event occurred on your system. If it is not sent to us, we will just use the current time when we receive it.
+                  format: date
+                properties:
+                  type: object
+                  description: These are the properties of the event. These properties will be exposed in the Postscript platform for things like filtering and merge tags to merchants.
+                  properties:
+                    key:
+                      type: string
+                      description: Properties can be key:value pairs. We will attempt to choose the appropriate data type for the value depending on what you send us. We currently accept strings, booleans, integers, floats, and datetime strings.
+                      default: value
+                external_id:
+                  type: string
+                  description: The unique id of the event on your system. This is an optional field. If a value is not provided, we will create a default id ourselves based on time of event received.
+      responses:
+        '202':
+          description: '202'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: "{\n\t\"event_ids\": [\"1234-abcd-5678\"]\n}"
+              schema:
+                type: object
+                properties:
+                  event_ids:
+                    type: array
+                    items:
+                      type: string
+                      example: 1234-abcd-5678
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+x-readme:
+  headers: []
+  explorer-enabled: false
+  proxy-enabled: true
+  samples-enabled: true
+x-readme-fauxas: true
