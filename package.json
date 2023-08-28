@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "spectral lint ./specs/**/*.{json,yml,yaml}"
   },
   "repository": {
     "type": "git",
@@ -17,6 +18,7 @@
   },
   "homepage": "https://github.com/takeshape/openapi-specs#readme",
   "devDependencies": {
+    "@stoplight/spectral-cli": "^6.10.1",
     "@takeshape/util": "^8.271.1",
     "cheerio": "^1.0.0-rc.12",
     "got": "^12.5.3",
