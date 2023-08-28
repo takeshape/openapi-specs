@@ -260,12 +260,6 @@ components:
       required:
         - content
         - created_at
-        - featured_image_id
-        - good_length
-        - id
-        - image
-        - image_url
-        - product_id
         - product_url
         - score
         - title
@@ -945,7 +939,7 @@ paths:
     get:
       summary: Find if your yotpo.me Subdomain is available
       description: ''
-      operationId: find-if-the-xxxxyotpome-subdomain-is-valid
+      operationId: is-subdomain-available
       parameters:
         - name: app_key
           in: path
@@ -1024,7 +1018,7 @@ paths:
     get:
       summary: Retrieve bottom line (total reviews and average score) for a specific product
       description: ''
-      operationId: get-bottom-line-total-reviews-and-average-score
+      operationId: get-product-bottomline
       parameters:
         - name: app_key
           in: path
@@ -1091,7 +1085,7 @@ paths:
     post:
       summary: Remove a set of email addresses from email distribution lists
       description: ''
-      operationId: remove-a-set-of-email-addresses-from-email-distrib
+      operationId: unsubscribe-emails
       requestBody:
         content:
           application/json:
@@ -1252,32 +1246,23 @@ paths:
                       ]
                     }
               schema:
-                oneOf:
-                  - title: Output with async parameter
-                    type: object
-                    required:
-                      - status
-                    properties:
-                      status:
-                        $ref: '#/components/schemas/Status'
-                  - title: Output with async and validate_data parameters
-                    type: object
-                    required:
-                      - status
-                    properties:
-                      status:
-                        $ref: '#/components/schemas/Status'
-                      errors:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            value:
-                              type: string
-                              example: '14'
-                            error:
-                              type: string
-                              example: email type ID is not valid
+                type: object
+                required:
+                  - status
+                properties:
+                  status:
+                    $ref: '#/components/schemas/Status'
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        value:
+                          type: string
+                          example: '14'
+                        error:
+                          type: string
+                          example: email type ID is not valid
         '401':
           description: '401'
           content:
@@ -1304,7 +1289,7 @@ paths:
     get:
       summary: Retrieve reviews for a user using external user reference ID
       description: This endpoint requires a Yotpo premium plan.
-      operationId: retrieve-reviews-for-a-specific-user
+      operationId: list-user-reviews
       parameters:
         - name: app_key
           in: path
@@ -1476,7 +1461,7 @@ paths:
     delete:
       summary: Re-add email addresses to email distribution lists
       description: Re-adds email addresses to your mailing list that you added to your Yotpo email blocklist. Customers who organically unsubscribed from your mailing list will not be re-added.
-      operationId: re-add-email-addresses-to-email-distribution-lists
+      operationId: resubscribe-emails
       requestBody:
         content:
           application/json:
@@ -1637,32 +1622,24 @@ paths:
                       }
                     }
               schema:
-                oneOf:
-                  - title: Output with async and validate_data parameters
-                    type: object
-                    required:
-                      - status
-                    properties:
-                      status:
-                        $ref: '#/components/schemas/Status'
-                      errors:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            value:
-                              type: string
-                              example: '14'
-                            error:
-                              type: string
-                              example: email type ID is not valid
-                  - title: Output with async parameter
-                    type: object
-                    required:
-                      - status
-                    properties:
-                      status:
-                        $ref: '#/components/schemas/Status'
+                type: object
+                required:
+                  - status
+                properties:
+                  status:
+                    $ref: '#/components/schemas/Status'
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        value:
+                          type: string
+                          example: '14'
+                        error:
+                          type: string
+                          example: email type ID is not valid
+
         '400':
           description: '400'
           content:
@@ -1678,7 +1655,7 @@ paths:
     get:
       summary: Retrieve all reviews
       description: ''
-      operationId: retrieve-all-reviews
+      operationId: list-reviews
       parameters:
         - name: app_key
           in: path
@@ -1829,7 +1806,7 @@ paths:
     get:
       summary: Retrieve the bottom line for Q&A
       description: Retrieve the Bottom Line for a given product using the product SKU number. The Bottom Line will return the total questions and total answers for the desired product.
-      operationId: retrieve-the-bottom-line-for-questions-and-answers
+      operationId: get-question-answer-bottomline
       parameters:
         - name: app_key
           in: path
@@ -1908,7 +1885,7 @@ paths:
     get:
       summary: Retrieve Q&A for a product
       description: Retrieve Questions and Answers for a given product using the product SKU number.
-      operationId: retrieve-questions-and-answers-for-a-product
+      operationId: list-product-questions
       parameters:
         - name: app_key
           in: path
@@ -2117,7 +2094,7 @@ paths:
     get:
       summary: Retrieve a list of unsubscribers
       description: ''
-      operationId: retrieve-a-list-of-unsubscribers
+      operationId: list-unsubscribers
       parameters:
         - name: app_key
           in: path
@@ -2233,7 +2210,7 @@ paths:
     get:
       summary: Retrieve dynamic coupon code statistics
       description: ''
-      operationId: retrieve-unique-code-statistics
+      operationId: get-coupon-code-statistics
       parameters:
         - name: app_key
           in: path
@@ -2300,7 +2277,7 @@ paths:
     post:
       summary: Delete a dynamic coupon action's codes
       description: ''
-      operationId: delete-a-coupon-action
+      operationId: delete-coupon-action
       requestBody:
         content:
           application/json:
@@ -2357,7 +2334,7 @@ paths:
     post:
       summary: Upload dynamic coupon codes
       description: ''
-      operationId: upload-unique-coupon-codes
+      operationId: create-coupon-codes
       parameters:
         - name: utoken
           in: query
@@ -2461,7 +2438,7 @@ paths:
     get:
       summary: Retrieve all dynamic coupon codes
       description: ''
-      operationId: retrieve-all-unique-coupon-codes
+      operationId: list-coupon-codes
       parameters:
         - name: app_key
           in: path
@@ -2563,7 +2540,7 @@ paths:
     post:
       summary: Upvote or downvote reviews
       description: Vote up or down on whether a particular review is helpful by `review_id`.
-      operationId: vote-on-reviews
+      operationId: vote-on-review
       parameters:
         - name: review_id
           in: path
@@ -2628,7 +2605,7 @@ paths:
     post:
       summary: Create question (with confirmation email)
       description: Create and send a Question which requires email confirmation.
-      operationId: send-question-confirmation-mail
+      operationId: create-question
       requestBody:
         content:
           application/json:
@@ -2728,7 +2705,7 @@ paths:
     post:
       summary: Vote on answers
       description: Vote up or down on a particular answer to a question by answer_id.
-      operationId: vote-on-answers
+      operationId: vote-on-answer
       parameters:
         - name: answer_id
           in: path
@@ -2804,7 +2781,7 @@ paths:
         Product grouping and/or syndication may result in two bottom line scores for each product: 
         * The first score represents all grouped reviews and syndicated reviews
         * The second score represents the organic score
-      operationId: v1-retrieve-bottom-line-total-reviews-and-average-score-for-all-products
+      operationId: list-product-bottomlines
       parameters:
         - name: app_key
           in: path
@@ -2981,7 +2958,7 @@ paths:
     put:
       summary: Update subscribed webhook
       description: Update a subscribed webhook `url` or `event_name` by webhook `id`.
-      operationId: update-subscribed-webhook
+      operationId: update-webhook
       parameters:
         - name: app_key
           in: path
@@ -3056,7 +3033,7 @@ paths:
     get:
       summary: Get subscribed webhook
       description: ''
-      operationId: get-subscribed-webhook
+      operationId: get-webhook
       parameters:
         - name: app_key
           in: path
@@ -3145,7 +3122,7 @@ paths:
     get:
       summary: Get account webhooks
       description: Retrieves a list of all webhooks created per account. Webhook events could be could be `review_create` or `review_updated`.
-      operationId: get-account-webhooks
+      operationId: list-webhooks
       parameters:
         - name: app_key
           in: path
@@ -3312,7 +3289,7 @@ paths:
     get:
       summary: Top Three 5-Star Reviews
       description: Retrieve the top three 5-star reviews per account. This endpoint will return the top three 5-star reviews (including unpublished reviews) based on Yotpo's smart algorithm in JSON or HTML format.
-      operationId: recent-5-star-reviews
+      operationId: get-top-5-star-reviews
       parameters:
         - name: app_key
           in: path
@@ -3399,7 +3376,7 @@ paths:
     get:
       summary: Retrieve a review by review ID
       description: Retrieve **published** reviews by `review_id`. Please note that unpublished reviews cannot be retrieved using this endpoint.
-      operationId: retrieve-a-review-by-review-id
+      operationId: get-review
       parameters:
         - name: review_id
           in: path
@@ -3543,7 +3520,7 @@ paths:
     get:
       summary: Retrieve your reviews.me URL
       description: Reviews.me generates SEO friendly pages to be used in various SEO features, such as Rich Snippets
-      operationId: retrieve-your-reviewsme-url
+      operationId: get-product-reviews-me-url
       parameters:
         - name: app_key
           in: path
@@ -3606,7 +3583,7 @@ paths:
         Retrieve all Questions for the designated account per Yotpo account API key.
         To return only new questions, query the **status_type** as **status_type=new**
         **new_questions** refers to questions that are unanswered and have not been archived.
-      operationId: retrieve-all-questions
+      operationId: list-questions
       parameters:
         - name: app_key
           in: path
@@ -3944,7 +3921,7 @@ paths:
     post:
       summary: Create an answer to a question
       description: Create a public or private Answer to a specific Question per `question_id`.
-      operationId: create-answer-for-question
+      operationId: create-answer
       parameters:
         - name: question_id
           in: path
@@ -4046,7 +4023,7 @@ paths:
     post:
       summary: Create question (without confirmation email)
       description: Create and send a Question without sending your customer a confirmation email.
-      operationId: draft-create-question-without-sending-confirmation-email
+      operationId: create-question-synchronous
       parameters:
         - name: utoken
           in: query
@@ -4175,7 +4152,7 @@ paths:
     get:
       summary: Email analytics
       description: Retrieve aggregated data for email metrics based on the defined email type value and group data by metrics.
-      operationId: email-analytics
+      operationId: get-email-analytics-metric
       parameters:
         - name: app_key
           in: path
@@ -4279,41 +4256,23 @@ paths:
                         ]
                     }
               schema:
-                oneOf:
-                  - title: Query date_bucket=day
-                    type: object
-                    properties:
-                      date_series_points:
-                        type: array
-                        items:
+                type: object
+                properties:
+                  date_series_points:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        since:
+                          type: string
+                          example: '2017-07-01'
+                        until:
+                          type: string
+                          example: '2017-07-01'
+                        values:
                           type: object
-                          properties:
-                            since:
-                              type: string
-                              example: '2017-07-01'
-                            until:
-                              type: string
-                              example: '2017-07-01'
-                            values:
-                              type: object
-                              properties: {}
-                  - title: Query date_bucket=month
-                    type: object
-                    properties:
-                      date_series_points:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            since:
-                              type: string
-                              example: '2017-07-15'
-                            until:
-                              type: string
-                              example: '2017-07-31'
-                            values:
-                              type: object
-                              properties: {}
+                          properties: {}
+
       deprecated: false
       x-readme:
         code-samples:
@@ -4328,7 +4287,7 @@ paths:
     get:
       summary: Raw data
       description: Use this request to return detailed data about every email sent from Yotpo including the email recipient, when the email was received, order information, delivery success or failure, when the email was opened, clicks, unsubscribe, etc.
-      operationId: raw-data
+      operationId: list-sent-emails
       parameters:
         - name: app_key
           in: path
@@ -4611,7 +4570,7 @@ paths:
       description: |-
         View a summary of all metrics as an itemized list for a specified email type. 
         Data can be segmented by email type and grouped by various metrics.
-      operationId: summary
+      operationId: get-email-analytics-summary
       parameters:
         - name: app_key
           in: path
@@ -4754,7 +4713,7 @@ paths:
     get:
       summary: Retrieve bottom line (total reviews and average score) for all site reviews
       description: Retrieve all bottom lines (average score and total site review count per account).
-      operationId: retrieve-bottom-line-for-all-site-reviews
+      operationId: get-all-reviews-bottomline
       parameters:
         - name: app_key
           in: path
@@ -4906,9 +4865,9 @@ paths:
       deprecated: false
   /v1/apps/{app_key}/images/export:
     get:
-      summary: Get media
+      summary: List media
       description: Get user-generated photos and/or video by `source` and `media_type`. The media source could be from `review`, `import`, `onsite_upload`, or `social`.
-      operationId: get-media
+      operationId: list-media
       parameters:
         - name: app_key
           in: path
@@ -5533,330 +5492,119 @@ paths:
                         }
                     }
               schema:
-                oneOf:
-                  - title: source=social
+                type: object
+                required:
+                  - status
+                properties:
+                  status:
+                    "$ref": "#/components/schemas/Status"
+                  response:
                     type: object
-                    required:
-                      - status
                     properties:
-                      status:
-                        $ref: '#/components/schemas/Status'
-                      response:
+                      pagination:
                         type: object
                         properties:
-                          pagination:
-                            type: object
-                            properties:
-                              page:
-                                type: integer
-                                example: 1
-                                default: 0
-                              per_page:
-                                type: integer
-                                example: 10
-                                default: 0
-                              total:
-                                type: integer
-                                example: 489
-                                default: 0
-                          images:
-                            type: array
-                            items:
-                              type: object
-                              properties:
-                                source:
-                                  type: string
-                                  example: instagram
-                                media_type:
-                                  type: string
-                                  example: image
-                                tagged_products: {}
-                                post:
-                                  type: object
-                                  properties:
-                                    content: {}
-                                    user_name:
-                                      type: string
-                                      example: yotfashion3
-                                    user_email: {}
-                                albums:
-                                  type: array
-                                  items:
-                                    type: object
-                                    properties:
-                                      type:
-                                        type: string
-                                        example: CustomAlbum
-                                      name:
-                                        type: string
-                                        example: 'Album #23'
-                                      id:
-                                        type: string
-                                        example: 5bac928f83a5e37ce26aa720
-                                original_image_url:
-                                  type: string
-                                  example: https://www.instagram.com/p/BrimRAplbUF/
-                                image_id:
-                                  type: string
-                                  example: '17989116304087092'
-                                standard_resolution:
-                                  type: string
-                                  example: https://ddcfq0gxiontw.cloudfront.net/instagram/92/17989116304087092/standard_resolution.xx&oh=f85b136d3a71e89171c1ce1f8009c204&oe=5CB350A9
-                                thumbnail:
-                                  type: string
-                                  example: https://ddcfq0gxiontw.cloudfront.net/instagram/92/17989116304087092/thumbnail.xx&oh=f85b136d3a71e89171c1ce1f8009c204&oe=5CB350A9
-                                low_resolution:
-                                  type: string
-                                  example: https://ddcfq0gxiontw.cloudfront.net/instagram/92/17989116304087092/low_resolution.xx&oh=f85b136d3a71e89171c1ce1f8009c204&oe=5CB350A9
-                                facebook_resolution: {}
-                                twitter_resolution: {}
-                                instagram_resolution: {}
-                  - title: source=review
-                    type: object
-                    required:
-                      - status
-                    properties:
-                      status:
-                        $ref: '#/components/schemas/Status'
-                      response:
-                        type: object
-                        properties:
-                          pagination:
-                            type: object
-                            properties:
-                              page:
-                                type: integer
-                                example: 1
-                                default: 0
-                              per_page:
-                                type: integer
-                                example: 2
-                                default: 0
-                              total:
-                                type: integer
-                                example: 473
-                                default: 0
-                          images:
-                            type: array
-                            items:
-                              type: object
-                              properties:
-                                source:
-                                  type: string
-                                  example: review
-                                review_id:
-                                  type: integer
-                                  example: 69982867
-                                  default: 0
-                                image_id:
-                                  type: integer
-                                  example: 58948851
-                                  default: 0
-                                standard_resolution:
-                                  type: string
-                                  example: https://ddcfq0gxiontw.cloudfront.net/Review/69982867/58948851/standard.jpg?1538599248
-                                thumbnail:
-                                  type: string
-                                  example: https://ddcfq0gxiontw.cloudfront.net/Review/69982867/58948851/square.jpg?1538599248
-                                low_resolution:
-                                  type: string
-                                  example: https://ddcfq0gxiontw.cloudfront.net/Review/69982867/58948851/medium_square.jpg?1538599248
-                                facebook_resolution:
-                                  type: string
-                                  example: https://ddcfq0gxiontw.cloudfront.net/Review/69982867/58948851/facebook.jpg?1538599248
-                                twitter_resolution:
-                                  type: string
-                                  example: https://ddcfq0gxiontw.cloudfront.net/Review/69982867/58948851/twitter.jpg?1538599248
-                                instagram_resolution:
-                                  type: string
-                                  example: https://ddcfq0gxiontw.cloudfront.net/Review/69982867/58948851/instagram.jpg?1538599248
-                                original_image_url:
-                                  type: string
-                                  example: https://ddcfq0gxiontw.cloudfront.net/Review/69982867/58948851/original.jpg?1538599248
-                                tagged_products:
-                                  type: array
-                                  items:
+                          page:
+                            type: integer
+                            example: 1
+                          per_page:
+                            type: integer
+                            example: 10
+                          total:
+                            type: integer
+                            example: 1
+                      images:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            source:
+                              type: string
+                              example: import
+                            media_type:
+                              type: string
+                              example: video
+                            tagged_products:
+                              type: array
+                              items:
+                                type: object
+                                example: '538465337388'
+                                properties:
+                                  product_id:
                                     type: string
-                                    example: '538465337388'
-                                post:
-                                  type: object
-                                  properties:
-                                    title:
-                                      type: string
-                                      example: Love it!
-                                    content:
-                                      type: string
-                                      example: Love the product!
-                                    user_name:
-                                      type: string
-                                      example: Stacey
-                                    user_email:
-                                      type: string
-                                      example: stacey@comcast.net
-                                albums: {}
-                  - title: source=onsite_upload
-                    type: object
-                    required:
-                      - status
-                    properties:
-                      status:
-                        $ref: '#/components/schemas/Status'
-                      response:
-                        type: object
-                        properties:
-                          pagination:
-                            type: object
-                            properties:
-                              page:
-                                type: integer
-                                example: 1
-                                default: 0
-                              per_page:
-                                type: integer
-                                example: 10
-                                default: 0
-                              total:
-                                type: integer
-                                example: 52
-                                default: 0
-                          images:
-                            type: array
-                            items:
+                                    example: '2024521531454'
+                                  product_name:
+                                    type: string
+                                    example: Crazy socks
+                            post:
                               type: object
                               properties:
-                                source:
+                                content:
                                   type: string
-                                  example: onsite_upload
-                                media_type:
+                                  example: test_upload_api
+                                user_name:
                                   type: string
-                                  example: image
-                                tagged_products:
-                                  type: array
-                                  items:
-                                    type: object
-                                    properties:
-                                      product_id:
-                                        type: string
-                                        example: '2024521531454'
-                                      product_name:
-                                        type: string
-                                        example: Crazy socks
-                                post:
-                                  type: object
-                                  properties:
-                                    content:
-                                      type: string
-                                      example: dfgdfgdfgdfg
-                                    user_name:
-                                      type: string
-                                      example: dfgdfg
-                                    user_email:
-                                      type: string
-                                      example: dfgdfg@grsgdf.com
-                                albums: {}
-                                original_image_url:
+                                  example: joeshmo
+                                user_email:
                                   type: string
-                                  example: https://ddcfq0gxiontw.cloudfront.net/Account/199665/81338941/original.png?1556781507
-                                image_id:
+                                  example: joeshmo@yotpo.com
+                                title:
                                   type: string
-                                  example: '81338941'
-                                standard_resolution:
-                                  type: string
-                                  example: https://ddcfq0gxiontw.cloudfront.net/Account/199665/81338941/standard.png?1556781507
-                                thumbnail:
-                                  type: string
-                                  example: https://ddcfq0gxiontw.cloudfront.net/Account/199665/81338941/square.png?1556781507
-                                low_resolution:
-                                  type: string
-                                  example: https://ddcfq0gxiontw.cloudfront.net/Account/199665/81338941/medium_square.png?1556781507
-                                facebook_resolution:
-                                  type: string
-                                  example: https://ddcfq0gxiontw.cloudfront.net/Account/199665/81338941/facebook.png?1556781507
-                                twitter_resolution:
-                                  type: string
-                                  example: https://ddcfq0gxiontw.cloudfront.net/Account/199665/81338941/twitter.png?1556781507
-                                instagram_resolution:
-                                  type: string
-                                  example: https://ddcfq0gxiontw.cloudfront.net/Account/199665/81338941/instagram.png?1556781507
-                  - title: source=import
-                    type: object
-                    required:
-                      - status
-                    properties:
-                      status:
-                        $ref: '#/components/schemas/Status'
-                      response:
-                        type: object
-                        properties:
-                          pagination:
-                            type: object
-                            properties:
-                              page:
-                                type: integer
-                                example: 1
-                                default: 0
-                              per_page:
-                                type: integer
-                                example: 10
-                                default: 0
-                              total:
-                                type: integer
-                                example: 1
-                                default: 0
-                          images:
-                            type: array
-                            items:
-                              type: object
-                              properties:
-                                source:
-                                  type: string
-                                  example: import
-                                media_type:
-                                  type: string
-                                  example: video
-                                tagged_products: {}
-                                post:
-                                  type: object
-                                  properties:
-                                    content:
-                                      type: string
-                                      example: test_upload_api
-                                    user_name:
-                                      type: string
-                                      example: joeshmo
-                                    user_email:
-                                      type: string
-                                      example: joeshmo@yotpo.com
-                                albums:
-                                  type: array
-                                  items:
-                                    type: object
-                                    properties:
-                                      type:
-                                        type: string
-                                        example: CustomAlbum
-                                      name:
-                                        type: string
-                                        example: Test
-                                      id:
-                                        type: string
-                                        example: 5bfd38f2d9a55a7508930083
-                                original_video_url:
-                                  type: string
-                                  example: http://cdnapi.kaltura.com/p/2458122/sp/245812200/playManifest/entryId/1_u79phw6n/format/url/protocol/http
-                                video_id:
-                                  type: string
-                                  example: 1_u79phw6n
-                                video_url:
-                                  type: string
-                                  example: http://cdnapi.kaltura.com/p/2458122/sp/245812200/playManifest/entryId/1_u79phw6n/format/url/protocol/http
-                                video_duration:
-                                  type: integer
-                                  example: 5
-                                  default: 0
-                                thumbnail:
-                                  type: string
-                                  example: http://cfvod.kaltura.com/p/2458122/sp/245812200/thumbnail/entry_id/1_u79phw6n/version/100001
+                                  example: Love it!
+                            albums:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  type:
+                                    type: string
+                                    example: CustomAlbum
+                                  name:
+                                    type: string
+                                    example: Test
+                                  id:
+                                    type: string
+                                    example: 5bfd38f2d9a55a7508930083
+                            original_image_url:
+                              type: string
+                              example: https://ddcfq0gxiontw.cloudfront.net/Account/199665/81338941/original.png?1556781507
+                            image_id:
+                              type: string
+                              example: '81338941'
+                            standard_resolution:
+                              type: string
+                              example: https://ddcfq0gxiontw.cloudfront.net/Account/199665/81338941/standard.png?1556781507
+                            thumbnail:
+                              type: string
+                              example: http://cfvod.kaltura.com/p/2458122/sp/245812200/thumbnail/entry_id/1_u79phw6n/version/100001
+                            low_resolution:
+                              type: string
+                              example: https://ddcfq0gxiontw.cloudfront.net/Account/199665/81338941/medium_square.png?1556781507
+                            facebook_resolution:
+                              type: string
+                              example: https://ddcfq0gxiontw.cloudfront.net/Account/199665/81338941/facebook.png?1556781507
+                            twitter_resolution:
+                              type: string
+                              example: https://ddcfq0gxiontw.cloudfront.net/Account/199665/81338941/twitter.png?1556781507
+                            instagram_resolution:
+                              type: string
+                              example: https://ddcfq0gxiontw.cloudfront.net/Account/199665/81338941/instagram.png?1556781507
+                            review_id:
+                              type: integer
+                              example: 69982867
+                            original_video_url:
+                              type: string
+                              example: http://cdnapi.kaltura.com/p/2458122/sp/245812200/playManifest/entryId/1_u79phw6n/format/url/protocol/http
+                            video_id:
+                              type: string
+                              example: 1_u79phw6n
+                            video_url:
+                              type: string
+                              example: http://cdnapi.kaltura.com/p/2458122/sp/245812200/playManifest/entryId/1_u79phw6n/format/url/protocol/http
+                            video_duration:
+                              type: integer
+                              example: 5
+
         '400':
           description: '400'
           content:
@@ -5869,7 +5617,7 @@ paths:
     post:
       summary: Topics
       description: Retrieves topics mentioned in reviews. The response includes Insights data such as topic sentiment score, industry average, the number of opinions detected per topic, and the opinion polarity. You can filter your request by date, product, reviewer location, review score, and much more. For a full breakdown, see the body params list below.
-      operationId: topics
+      operationId: list-topics
       parameters:
         - name: content type
           in: header
@@ -6112,7 +5860,7 @@ paths:
     post:
       summary: Reviews per topic
       description: Retrieves reviews on specific products according to topics. The response includes review data such as reviewer email, review id, title, content, star-rating, opinions, and can be filtered accordingly. For a full breakdown, see the Body Params list below.
-      operationId: reviews
+      operationId: list-topic-reviews
       parameters:
         - name: content type
           in: header
@@ -6375,7 +6123,7 @@ paths:
     get:
       summary: Product images
       description: Use this endpoint to retrieve images curated to product albums.
-      operationId: product-images
+      operationId: list-product-images
       parameters:
         - name: app_key
           in: path
@@ -6550,7 +6298,7 @@ paths:
     get:
       summary: Custom albums
       description: Fetches the names and ID's of all existing custom albums per account `app_key`.
-      operationId: get-custom-albums
+      operationId: list-custom-albums
       parameters:
         - name: app_key
           in: path
@@ -6689,7 +6437,7 @@ paths:
     get:
       summary: Photos by album
       description: Fetches the custom album payload including album images, tags, names, and ID's of all existing custom albums per account `app_key`.
-      operationId: photos-by-album
+      operationId: list-album-photos
       parameters:
         - name: album_name
           in: query
@@ -6865,7 +6613,7 @@ paths:
     get:
       summary: User data
       description: An asynchronous request that retrieves existing user data in the Yotpo system. User data is sent as a JSON file to the account email address associated with the Yotpo account utoken.
-      operationId: fetch-user-data
+      operationId: get-user-data
       parameters:
         - name: utoken
           in: query
@@ -6915,7 +6663,7 @@ paths:
     get:
       summary: Data exists
       description: A synchronous request that checks for existing account data (true/false) in the Yotpo system.
-      operationId: data-exists
+      operationId: has-email-data
       parameters:
         - name: utoken
           in: query
@@ -6975,7 +6723,7 @@ paths:
     post:
       summary: Products
       description: Get the average star rating score, sentiment, sentiment change, organic reviews counts, and reviews sentiment distribution for specific products in your store.
-      operationId: products
+      operationId: list-product-insights
       requestBody:
         content:
           application/json:
@@ -7199,7 +6947,7 @@ paths:
     post:
       summary: Product collections
       description: Get the average star rating score, sentiment, sentiment change, and reviews sentiment distribution for specific product collections in your store.
-      operationId: product-collections
+      operationId: list-product-collection-insights
       requestBody:
         content:
           application/json:
@@ -7427,7 +7175,7 @@ paths:
     post:
       summary: Reviews per product
       description: Get detailed organic reviews per product including top opinions and best sentences found within the review content.
-      operationId: product-reviews
+      operationId: list-product-review-insights
       requestBody:
         content:
           application/json:
@@ -7657,7 +7405,7 @@ paths:
       description: |-
         Use this endpoint to update metadata associated with an existing review. The `review_id` can be retrieved using the [Retrieve all reviews](ref:retrieve-all-reviews) endpoint.
         Note: It is not possible to remove metadata.
-      operationId: update-existing-review-metadata
+      operationId: update-review-metadata
       parameters:
         - name: app_key
           in: path
@@ -7836,7 +7584,7 @@ paths:
     post:
       summary: Add metadata to an existing review
       description: Use this endpoint to add metadata to an existing review. The `review_id` can be retrieved using the [Retrieve all reviews](ref:retrieve-all-reviews) endpoint.
-      operationId: add-metadata-to-an-existing-review
+      operationId: add-review-metadata
       parameters:
         - name: app_key
           in: path
@@ -7992,7 +7740,7 @@ paths:
     get:
       summary: Get review metadata
       description: Use this endpoint to retrieve a review's order, customer, and product metadata by `review_id`. The `review_id` can be retrieved using the [Retrieve all reviews](ref:retrieve-all-reviews) endpoint.
-      operationId: get-review-metadata-by-review-id
+      operationId: get-review-metadata
       parameters:
         - name: app_key
           in: path
@@ -8411,7 +8159,7 @@ paths:
     get:
       summary: Video upload errors
       description: Request a list of failed video upload attempts. The response includes the uploader's `user_name`, `user_email`, `file_name`, video upload `source`, creation timestamp, and the reason the video failed to upload successfully.
-      operationId: video-upload-errors
+      operationId: list-video-upload-errors
       parameters:
         - name: app_key
           in: query
@@ -8618,7 +8366,7 @@ paths:
     get:
       summary: Get webhook events
       description: Retrieves webhook events per account including event names and their descriptions. Webhook events could be could be `review_create` or `review_updated`.
-      operationId: get-webhook-events
+      operationId: list-webhook-events
       parameters:
         - name: utoken
           in: query
@@ -8642,7 +8390,7 @@ paths:
                   status:
                     $ref: '#/components/schemas/Status'
                   pagination: {}
-                  webhook_events:
+                  response:
                     type: object
                     properties:
                       webhook_events:
@@ -8674,7 +8422,7 @@ paths:
         If you're collecting orders metadata properties, this call can be used to retrieve all possible filter-types, and their corresponding values, for a specific product. For example, `hair_type` and `straight`,`curly`,`short`,`damaged`, etc.  
 
         **Important:** In order to retrieve filters and values, the product (`domain_key`) defined must have at least one review published to the Reviews Widget.
-      operationId: get-filters-and-values
+      operationId: get-filter-values
       parameters:
         - name: app_key
           in: path
@@ -8774,7 +8522,7 @@ paths:
     put:
       summary: Update incentivized reviews by review ID
       description: Use this endpoint to update the review IDs of reviews that have been given incentives.
-      operationId: update-incentive-by-review-id-1
+      operationId: update-review-incentives
       parameters:
         - name: utoken
           in: query
