@@ -1333,171 +1333,97 @@ paths:
                         }
                     ]
               schema:
-                oneOf:
-                  - title: '''with_status'' set to false'
-                    type: array
-                    items:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1055265
+                      default: 0
+                    created_at:
+                      type: string
+                      example: '2021-11-22T11:57:43.000Z'
+                    updated_at:
+                      type: string
+                      example: '2021-11-23T14:40:19.000Z'
+                    expires_at: {}
+                    type:
+                      type: string
+                      example: BirthdayCampaign
+                    username: {}
+                    share_text: {}
+                    entity_id: {}
+                    hashtags: {}
+                    url: {}
+                    question: {}
+                    display_order:
+                      type: integer
+                      example: 5
+                      default: 0
+                    default_email_body: {}
+                    reward_text:
+                      type: string
+                      example: 350 Points
+                    icon:
+                      type: string
+                      example: fa-birthday-cake
+                    cta_text:
+                      type: string
+                      example: Wish Me A Happy Birthday
+                    min_actions_required:
+                      type: integer
+                      example: 1
+                      default: 0
+                    action_name: {}
+                    ask_year:
+                      type: boolean
+                      example: false
+                      default: true
+                    extra_copy1:
+                      type: string
+                      example: If your birthday is within the next 30 days, your reward will be granted in delay, up to 30 days.
+                    extra_copy2:
+                      type: string
+                      example: Thanks! We're looking forward to helping you celebrate :)
+                    include_audience_ids:
+                      type: string
+                      example: '1'
+                    exclude_audience_ids: {}
+                    status:
                       type: object
                       properties:
-                        id:
+                        global_completions_left: {}
+                        customer_actions_completed:
                           type: integer
-                          example: 1055263
+                          example: 0
                           default: 0
-                        created_at:
-                          type: string
-                          example: '2021-11-22T11:56:30.000Z'
-                        updated_at:
-                          type: string
-                          example: '2021-11-23T14:40:51.000Z'
-                        expires_at: {}
-                        type:
-                          type: string
-                          example: BirthdayCampaign
-                        username: {}
-                        share_text: {}
-                        entity_id: {}
-                        hashtags: {}
-                        url: {}
-                        question: {}
-                        display_order:
+                        customer_times_completed:
                           type: integer
-                          example: 5
+                          example: 0
                           default: 0
-                        default_email_body: {}
-                        reward_text:
-                          type: string
-                          example: 250 Points
-                        icon:
-                          type: string
-                          example: fa-birthday-cake
-                        cta_text:
-                          type: string
-                          example: Wish Me A Happy Birthday
-                        min_actions_required:
+                        customer_minutes_until_next_action:
                           type: integer
-                          example: 1
+                          example: 0
                           default: 0
-                        action_name: {}
-                        ask_year:
-                          type: boolean
-                          example: false
-                          default: true
-                        extra_copy1:
-                          type: string
-                          example: If your birthday is within the next 30 days, your reward will be granted in delay, up to 30 days.
-                        extra_copy2:
-                          type: string
-                          example: Thanks! We're looking forward to helping you celebrate :)
-                        include_audience_ids:
-                          type: string
-                          example: '1'
-                        exclude_audience_ids: {}
-                        max_completions_per_user: {}
-                        title:
-                          type: string
-                          example: Happy Birthday
-                        details:
-                          type: string
-                          example: Earn 200 points on your birthday
-                        unrendered_title:
-                          type: string
-                          example: Happy Birthday
-                        unrendered_details:
-                          type: string
-                          example: Earn 200 points on your birthday
-                        ends_at: {}
-                  - title: '''with_status'' set to true'
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
+                        customer_minutes_until_next_completion:
                           type: integer
-                          example: 1055265
+                          example: 0
                           default: 0
-                        created_at:
-                          type: string
-                          example: '2021-11-22T11:57:43.000Z'
-                        updated_at:
-                          type: string
-                          example: '2021-11-23T14:40:19.000Z'
-                        expires_at: {}
-                        type:
-                          type: string
-                          example: BirthdayCampaign
-                        username: {}
-                        share_text: {}
-                        entity_id: {}
-                        hashtags: {}
-                        url: {}
-                        question: {}
-                        display_order:
-                          type: integer
-                          example: 5
-                          default: 0
-                        default_email_body: {}
-                        reward_text:
-                          type: string
-                          example: 350 Points
-                        icon:
-                          type: string
-                          example: fa-birthday-cake
-                        cta_text:
-                          type: string
-                          example: Wish Me A Happy Birthday
-                        min_actions_required:
-                          type: integer
-                          example: 1
-                          default: 0
-                        action_name: {}
-                        ask_year:
-                          type: boolean
-                          example: false
-                          default: true
-                        extra_copy1:
-                          type: string
-                          example: If your birthday is within the next 30 days, your reward will be granted in delay, up to 30 days.
-                        extra_copy2:
-                          type: string
-                          example: Thanks! We're looking forward to helping you celebrate :)
-                        include_audience_ids:
-                          type: string
-                          example: '1'
-                        exclude_audience_ids: {}
-                        status:
-                          type: object
-                          properties:
-                            global_completions_left: {}
-                            customer_actions_completed:
-                              type: integer
-                              example: 0
-                              default: 0
-                            customer_times_completed:
-                              type: integer
-                              example: 0
-                              default: 0
-                            customer_minutes_until_next_action:
-                              type: integer
-                              example: 0
-                              default: 0
-                            customer_minutes_until_next_completion:
-                              type: integer
-                              example: 0
-                              default: 0
-                        max_completions_per_user: {}
-                        title:
-                          type: string
-                          example: Happy Birthday
-                        details:
-                          type: string
-                          example: Earn 350 points on your birthday
-                        unrendered_title:
-                          type: string
-                          example: Happy Birthday
-                        unrendered_details:
-                          type: string
-                          example: Earn 350 points on your birthday
-                        ends_at: {}
+                    max_completions_per_user: {}
+                    title:
+                      type: string
+                      example: Happy Birthday
+                    details:
+                      type: string
+                      example: Earn 350 points on your birthday
+                    unrendered_title:
+                      type: string
+                      example: Happy Birthday
+                    unrendered_details:
+                      type: string
+                      example: Earn 350 points on your birthday
+                    ends_at: {}
         '400':
           description: '400'
           content:
@@ -1936,23 +1862,15 @@ paths:
                 Result:
                   value: "{\n\t\"errors\": {\n\t\t\"message\": \"You must provide codes\"\n\t}\n}"
               schema:
-                oneOf:
-                  - type: object
+                type: object
+                properties:
+                  errors:
+                    type: object
                     properties:
-                      errors:
-                        type: object
-                        properties:
-                          message:
-                            type: string
-                            example: You must provide redemption_option_id
-                  - type: object
-                    properties:
-                      errors:
-                        type: object
-                        properties:
-                          message:
-                            type: string
-                            example: You must provide codes
+                      message:
+                        type: string
+                        example: You must provide redemption_option_id
+
       deprecated: false
   /api/v2/vip_tiers:
     get:
@@ -2296,88 +2214,59 @@ paths:
                         "referral_discount_code_id": 5350671
                     }
               schema:
-                oneOf:
-                  - title: Customer who made referrals
-                    type: object
-                    properties:
-                      id:
-                        type: integer
-                        example: 802831867
-                        default: 0
-                      merchant_id:
-                        type: integer
-                        example: 65048
-                        default: 0
-                      email:
-                        type: string
-                        example: partialrefund@yotpo.com
-                      referral_receipts:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            id:
-                              type: integer
-                              example: 6935178
-                              default: 0
-                            referral_code_id:
-                              type: integer
-                              example: 669429180
-                              default: 0
-                            customer_id:
-                              type: integer
-                              example: 802831867
-                              default: 0
-                            signed_up_at:
-                              type: string
-                              example: '2021-11-21T13:48:11.000Z'
-                            completed_at:
-                              type: string
-                              example: '2021-11-21T13:48:34.000Z'
-                            email:
-                              type: string
-                              example: referredpurhcase@test.com
-                            merchant_id:
-                              type: integer
-                              example: 65048
-                              default: 0
-                            source:
-                              type: string
-                              example: other
-                            source_host: {}
-                            reminder_job_id: {}
-                      referral_link:
-                        type: string
-                        example: http://rwrd.io/is8rphx
-                      referral_discount_code: {}
-                      referral_discount_code_id: {}
-                  - title: Customer with no referrals
-                    type: object
-                    properties:
-                      id:
-                        type: integer
-                        example: 397725873
-                        default: 0
-                      merchant_id:
-                        type: integer
-                        example: 65048
-                        default: 0
-                      email:
-                        type: string
-                        example: referraltest9@yotpo.com
-                      referral_receipts:
-                        type: array
-                        items: {}
-                      referral_link:
-                        type: string
-                        example: http://rwrd.io/lu8mkbz
-                      referral_discount_code:
-                        type: string
-                        example: REFERRALTEST9977
-                      referral_discount_code_id:
-                        type: integer
-                        example: 5350671
-                        default: 0
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 802831867
+                    default: 0
+                  merchant_id:
+                    type: integer
+                    example: 65048
+                    default: 0
+                  email:
+                    type: string
+                    example: partialrefund@yotpo.com
+                  referral_receipts:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 6935178
+                          default: 0
+                        referral_code_id:
+                          type: integer
+                          example: 669429180
+                          default: 0
+                        customer_id:
+                          type: integer
+                          example: 802831867
+                          default: 0
+                        signed_up_at:
+                          type: string
+                          example: '2021-11-21T13:48:11.000Z'
+                        completed_at:
+                          type: string
+                          example: '2021-11-21T13:48:34.000Z'
+                        email:
+                          type: string
+                          example: referredpurhcase@test.com
+                        merchant_id:
+                          type: integer
+                          example: 65048
+                          default: 0
+                        source:
+                          type: string
+                          example: other
+                        source_host: {}
+                        reminder_job_id: {}
+                  referral_link:
+                    type: string
+                    example: http://rwrd.io/is8rphx
+                  referral_discount_code: {}
+                  referral_discount_code_id: {}
         '400':
           description: '400'
           content:
