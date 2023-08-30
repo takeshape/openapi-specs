@@ -11,6 +11,25 @@ components:
       in: header
       name: Authorization
       x-bearer-format: bearer
+  parameters:
+    accept:
+      in: header
+      name: accept
+      schema:
+        type: string
+        default: application/json
+    content-type:
+      in: header
+      name: content-type
+      schema:
+        type: string
+        default: application/json
+    X-Postscript-Shop-Token:
+      in: header
+      name: X-Postscript-Shop-Token
+      description: Shop API Token. **Required for partners**. This header should be used *only* by partners. Shops should include their API token in the *Authorization* header.
+      schema:
+        type: string
 security:
   - sec0: []
 paths:
@@ -485,11 +504,9 @@ paths:
       description: Send a message to a subscriber.
       operationId: create-message
       parameters:
-        - name: X-Postscript-Shop-Token
-          in: header
-          description: Shop API Token. **Required for partners**. This header should be used *only* by partners. Shops should include their API token in the *Authorization* header.
-          schema:
-            type: string
+        - $ref: '#/components/parameters/X-Postscript-Shop-Token'
+        - $ref: '#/components/parameters/accept'
+        - $ref: '#/components/parameters/content-type'
       requestBody:
         content:
           application/json:
