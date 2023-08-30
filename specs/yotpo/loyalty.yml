@@ -1,0 +1,3160 @@
+openapi: 3.0.0
+info:
+  title: Loyalty and Referrals
+  version: '2.0'
+servers:
+  - url: https://loyalty.yotpo.com
+components:
+  securitySchemes:
+    guid:
+      type: apiKey
+      in: header
+      name: x-guid
+    apiKey:
+      type: apiKey
+      in: header
+      name: x-api-key
+security:
+  - guid: []
+    apiKey: []
+paths:
+  /api/v2/actions:
+    post:
+      summary: Record a Customer Action
+      description: This endpoint records an action performed by a customer. It will apply the action to all active custom action campaigns and award the necessary points and/or discounts.
+      operationId: record-a-customer-action
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - type
+                - customer_email
+                - action_name
+              properties:
+                type:
+                  type: string
+                  description: The type of action. Almost always set this to `CustomAction`
+                  default: CustomAction
+                customer_email:
+                  type: string
+                  description: The email address used to identify the customer who performed the action. Required if no customer_id is passed.
+                customer_id:
+                  type: string
+                  description: The unique identifier of the customer who performed the action in your system. Required if no customer_email is passed.
+                action_name:
+                  type: string
+                  description: The name of the action that was performed. This must match the name set for one of your Custom Action Campaigns.
+                ip_address:
+                  type: string
+                  description: The ip address of the user when the action was performed. This is required if this action completes a referral program requirement.
+                user_agent:
+                  type: string
+                  description: The browser user agent of the user when the action was performed. This is strongly recommended if this action completes a referral program requirements.
+                created_at:
+                  type: string
+                  description: The time the action was performed. This will default to the current time. Use this if you need to back date an action.
+                reward_points:
+                  type: integer
+                  description: Use this to override the normal amount of points awarded for performing the action. Will default to the rules of the campaign otherwise.
+                  format: int32
+                history_title:
+                  type: string
+                  description: Use this to override the normal description shown to the user in their history. Will default to the campaign settings otherwise.
+            examples:
+              Body Params:
+                value:
+                  type: CustomAction
+                  customer_email: john@example.com
+                  action_name: completed_survey
+                  ip_address: 127.0.0.1
+                  user_agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_4) AppleWebKit/537.36 (KHTML,like Gecko) Chrome/52.0.2743.116 Safari/537.36
+                  created_at: '2016-06-28T18:41:13.000Z'
+                  reward_points: '100'
+                  history_title: Completed Survey
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                        "id": null,
+                        "created_at": "2016-06-28T18:41:13.000Z",
+                        "updated_at": null,
+                        "merchant_id": 43352,
+                        "customer_id": null,
+                        "type": "CustomAction",
+                        "referral_id": null,
+                        "ip_address": "127.0.0.1",
+                        "user_agent_id": null,
+                        "parent_perk_id": null,
+                        "name": null
+                    }
+              schema:
+                type: object
+                properties:
+                  id: {}
+                  created_at:
+                    type: string
+                    example: '2016-06-28T18:41:13.000Z'
+                  updated_at: {}
+                  merchant_id:
+                    type: integer
+                    example: 43352
+                    default: 0
+                  customer_id: {}
+                  type:
+                    type: string
+                    example: CustomAction
+                  referral_id: {}
+                  ip_address:
+                    type: string
+                    example: 127.0.0.1
+                  user_agent_id: {}
+                  parent_perk_id: {}
+                  name: {}
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+      security: []
+  /api/v2/customers:
+    post:
+      summary: Create/Update Customer Records
+      description: This endpoint both creates and updates a customer’s record in the Yotpo system. Use this primarily to notify Yotpo when you add a customer manually in your admin, or a customer changes their email address.
+      operationId: createupdate-customer-records
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - first_name
+                - last_name
+              properties:
+                id:
+                  type: string
+                  description: The identifier used to uniquely identify the customer in your system. Required if implementing a generic e-commerce integration.
+                email:
+                  type: string
+                  description: The customer's email address.
+                first_name:
+                  type: string
+                  description: The customer's first name.
+                last_name:
+                  type: string
+                  description: The customer's last name.
+                phone_number:
+                  type: string
+                  description: The customer's phone number in E.164 format. e.g +14155552671
+                country_iso_code:
+                  type: string
+                  description: 'Only use if unable to send phone_number in full E.164 format. If phone_number is passed in full E.164 format with country_iso_code, this string will be ignored. Example: "US", "GB", i.e.'
+                has_account:
+                  type: boolean
+                  description: Whether the customer has an account with the platform. By default it is set to 'True'.
+                opted_in:
+                  type: boolean
+                  description: Whether the customer should be opted in to loyalty program. If null, will rely on the account settings of opt in.
+                pos_account_id:
+                  type: string
+                  description: The Point of Sale unique account identifier. This parameter is used to integrate Yotpo with a Point of Sale interface and get be retrieved using the Fetch Customer Details endpoint.
+                tags:
+                  type: string
+                  description: 'A comma separated list of tags (or collections) this customer belongs to. Note: This will overwrite existing tags.'
+                opted_in_at:
+                  type: string
+                  description: Date and time when the customer was opted in to the loyalty program.
+                  format: date
+            examples:
+              Body Params:
+                value:
+                  id: CUS_1231H9UQOW9H23
+                  email: john@example.com
+                  first_name: John
+                  last_name: Smith
+                  phone_number: '+14155552671'
+      responses:
+        '201':
+          description: '201'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+      security: []
+    get:
+      summary: Fetch Customer Details
+      description: This endpoint returns a customer record. Most commonly used to fetch a customer’s point balance and unique referral link.
+      operationId: fetch-customer-details
+      parameters:
+        - name: customer_email
+          in: query
+          description: The customer’s email address. Required if no `pos_account_id`, `customer_id` or `phone_number` is passed.
+          required: true
+          schema:
+            type: string
+        - name: customer_id
+          in: query
+          description: The identifier used to uniquely identify the customer in your system. Required if no `customer_email`, `pos_account_id` or `phone_number` is passed.
+          required: true
+          schema:
+            type: string
+        - name: pos_account_id
+          in: query
+          description: The identifier used to uniquely identify the customer in your POS system. Required if no `customer_email`, `customer_id` or `phone_number` is passed.
+          required: true
+          schema:
+            type: string
+        - name: phone_number
+          in: query
+          description: The customer's phone number in E.164 format. e.g +14155552671. Must be an exact match. Required if no `customer_email`, `pos_account_id` or `customer_id` or  is passed.
+          required: true
+          schema:
+            type: string
+        - name: country_iso_code
+          in: query
+          description: 'Only use if unable to send `phone_number` in full E.164 format. If `phone_number` is passed in full E.164 format with `country_iso_code`, this string will be ignored. Example: "US", "GB", i.e.'
+          schema:
+            type: string
+            default: 'null'
+        - name: with_referral_code
+          in: query
+          description: Defaults to false. If you’d like information about the customers referral code you can set this to true.
+          schema:
+            type: boolean
+            default: false
+        - name: with_history
+          in: query
+          description: Defaults to false. If you’d like information about the customers point earning and redemption history you can set this to true.
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                With VIP Tiers Objects:
+                  value: |-
+                    {
+                      "total_spend_cents": 153640,
+                      "total_purchases": 8,
+                      "perks_redeemed": 16,
+                      "last_purchase_at": "2019-12-05T09:04:33.000Z",
+                      "first_name": "John",
+                      "last_name": "Testing123",
+                      "phone_number": null,
+                      "email": "example@google.com",
+                      "points_balance": 0,
+                      "points_earned": 12937,
+                      "last_seen_at": "2020-11-15T23:25:35.000Z",
+                      "thirty_party_id": "2012336980052",
+                      "third_party_id": "2012336980052",
+                      "pos_account_id": null,
+                      "has_store_account": true,
+                      "credit_balance": "$0",
+                      "credit_balance_in_customer_currency": "$0",
+                      "opt_in": true,
+                      "opted_in_at": "2019-07-14",
+                      "points_expire_at": null,
+                      "vip_tier_name": "Very Platinum",
+                      "vip_tier_entry_date": "2021-01-01T12:00:00.000Z",
+                      "vip_tier_expiration": "2021-12-31T23:59:59.000Z",
+                      "vip_tier_actions_completed": {
+                        "points_earned": 0,
+                        "amount_spent_cents": 0,
+                        "amount_spent_cents_in_customer_currency": 0,
+                        "purchases_made": 0,
+                        "referrals_completed": 0,
+                        "campaigns_completed": []
+                      },
+                      "vip_tier_maintenance_requirements": {
+                        "points_needed": 1000,
+                        "amount_cents_needed": 0,
+                        "amount_cents_needed_in_customer_currency": 0,
+                        "purchases_needed": 0,
+                        "referrals_needed": 0,
+                        "campaigns_needed": []
+                      },
+                      "vip_tier_upgrade_requirements": {
+                        "points_needed": 0,
+                        "amount_cents_needed": 0,
+                        "amount_cents_needed_in_customer_currency": 0,
+                        "purchases_needed": 0,
+                        "referrals_needed": 0,
+                        "campaigns_needed": []
+                      },
+                Standard Response:
+                  value: |-
+                    {
+                        "total_spend_cents": 130140,
+                        "total_purchases": 43,
+                        "perks_redeemed": 17,
+                        "last_purchase_at": "2023-07-25T08:05:53.000Z",
+                        "first_name": "john",
+                        "last_name": "smith",
+                        "phone_number": null,
+                        "email": "johnsmith@yotpo.com",
+                        "points_balance": 153,
+                        "points_earned": 396,
+                        "last_seen_at": "2023-07-27T08:23:33.000Z",
+                        "thirty_party_id": "7137867202870",
+                        "third_party_id": "7137867202870",
+                        "pos_account_id": null,
+                        "has_store_account": true,
+                        "credit_balance": "$0",
+                        "credit_balance_in_customer_currency": "$0",
+                        "opt_in": true,
+                        "opted_in_at": "2023-06-25",
+                        "points_expire_at": "2023-10-25T08:23:33.000Z",
+                        "next_points_expire_on": "2023-08-26",
+                        "next_points_expire_amount": 100,
+                    }
+                With Birthday Campaign:
+                  value: "{\n\t\"total_spend_cents\": 15000,\n\t\"total_purchases\": 1,\n\t\"perks_redeemed\": 2,\n\t\"last_purchase_at\": \"2019-04-10T14:21:33.000Z\",\n\t\"email\": \"john@email.com\",\n\t\"points_earned\": 150,\n\t\"points_balance\": 150,\n\t\"points_expire_at\": null,\n\t\"first_name\": \"John\",\n\t\"last_name\": \"Smithie\",\n\t\"last_seen_at\": \"2019-05-05T12:14:11.000Z\",\n\t\"third_party_id\": \"CUS_1231H9UQOW9H23\",\n\t\"pos_account_id\": null,\n\t\"has_store_account\": false,\n\t\"birthday_month\": 6,\n\t\"birth_day\": 20,\n\t\"birthday_year\": 1987,\n  \"anniversary_month\": 1,\n  \"anniversary_day\": 1,\n  \"anniversary_year\": null,\n}"
+                With History:
+                  value: |-
+                    {
+                      “total_spend_cents”: 153640,
+                      “total_purchases”: 8,
+                      “perks_redeemed”: 16,
+                      “last_purchase_at”: “2019-12-05T09:04:33.000Z”,
+                      “first_name”: “John”,
+                      “last_name”: “Testing123”,
+                      “phone_number”: null,
+                      “email”: “example@google.com”,
+                      “points_balance”: 0,
+                      “points_earned”: 12937,
+                      “last_seen_at”: “2020-11-15T23:25:35.000Z”,
+                      “thirty_party_id”: “2012336980052",
+                      “third_party_id”: “2012336980052",
+                      “pos_account_id”: null,
+                      “has_store_account”: true,
+                      “credit_balance”: “$0",
+                      “credit_balance_in_customer_currency”: “$0",
+                      “opt_in”: true,
+                      “opted_in_at”: “2019-07-14”,
+                      “points_expire_at”: null,
+                      “vip_tier_name”: “Very Platinum”,
+                      “vip_tier_entry_date”: “2021-01-01T12:00:00.000Z”,
+                      “vip_tier_expiration”: “2021-12-31T23:59:59.000Z”,
+                      “vip_tier_actions_completed”: {
+                        “points_earned”: 0,
+                        “amount_spent_cents”: 0,
+                        “amount_spent_cents_in_customer_currency”: 0,
+                        “purchases_made”: 0,
+                        “referrals_completed”: 0,
+                        “campaigns_completed”: []
+                      },
+                      “vip_tier_maintenance_requirements”: {
+                        “points_needed”: 1000,
+                        “amount_cents_needed”: 0,
+                        “amount_cents_needed_in_customer_currency”: 0,
+                        “purchases_needed”: 0,
+                        “referrals_needed”: 0,
+                        “campaigns_needed”: []
+                      },
+                      “vip_tier_upgrade_requirements”: {
+                        “points_needed”: 0,
+                        “amount_cents_needed”: 0,
+                        “amount_cents_needed_in_customer_currency”: 0,
+                        “purchases_needed”: 0,
+                        “referrals_needed”: 0,
+                        “campaigns_needed”: []
+                      },
+                      “history_items”: [
+                        {
+                          “created_at”: “2019-12-03T13:57:07.000Z”,
+                          “date”: “2019-12-03",
+                          “completed_at”: null,
+                          “action”: “Earned Tier Gold”,
+                          “points”: 0,
+                          “status”: “0.0%“,
+                          “action_name”: “earned_tier_2080",
+                          “order_ids”: []
+                        },
+                        {
+                          “created_at”: “2019-12-04T13:43:42.000Z”,
+                          “date”: “2019-12-04”,
+                          “completed_at”: “”,
+                          “action”: “Referring ₪10 Off”,
+                          “points”: 0,
+                          “status”: “7LPWLHJG”,
+                          “action_name”: “”,
+                          “order_ids”: []
+                        },
+                        {
+                          “created_at”: “2019-12-05T09:04:45.000Z”,
+                          “date”: “2019-12-05”,
+                          “completed_at”: “2019-12-05T09:04:45.000Z”,
+                          “action”: “Make 5 Purchases”,
+                          “points”: 500,
+                          “status”: “Approved”,
+                          “action_name”: null,
+                          “order_ids”: [
+                            “1946755399764”,
+                            “1947035435092",
+                            “1949353050196”,
+                            “1949358882900",
+                            “1951329517652”
+                          ]
+                        },
+                        {
+                          “created_at”: “2019-12-05T09:04:45.000Z”,
+                          “date”: “2019-12-05”,
+                          “completed_at”: “2019-12-05T09:04:45.000Z”,
+                          “action”: “Make a Purchase”,
+                          “points”: 33,
+                          “status”: “Approved”,
+                          “action_name”: null,
+                          “order_ids”: [
+                            “1951329517652”
+                          ]
+                        },
+                        {
+                          “created_at”: “2020-07-08T08:04:34.000Z”,
+                          “date”: “2020-07-08”,
+                          “completed_at”: “2020-07-08T08:04:34.000Z”,
+                          “action”: “Manual Adjustment”,
+                          “points”: 10000,
+                          “status”: “Approved”,
+                          “action_name”: “manual_adjustment”,
+                          “order_ids”: []
+                        },
+                        {
+                          “created_at”: “2020-08-17T17:44:10.000Z”,
+                          “date”: “2020-08-17”,
+                          “completed_at”: “”,
+                          “action”: “$20 Off”,
+                          “points”: -200,
+                          “status”: ” HF34g”,
+                          “action_name”: “”,
+                          “order_ids”: []
+                        }
+                      ]
+                    }
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+      security: []
+  /api/v2/customer_birthdays:
+    post:
+      summary: Set Customer Birthday
+      description: ''
+      operationId: set-customer-birthday
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - customer_email
+                - day
+                - month
+              properties:
+                customer_email:
+                  type: string
+                  description: The customer's email address. Required if no customer_id is passed.
+                customer_id:
+                  type: string
+                  description: The identifier used to uniquely identify the customer in your system. Required if no customer_email is passed.
+                day:
+                  type: integer
+                  description: The day of the month the customer was born (1-31). For example, pass a value of `9` if the customer was born on the 9th of January.
+                  format: int32
+                month:
+                  type: integer
+                  description: The month the customer was born (1-12). For example, pass a value of `1` if the customer was born in January.
+                  format: int32
+                year:
+                  type: integer
+                  description: The four-digit year the customer was born. For example, `1982`.
+                  format: int32
+            examples:
+              Body Params:
+                value:
+                  customer_email: john@example.com
+                  day: '20'
+                  month: '6'
+                  year: '1987'
+      responses:
+        '201':
+          description: '201'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+      security: []
+  /api/v2/redemptions:
+    post:
+      summary: Create Redemption
+      description: This endpoint will redeem a customer’s points for a particular redemption option. It will check to ensure the customer is eligible and has enough points for the selected redemption option and then it will deduct the points from their balance, generate the coupon code, and return it in the response.
+      operationId: create-redemption
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - customer_email
+                - pos_account_id
+                - phone_number
+                - customer_id
+                - redemption_option_id
+              properties:
+                customer_email:
+                  type: string
+                  description: The email address of the customer redeeming points. Only required if no `phone_number` or `pos_account_id` is passed.
+                pos_account_id:
+                  type: string
+                  description: The identifier used to uniquely identify the customer in your POS system. This is only required if no `customer_email` attribute or `phone_number` attribute is passed.
+                phone_number:
+                  type: string
+                  description: The customer's phone number in E.164 format. e.g +14155552671. Must be an exact match. Only required if no `customer_email` or `pos_account_id` is passed.
+                customer_id:
+                  type: string
+                  description: The identifier used to uniquely identify the customer in your system. Required if no customer_email, pos_account_id or phone_number is passed.
+                redemption_option_id:
+                  type: integer
+                  description: The unique identifier of the redemption option being redeemed.
+                  format: int32
+                delay_points_deduction:
+                  type: boolean
+                  description: Passing a value of `true` indicates that points will only be deducted when the order containing the redemption is received. See the section below to learn more.
+                currency:
+                  type: string
+                  description: The currency used (e.g. 'USD.') This is required if you’re using multi currency. If nothing is passed, it will default to your base currency.
+                points_to_redeem:
+                  type: integer
+                  description: Number of points to be redeemed in this transaction. This is required for generic variable redemption. If nothing is passed, error message will be returned.
+                  format: int32
+            examples:
+              Body Params:
+                value:
+                  customer_email: john@example.com
+                  redemption_option_id: 12345
+                  delay_points_deduction: true
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                        "id": 41567211,
+                        "created_at": "2021-11-23T15:21:09.000Z",
+                        "updated_at": "2021-11-23T15:21:10.000Z",
+                        "reward_text": "$5QUY0X4MK",
+                        "approved": true,
+                        "approved_at": "2021-11-23T15:21:10.000Z",
+                        "is_admin": false,
+                        "is_pos": false,
+                        "at_checkout": false,
+                        "amount": null,
+                        "token": "YOUR_TOKEN",
+                        "third_party_id": "11870425546932",
+                        "third_party_rule_id": "1012813136052"
+                    }
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 41567211
+                    default: 0
+                  created_at:
+                    type: string
+                    example: '2021-11-23T15:21:09.000Z'
+                  updated_at:
+                    type: string
+                    example: '2021-11-23T15:21:10.000Z'
+                  reward_text:
+                    type: string
+                    example: $5QUY0X4MK
+                  approved:
+                    type: boolean
+                    example: true
+                    default: true
+                  approved_at:
+                    type: string
+                    example: '2021-11-23T15:21:10.000Z'
+                  is_admin:
+                    type: boolean
+                    example: false
+                    default: true
+                  is_pos:
+                    type: boolean
+                    example: false
+                    default: true
+                  at_checkout:
+                    type: boolean
+                    example: false
+                    default: true
+                  amount: {}
+                  token:
+                    type: string
+                    example: YOUR_TOKEN
+                  third_party_id:
+                    type: string
+                    example: '11870425546932'
+                  third_party_rule_id:
+                    type: string
+                    example: '1012813136052'
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+        '404':
+          description: '404'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                        "errors": {
+                            "redemption_option": "redemption option was not found"
+                        }
+                    }
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: object
+                    properties:
+                      redemption_option:
+                        type: string
+                        example: redemption option was not found
+      deprecated: false
+      security: []
+  /api/v2/redemption_options:
+    get:
+      summary: Get Active Redemption Options
+      description: This endpoint returns a list of redemption options available for customers to redeem.
+      operationId: fetch-active-redemption-options
+      parameters:
+        - name: is_offline
+          in: query
+          description: By default, all redemption options will be returned. If set to `true`, only offline redemption options will be returned.
+          schema:
+            type: string
+        - name: customer_email
+          in: query
+          description: The customer’s email address. Use this param to fetch only the redemptions a specific customer is qualified for.
+          schema:
+            type: string
+        - name: customer_id
+          in: query
+          description: The identifier used to uniquely identify the customer in your system.
+          schema:
+            type: string
+        - name: phone_number
+          in: query
+          description: The customer's phone number in E.164 format. e.g +14155552671. Must be an exact match. Use this param to fetch only the redemptions a specific customer is qualified for.
+          schema:
+            type: string
+        - name: discount_type
+          in: query
+          description: By default, all redemption options will be returned. If a value is passed, only redemption options of that discount type will be returned.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    [
+                        {
+                            "id": 617505,
+                            "icon": "fa-dollar",
+                            "cost_text": "Test1 points",
+                            "amount": 100,
+                            "applies_to_product_type": "ALL",
+                            "duration": "single_use",
+                            "type": "Coupon",
+                            "discount_amount_cents": 0,
+                            "discount_rate_cents": null,
+                            "discount_percentage": null,
+                            "discount_type": "custom",
+                            "discount_value_cents": 1000,
+                            "name": "Test1",
+                            "description": "Test2",
+                            "unrendered_name": "Test1",
+                            "unrendered_description": "Test2"
+                        },
+                        {
+                            "id": 616814,
+                            "icon": "fa-dollar",
+                            "cost_text": "100 Points",
+                            "amount": 100,
+                            "applies_to_product_type": "ALL",
+                            "duration": "single_use",
+                            "type": "Coupon",
+                            "discount_amount_cents": 500,
+                            "discount_rate_cents": null,
+                            "discount_percentage": null,
+                            "discount_type": "fixed_amount",
+                            "discount_value_cents": null,
+                            "name": "Discount $5 off",
+                            "description": "Get $5.00 off your next purchase for 100 points",
+                            "unrendered_name": "Discount $5 off",
+                            "unrendered_description": "Get $5.00 off your next purchase for 100 points"
+                        },
+                        {
+                            "id": 616815,
+                            "icon": "fa-dollar",
+                            "cost_text": "250 Points",
+                            "amount": 250,
+                            "applies_to_product_type": "ALL",
+                            "duration": "single_use",
+                            "type": "Coupon",
+                            "discount_amount_cents": 0,
+                            "discount_rate_cents": null,
+                            "discount_percentage": 5,
+                            "discount_type": "percentage",
+                            "discount_value_cents": null,
+                            "name": "Discount 5% off",
+                            "description": "Get 5% off off your next purchase for 250 points",
+                            "unrendered_name": "Discount 5% off",
+                            "unrendered_description": "Get 5% off off your next purchase for 250 points"
+                        },
+                        {
+                            "id": 616816,
+                            "icon": "fa-dollar",
+                            "cost_text": "250 Points",
+                            "amount": 250,
+                            "applies_to_product_type": "ALL",
+                            "duration": "single_use",
+                            "type": "Coupon",
+                            "discount_amount_cents": 1000,
+                            "discount_rate_cents": null,
+                            "discount_percentage": null,
+                            "discount_type": "fixed_amount",
+                            "discount_value_cents": null,
+                            "name": "Discount $10 off",
+                            "description": "Get $10.00 off your next purchase for 250 points",
+                            "unrendered_name": "Discount $10 off",
+                            "unrendered_description": "Get $10.00 off your next purchase for 250 points"
+                        },
+                        {
+                            "id": 616822,
+                            "icon": "fa-dollar",
+                            "cost_text": "500 Points",
+                            "amount": 500,
+                            "applies_to_product_type": "ALL",
+                            "duration": "single_use",
+                            "type": "Coupon",
+                            "discount_amount_cents": 0,
+                            "discount_rate_cents": null,
+                            "discount_percentage": 10,
+                            "discount_type": "percentage",
+                            "discount_value_cents": null,
+                            "name": "Discount 10% off",
+                            "description": "Get 10% off off your next purchase for 500 points",
+                            "unrendered_name": "Discount 10% off",
+                            "unrendered_description": "Get 10% off off your next purchase for 500 points"
+                        }
+                    ]
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 617505
+                      default: 0
+                    icon:
+                      type: string
+                      example: fa-dollar
+                    cost_text:
+                      type: string
+                      example: Test1 points
+                    amount:
+                      type: integer
+                      example: 100
+                      default: 0
+                    applies_to_product_type:
+                      type: string
+                      example: ALL
+                    duration:
+                      type: string
+                      example: single_use
+                    type:
+                      type: string
+                      example: Coupon
+                    discount_amount_cents:
+                      type: integer
+                      example: 0
+                      default: 0
+                    discount_rate_cents: {}
+                    discount_percentage: {}
+                    discount_type:
+                      type: string
+                      example: custom
+                    discount_value_cents:
+                      type: integer
+                      example: 1000
+                      default: 0
+                    name:
+                      type: string
+                      example: Test1
+                    description:
+                      type: string
+                      example: Test2
+                    unrendered_name:
+                      type: string
+                      example: Test1
+                    unrendered_description:
+                      type: string
+                      example: Test2
+        '400':
+          description: '400'
+          content:
+            text/plain:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+      security: []
+  /api/v2/campaigns:
+    get:
+      summary: Get Active Campaigns
+      description: This endpoint returns a list of campaigns available for customers to participate in. If you provide a particular customer we can return their current status and eligibility on each of the campaigns.
+      operationId: get-active-campaigns
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                with_status:
+                  type: boolean
+                  description: Defaults to false. Enable to get a particular customer’s status for each campaign. Either `customer_id` or `customer_email` are required for this to work.
+                  default: false
+                customer_email:
+                  type: string
+                  description: The email address used to identify the customer. Required if no `customer_id` is passed.
+                customer_id:
+                  type: string
+                  description: The unique id used to identify the customer. Required if no `customer_email` is passed.
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                '''with_status'' set to false':
+                  value: |-
+                    [
+                        {
+                            "id": 1055263,
+                            "created_at": "2021-11-22T11:56:30.000Z",
+                            "updated_at": "2021-11-23T14:40:51.000Z",
+                            "expires_at": null,
+                            "type": "BirthdayCampaign",
+                            "username": null,
+                            "share_text": null,
+                            "entity_id": null,
+                            "hashtags": null,
+                            "url": null,
+                            "question": null,
+                            "display_order": 5,
+                            "default_email_body": null,
+                            "reward_text": "250 Points",
+                            "icon": "fa-birthday-cake",
+                            "cta_text": "Wish Me A Happy Birthday",
+                            "min_actions_required": 1,
+                            "action_name": null,
+                            "ask_year": false,
+                            "extra_copy1": "If your birthday is within the next 30 days, your reward will be granted in delay, up to 30 days.",
+                            "extra_copy2": "Thanks! We're looking forward to helping you celebrate :)",
+                            "include_audience_ids": "1",
+                            "exclude_audience_ids": null,
+                            "max_completions_per_user": null,
+                            "title": "Happy Birthday",
+                            "details": "Earn 200 points on your birthday",
+                            "unrendered_title": "Happy Birthday",
+                            "unrendered_details": "Earn 200 points on your birthday",
+                            "ends_at": null
+                        },
+                        {
+                            "id": 573923,
+                            "created_at": "2020-07-13T16:38:36.000Z",
+                            "updated_at": "2021-11-23T14:33:44.000Z",
+                            "expires_at": null,
+                            "type": "ReferralCampaign",
+                            "username": null,
+                            "share_text": null,
+                            "entity_id": null,
+                            "hashtags": null,
+                            "url": null,
+                            "question": null,
+                            "display_order": 5,
+                            "default_email_body": "I've shopped with *|company_name|* in the past, and I was thinking you might like to try them out too!  To help you get started, they gave me this link to pass along to you: *|referral_link|* . Just follow the link to their site, and you'll get a discount which you can apply towards your first purchase!",
+                            "reward_text": "200 Points",
+                            "icon": "fa-heart",
+                            "cta_text": "Let's go!",
+                            "min_actions_required": 0,
+                            "action_name": null,
+                            "ask_year": false,
+                            "extra_copy1": null,
+                            "extra_copy2": null,
+                            "include_audience_ids": "1",
+                            "exclude_audience_ids": null,
+                            "max_completions_per_user": null,
+                            "title": "Refer a friend",
+                            "details": "Give your friends 10% off on their first order of $20+ and get $10 for each successful referral.",
+                            "unrendered_title": "Refer a friend",
+                            "unrendered_details": "Give your friends 10% off on their first order of $20+ and get $10 for each successful referral.",
+                            "ends_at": null
+                        },
+                        {
+                            "id": 586753,
+                            "created_at": "2020-08-17T18:01:54.000Z",
+                            "updated_at": "2021-11-23T14:33:44.000Z",
+                            "expires_at": null,
+                            "type": "CreateAccountCampaign",
+                            "username": null,
+                            "share_text": null,
+                            "entity_id": null,
+                            "hashtags": null,
+                            "url": null,
+                            "question": null,
+                            "display_order": 4,
+                            "default_email_body": null,
+                            "reward_text": "500 points",
+                            "icon": "swell-icon-create_account",
+                            "cta_text": "",
+                            "min_actions_required": 1,
+                            "action_name": null,
+                            "ask_year": false,
+                            "extra_copy1": null,
+                            "extra_copy2": null,
+                            "include_audience_ids": "1",
+                            "exclude_audience_ids": null,
+                            "max_completions_per_user": 1,
+                            "title": "Create an Account",
+                            "details": "Earn 500 points when you create an account",
+                            "unrendered_title": "Create an Account",
+                            "unrendered_details": "Earn 500 points when you create an account",
+                            "ends_at": null
+                        },
+                    
+                        {
+                            "id": 1055268,
+                            "created_at": "2021-11-22T12:00:46.000Z",
+                            "updated_at": "2021-11-22T12:00:46.000Z",
+                            "expires_at": null,
+                            "type": "PointsForPurchasesCampaign",
+                            "username": null,
+                            "share_text": null,
+                            "entity_id": null,
+                            "hashtags": null,
+                            "url": null,
+                            "question": null,
+                            "display_order": 1,
+                            "default_email_body": null,
+                            "reward_text": "One Point Per Dollar",
+                            "icon": "fa-dollar",
+                            "cta_text": "",
+                            "min_actions_required": 0,
+                            "action_name": null,
+                            "ask_year": false,
+                            "extra_copy1": null,
+                            "extra_copy2": null,
+                            "include_audience_ids": "1",
+                            "exclude_audience_ids": null,
+                            "max_completions_per_user": null,
+                            "title": "Make a Purchase",
+                            "details": "Earn 10 point for every $1 you spend in our store",
+                            "unrendered_title": "Make a Purchase",
+                            "unrendered_details": "Earn 10 point for every $1 you spend in our store",
+                            "ends_at": null
+                        },
+                        {
+                            "id": 1055269,
+                            "created_at": "2021-11-22T12:01:15.000Z",
+                            "updated_at": "2021-11-22T12:01:15.000Z",
+                            "expires_at": null,
+                            "type": "SpendBasedCampaign",
+                            "username": null,
+                            "share_text": null,
+                            "entity_id": null,
+                            "hashtags": null,
+                            "url": null,
+                            "question": null,
+                            "display_order": 2,
+                            "default_email_body": null,
+                            "reward_text": "500 Points",
+                            "icon": "fa-dollar",
+                            "cta_text": "",
+                            "min_actions_required": 0,
+                            "action_name": null,
+                            "ask_year": false,
+                            "extra_copy1": null,
+                            "extra_copy2": null,
+                            "include_audience_ids": "1",
+                            "exclude_audience_ids": null,
+                            "max_completions_per_user": null,
+                            "title": "Spend Over $100",
+                            "details": "Earn 500 points when you spend over $100 at our store",
+                            "unrendered_title": "Spend Over $100",
+                            "unrendered_details": "Earn 500 points when you spend over $100 at our store",
+                            "ends_at": null
+                        },
+                        {
+                            "id": 1055270,
+                            "created_at": "2021-11-22T12:01:31.000Z",
+                            "updated_at": "2021-11-22T12:01:31.000Z",
+                            "expires_at": null,
+                            "type": "TransactionBasedCampaign",
+                            "username": null,
+                            "share_text": null,
+                            "entity_id": null,
+                            "hashtags": null,
+                            "url": null,
+                            "question": null,
+                            "display_order": 3,
+                            "default_email_body": null,
+                            "reward_text": "500 Points",
+                            "icon": "fa-shopping-cart",
+                            "cta_text": "",
+                            "min_actions_required": 0,
+                            "action_name": null,
+                            "ask_year": false,
+                            "extra_copy1": null,
+                            "extra_copy2": null,
+                            "include_audience_ids": "1",
+                            "exclude_audience_ids": null,
+                            "max_completions_per_user": null,
+                            "title": "Make 5 Purchases",
+                            "details": "Earn 500 points when you make 5 purchases",
+                            "unrendered_title": "Make 5 Purchases",
+                            "unrendered_details": "Earn 500 points when you make 5 purchases",
+                            "ends_at": null
+                        }
+                    ]
+                '''with_status'' set to true':
+                  value: |-
+                    [
+                        {
+                            "id": 1055265,
+                            "created_at": "2021-11-22T11:57:43.000Z",
+                            "updated_at": "2021-11-23T14:40:19.000Z",
+                            "expires_at": null,
+                            "type": "BirthdayCampaign",
+                            "username": null,
+                            "share_text": null,
+                            "entity_id": null,
+                            "hashtags": null,
+                            "url": null,
+                            "question": null,
+                            "display_order": 5,
+                            "default_email_body": null,
+                            "reward_text": "350 Points",
+                            "icon": "fa-birthday-cake",
+                            "cta_text": "Wish Me A Happy Birthday",
+                            "min_actions_required": 1,
+                            "action_name": null,
+                            "ask_year": false,
+                            "extra_copy1": "If your birthday is within the next 30 days, your reward will be granted in delay, up to 30 days.",
+                            "extra_copy2": "Thanks! We're looking forward to helping you celebrate :)",
+                            "include_audience_ids": "1",
+                            "exclude_audience_ids": null,
+                            "status": {
+                                "global_completions_left": null,
+                                "customer_actions_completed": 0,
+                                "customer_times_completed": 0,
+                                "customer_minutes_until_next_action": 0,
+                                "customer_minutes_until_next_completion": 0
+                            },
+                            "max_completions_per_user": null,
+                            "title": "Happy Birthday",
+                            "details": "Earn 350 points on your birthday",
+                            "unrendered_title": "Happy Birthday",
+                            "unrendered_details": "Earn 350 points on your birthday",
+                            "ends_at": null
+                        },
+                        {
+                            "id": 573923,
+                            "created_at": "2020-07-13T16:38:36.000Z",
+                            "updated_at": "2021-11-23T14:33:44.000Z",
+                            "expires_at": null,
+                            "type": "ReferralCampaign",
+                            "username": null,
+                            "share_text": null,
+                            "entity_id": null,
+                            "hashtags": null,
+                            "url": null,
+                            "question": null,
+                            "display_order": 5,
+                            "default_email_body": "I've shopped with *|company_name|* in the past, and I was thinking you might like to try them out too!  To help you get started, they gave me this link to pass along to you: *|referral_link|* . Just follow the link to their site, and you'll get a discount which you can apply towards your first purchase!",
+                            "reward_text": "200 Points",
+                            "icon": "fa-heart",
+                            "cta_text": "Let's go!",
+                            "min_actions_required": 0,
+                            "action_name": null,
+                            "ask_year": false,
+                            "extra_copy1": null,
+                            "extra_copy2": null,
+                            "include_audience_ids": "1",
+                            "exclude_audience_ids": null,
+                            "status": {
+                                "global_completions_left": null,
+                                "customer_actions_completed": 0,
+                                "customer_times_completed": 0,
+                                "customer_minutes_until_next_action": 0,
+                                "customer_minutes_until_next_completion": 0
+                            },
+                            "max_completions_per_user": null,
+                            "title": "Refer a friend",
+                            "details": "Give your friends 10% off on their first order of $20+ and get $10 for each successful referral.",
+                            "unrendered_title": "Refer a friend",
+                            "unrendered_details": "Give your friends 10% off on their first order of $20+ and get $10 for each successful referral.",
+                            "ends_at": null
+                        },
+                        {
+                            "id": 586753,
+                            "created_at": "2020-08-17T18:01:54.000Z",
+                            "updated_at": "2021-11-23T14:33:44.000Z",
+                            "expires_at": null,
+                            "type": "CreateAccountCampaign",
+                            "username": null,
+                            "share_text": null,
+                            "entity_id": null,
+                            "hashtags": null,
+                            "url": null,
+                            "question": null,
+                            "display_order": 4,
+                            "default_email_body": null,
+                            "reward_text": "500 points",
+                            "icon": "swell-icon-create_account",
+                            "cta_text": "",
+                            "min_actions_required": 1,
+                            "action_name": null,
+                            "ask_year": false,
+                            "extra_copy1": null,
+                            "extra_copy2": null,
+                            "include_audience_ids": "1",
+                            "exclude_audience_ids": null,
+                            "status": {
+                                "global_completions_left": null,
+                                "customer_actions_completed": 0,
+                                "customer_times_completed": 1,
+                                "customer_minutes_until_next_action": 0,
+                                "customer_minutes_until_next_completion": 0
+                            },
+                            "max_completions_per_user": 1,
+                            "title": "Create an Account",
+                            "details": "Earn 500 points when you create an account",
+                            "unrendered_title": "Create an Account",
+                            "unrendered_details": "Earn 500 points when you create an account",
+                            "ends_at": null
+                        },
+                        {
+                            "id": 1055268,
+                            "created_at": "2021-11-22T12:00:46.000Z",
+                            "updated_at": "2021-11-22T12:00:46.000Z",
+                            "expires_at": null,
+                            "type": "PointsForPurchasesCampaign",
+                            "username": null,
+                            "share_text": null,
+                            "entity_id": null,
+                            "hashtags": null,
+                            "url": null,
+                            "question": null,
+                            "display_order": 1,
+                            "default_email_body": null,
+                            "reward_text": "One Point Per Dollar",
+                            "icon": "fa-dollar",
+                            "cta_text": "",
+                            "min_actions_required": 0,
+                            "action_name": null,
+                            "ask_year": false,
+                            "extra_copy1": null,
+                            "extra_copy2": null,
+                            "include_audience_ids": "1",
+                            "exclude_audience_ids": null,
+                            "status": {
+                                "global_completions_left": null,
+                                "customer_actions_completed": 0,
+                                "customer_times_completed": 2,
+                                "customer_minutes_until_next_action": 0,
+                                "customer_minutes_until_next_completion": 0
+                            },
+                            "max_completions_per_user": null,
+                            "title": "Make a Purchase",
+                            "details": "Earn 10 point for every $1 you spend in our store",
+                            "unrendered_title": "Make a Purchase",
+                            "unrendered_details": "Earn 10 point for every $1 you spend in our store",
+                            "ends_at": null
+                        },
+                        {
+                            "id": 1055269,
+                            "created_at": "2021-11-22T12:01:15.000Z",
+                            "updated_at": "2021-11-22T12:01:15.000Z",
+                            "expires_at": null,
+                            "type": "SpendBasedCampaign",
+                            "username": null,
+                            "share_text": null,
+                            "entity_id": null,
+                            "hashtags": null,
+                            "url": null,
+                            "question": null,
+                            "display_order": 2,
+                            "default_email_body": null,
+                            "reward_text": "500 Points",
+                            "icon": "fa-dollar",
+                            "cta_text": "",
+                            "min_actions_required": 0,
+                            "action_name": null,
+                            "ask_year": false,
+                            "extra_copy1": null,
+                            "extra_copy2": null,
+                            "include_audience_ids": "1",
+                            "exclude_audience_ids": null,
+                            "status": {
+                                "global_completions_left": null,
+                                "customer_actions_completed": 0,
+                                "customer_times_completed": 1,
+                                "customer_minutes_until_next_action": 0,
+                                "customer_minutes_until_next_completion": 0
+                            },
+                            "max_completions_per_user": null,
+                            "title": "Spend Over $100",
+                            "details": "Earn 500 points when you spend over $100 at our store",
+                            "unrendered_title": "Spend Over $100",
+                            "unrendered_details": "Earn 500 points when you spend over $100 at our store",
+                            "ends_at": null
+                        },
+                        {
+                            "id": 1055270,
+                            "created_at": "2021-11-22T12:01:31.000Z",
+                            "updated_at": "2021-11-22T12:01:31.000Z",
+                            "expires_at": null,
+                            "type": "TransactionBasedCampaign",
+                            "username": null,
+                            "share_text": null,
+                            "entity_id": null,
+                            "hashtags": null,
+                            "url": null,
+                            "question": null,
+                            "display_order": 3,
+                            "default_email_body": null,
+                            "reward_text": "500 Points",
+                            "icon": "fa-shopping-cart",
+                            "cta_text": "",
+                            "min_actions_required": 0,
+                            "action_name": null,
+                            "ask_year": false,
+                            "extra_copy1": null,
+                            "extra_copy2": null,
+                            "include_audience_ids": "1",
+                            "exclude_audience_ids": null,
+                            "status": {
+                                "global_completions_left": null,
+                                "customer_actions_completed": 0,
+                                "customer_times_completed": 0,
+                                "customer_minutes_until_next_action": 0,
+                                "customer_minutes_until_next_completion": 0
+                            },
+                            "max_completions_per_user": null,
+                            "title": "Make 5 Purchases",
+                            "details": "Earn 500 points when you make 5 purchases",
+                            "unrendered_title": "Make 5 Purchases",
+                            "unrendered_details": "Earn 500 points when you make 5 purchases",
+                            "ends_at": null
+                        }
+                    ]
+              schema:
+                oneOf:
+                  - title: '''with_status'' set to false'
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1055263
+                          default: 0
+                        created_at:
+                          type: string
+                          example: '2021-11-22T11:56:30.000Z'
+                        updated_at:
+                          type: string
+                          example: '2021-11-23T14:40:51.000Z'
+                        expires_at: {}
+                        type:
+                          type: string
+                          example: BirthdayCampaign
+                        username: {}
+                        share_text: {}
+                        entity_id: {}
+                        hashtags: {}
+                        url: {}
+                        question: {}
+                        display_order:
+                          type: integer
+                          example: 5
+                          default: 0
+                        default_email_body: {}
+                        reward_text:
+                          type: string
+                          example: 250 Points
+                        icon:
+                          type: string
+                          example: fa-birthday-cake
+                        cta_text:
+                          type: string
+                          example: Wish Me A Happy Birthday
+                        min_actions_required:
+                          type: integer
+                          example: 1
+                          default: 0
+                        action_name: {}
+                        ask_year:
+                          type: boolean
+                          example: false
+                          default: true
+                        extra_copy1:
+                          type: string
+                          example: If your birthday is within the next 30 days, your reward will be granted in delay, up to 30 days.
+                        extra_copy2:
+                          type: string
+                          example: Thanks! We're looking forward to helping you celebrate :)
+                        include_audience_ids:
+                          type: string
+                          example: '1'
+                        exclude_audience_ids: {}
+                        max_completions_per_user: {}
+                        title:
+                          type: string
+                          example: Happy Birthday
+                        details:
+                          type: string
+                          example: Earn 200 points on your birthday
+                        unrendered_title:
+                          type: string
+                          example: Happy Birthday
+                        unrendered_details:
+                          type: string
+                          example: Earn 200 points on your birthday
+                        ends_at: {}
+                  - title: '''with_status'' set to true'
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          example: 1055265
+                          default: 0
+                        created_at:
+                          type: string
+                          example: '2021-11-22T11:57:43.000Z'
+                        updated_at:
+                          type: string
+                          example: '2021-11-23T14:40:19.000Z'
+                        expires_at: {}
+                        type:
+                          type: string
+                          example: BirthdayCampaign
+                        username: {}
+                        share_text: {}
+                        entity_id: {}
+                        hashtags: {}
+                        url: {}
+                        question: {}
+                        display_order:
+                          type: integer
+                          example: 5
+                          default: 0
+                        default_email_body: {}
+                        reward_text:
+                          type: string
+                          example: 350 Points
+                        icon:
+                          type: string
+                          example: fa-birthday-cake
+                        cta_text:
+                          type: string
+                          example: Wish Me A Happy Birthday
+                        min_actions_required:
+                          type: integer
+                          example: 1
+                          default: 0
+                        action_name: {}
+                        ask_year:
+                          type: boolean
+                          example: false
+                          default: true
+                        extra_copy1:
+                          type: string
+                          example: If your birthday is within the next 30 days, your reward will be granted in delay, up to 30 days.
+                        extra_copy2:
+                          type: string
+                          example: Thanks! We're looking forward to helping you celebrate :)
+                        include_audience_ids:
+                          type: string
+                          example: '1'
+                        exclude_audience_ids: {}
+                        status:
+                          type: object
+                          properties:
+                            global_completions_left: {}
+                            customer_actions_completed:
+                              type: integer
+                              example: 0
+                              default: 0
+                            customer_times_completed:
+                              type: integer
+                              example: 0
+                              default: 0
+                            customer_minutes_until_next_action:
+                              type: integer
+                              example: 0
+                              default: 0
+                            customer_minutes_until_next_completion:
+                              type: integer
+                              example: 0
+                              default: 0
+                        max_completions_per_user: {}
+                        title:
+                          type: string
+                          example: Happy Birthday
+                        details:
+                          type: string
+                          example: Earn 350 points on your birthday
+                        unrendered_title:
+                          type: string
+                          example: Happy Birthday
+                        unrendered_details:
+                          type: string
+                          example: Earn 350 points on your birthday
+                        ends_at: {}
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: ''
+      deprecated: false
+      security: []
+  /api/v2/orders:
+    post:
+      summary: Create Order
+      description: This endpoint records an order made by a customer. It will apply the order to all matching active campaigns and award the necessary points and/or discounts.
+      operationId: create-order
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - customer_email
+                - total_amount_cents
+                - currency_code
+                - order_id
+                - ip_address
+                - user_agent
+              properties:
+                customer_email:
+                  type: string
+                  description: The email address of the customer who placed the order.
+                customer_id:
+                  type: string
+                  description: The identifier used to uniquely identify the customer in your system. Required if implementing a generic e-commerce integration.
+                total_amount_cents:
+                  type: integer
+                  description: The total amount the customer spent in cents.
+                  format: int32
+                currency_code:
+                  type: string
+                  description: The currency used (e.g. 'USD')
+                order_id:
+                  type: string
+                  description: An identifier that uniquely identifies the order in your database.
+                status:
+                  type: string
+                  description: Sometimes you might want to separate the removal of points for using a discount code at checkout and the rewarding of points for the order.  We will use an order status to determine what we should do.
+                created_at:
+                  type: string
+                  description: A timestamp describing when this order was placed.  Defaults to the current time if not provided.
+                coupon_code:
+                  type: string
+                  description: A comma separated list of coupon codes used on this order.
+                ip_address:
+                  type: string
+                  description: The ip address of the customer when they placed the order.  This is a fraud prevention measure and required for referral program to work.
+                user_agent:
+                  type: string
+                  description: The user agent of the customer's browser when they placed the order.  This is a fraud prevention measure and is required for the referral program to work.
+                ignore_ip_ua:
+                  type: boolean
+                  description: If set to true, this will ignore the ip_address & user_agent fraud checks, allowing a referral to be completed even if no ip_address or user_agent are provided. If these params are provided while set to true, the fraud checks will be ignored.
+                  default: false
+                discount_amount_cents:
+                  type: integer
+                  description: The total amount the customer saved using a discount in cents.
+                  format: int32
+                tags:
+                  type: string
+                  description: This parameter should include a comma-separated list of order tags. The string cannot be longer than 255 characters
+                clerk_employee_id:
+                  type: string
+                  description: The employee identification number of the store clerk who processed the this transaction.
+                clerk_name:
+                  type: string
+                  description: The first and last name of the store clerk who processed the this transaction.
+                store_address:
+                  type: string
+                  description: The street name and number of the store's physical location e.g. 123 Main Street
+                store_city:
+                  type: string
+                  description: The city name of the store address.
+                store_state:
+                  type: string
+                  description: The state abbreviation of the store address. e.g. CA
+                channel_type:
+                  type: string
+                  description: The channel through which this order was processed. Values can be `online` (off-premise) or `offline` (on-premise brick and mortar store).
+                items:
+                  type: array
+                  description: An array of items purchased. Required if you want to run a campaign that requires certain products or collections to be purchased.
+                  items:
+                    properties:
+                      id:
+                        type: string
+                        description: An identifier that uniquely identifies this product in your database.
+                      name:
+                        type: string
+                        description: The customer facing product name.
+                      quantity:
+                        type: integer
+                        description: The quantity of this product purchased by the customer in this order.
+                        format: int32
+                      price_cents:
+                        type: integer
+                        description: The total price of this item (for 1 quantity) in cents.
+                        format: int32
+                      collections:
+                        type: string
+                        description: A comma separated list of all the collections or tags that this product belongs to.
+                      type:
+                        type: string
+                        description: A category or product type, can be used in filtering for eligibility.
+                      vendor:
+                        type: string
+                        description: The vendor / manufacturer of the product.
+                    required:
+                      - id
+                      - name
+                      - quantity
+                      - price_cents
+                    type: object
+                customer:
+                  properties:
+                    tags:
+                      type: string
+                      description: This parameter should include comma-separated tags.  If you don't have any tags defined, you must still include this parameter.
+                    has_account:
+                      type: boolean
+                      description: Whether the customer has an account with the ecommerce platform. By default set to False
+                    opted_in:
+                      type: boolean
+                      description: Whether the customer should be opted in to loyalty program. If null, will rely on the account settings of opt in.
+                    opted_in_at:
+                      type: string
+                      description: Date and time the customer opted-in to the loyalty program (iso 8601)
+                      format: date
+                  type: object
+                  description: '**Required** only if you''re excluding or including customers through the Swell admin.'
+      responses:
+        '201':
+          description: '201'
+          content:
+            text/plain:
+              examples:
+                Result:
+                  value: ''
+        '400':
+          description: '400'
+          content:
+            text/plain:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+      security: []
+  /api/v2/refunds:
+    post:
+      summary: Create Refund
+      description: 'Send a new refund to the Yotpo API to adjust previously processed order. Requests are processed asynchronously. If you''re on SFCC use the following URL instead of the below, with the same parameters POST: https://loyalty.yotpo.com/commerce-cloud/refunds'
+      operationId: create-refund
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - order_id
+                - total_amount_cents
+              properties:
+                id:
+                  type: string
+                  description: An unique identifier used to identify this refund in your system.  If you don't track these explicitly in your database then we will create one internally. Requests are processed asynchronously.  A HTTP 200 success response acknowledges the receipt of the request
+                order_id:
+                  type: string
+                  description: The identifier used to uniquely identify the order in your system.  It must match the order_id used when the order was created initially.
+                total_amount_cents:
+                  type: integer
+                  description: The total amount the customer was refunded in cents.
+                  format: int32
+                items:
+                  type: array
+                  description: An array of items refunded
+                  items:
+                    properties:
+                      id:
+                        type: string
+                        description: An identifier that uniquely identifies this line item or product in your system.  It must match the item.id passed in during the creation of the order.
+                      quantity:
+                        type: integer
+                        description: The quantity of this item refunded.  This cannot exceed the quantity purchased that was set during the creation of the order.
+                        format: int32
+                    type: object
+                currency:
+                  type: string
+                  description: The currency used (e.g. 'USD') This is required if you’re using multi currency. If not provided or the refund+order currency do not match, errors will be returned.
+            examples:
+              Body Params:
+                value:
+                  order_id: ORD_43H9ADHW13081235
+                  total_amount_cents: '250'
+      responses:
+        '201':
+          description: '201'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+        '404':
+          description: '404'
+          content:
+            text/plain:
+              examples:
+                order_id field contains an ID that exists in our system:
+                  value: |-
+                    "errors": {
+                            "order_id": "An order with that id was not found."
+                        }
+        '422':
+          description: '422'
+          content:
+            application/json:
+              examples:
+                total_amount_cents field/value is missing:
+                  value: |-
+                    "errors": {
+                            "total_amount_cents": "total_amount_cents is a required field"
+                        }
+      deprecated: false
+      security: []
+  /api/v2/redemption_codes:
+    get:
+      summary: Get Redemption Code Data
+      description: |-
+        This endpoint lets you fetch the email address of a customer who redeemed a discount by providing a `third party_id` or the discount `code`. This enables merchants to validate (at checkout) if the shopper placing the order is different than the shopper who redeemed and used the discount.
+
+        **You must pass either a `third_party_id` *or* a discount `code`.**
+      operationId: get-redemption-code-data
+      parameters:
+        - name: third_party_id
+          in: query
+          description: The third-party unique identifier. **Required** if you're not passing a `code`!
+          schema:
+            type: string
+        - name: code
+          in: query
+          description: The discount code. **Required** if you're not passing a `third_party_id`!
+          schema:
+            type: string
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |2-
+                      {
+                        "id":7,
+                        "code":"YM2W9U8D",
+                        "third_party_id":"138270310458",
+                        "email":"iaushdqwiuehqwe@mailinator.com"
+                      }
+                    ]
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                        "errors": {
+                            "redemption_code": "You must provide third_party_id or code"
+                        }
+                    }
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: object
+                    properties:
+                      redemption_code:
+                        type: string
+                        example: You must provide third_party_id or code
+        '404':
+          description: '404'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '[]'
+              schema:
+                type: array
+                items: {}
+      deprecated: false
+    post:
+      summary: Upload Coupon Codes
+      description: ''
+      operationId: add-coupon-codes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - redemption_option_id
+                - codes
+              properties:
+                redemption_option_id:
+                  type: integer
+                  description: This is the `id` param returned by the Fetch Active Redemptions endpoint.
+                  format: int32
+                codes:
+                  type: string
+                  description: Up to 10,000 comma-separated coupon codes.
+            examples:
+              Body Params:
+                value:
+                  redemption_option_id: 617505
+                  codes: code1,code2,code3
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                        "id": 617505,
+                        "icon": "fa-dollar",
+                        "cost_text": "Test1 points",
+                        "amount": 100,
+                        "applies_to_product_type": "ALL",
+                        "duration": "single_use",
+                        "type": "Coupon",
+                        "discount_amount_cents": 0,
+                        "discount_rate_cents": null,
+                        "discount_percentage": null,
+                        "discount_type": "custom",
+                        "discount_value_cents": 1000,
+                        "name": "Test1",
+                        "description": "Test2",
+                        "unrendered_name": "Test1",
+                        "unrendered_description": "Test2"
+                    }
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 617505
+                    default: 0
+                  icon:
+                    type: string
+                    example: fa-dollar
+                  cost_text:
+                    type: string
+                    example: Test1 points
+                  amount:
+                    type: integer
+                    example: 100
+                    default: 0
+                  applies_to_product_type:
+                    type: string
+                    example: ALL
+                  duration:
+                    type: string
+                    example: single_use
+                  type:
+                    type: string
+                    example: Coupon
+                  discount_amount_cents:
+                    type: integer
+                    example: 0
+                    default: 0
+                  discount_rate_cents: {}
+                  discount_percentage: {}
+                  discount_type:
+                    type: string
+                    example: custom
+                  discount_value_cents:
+                    type: integer
+                    example: 1000
+                    default: 0
+                  name:
+                    type: string
+                    example: Test1
+                  description:
+                    type: string
+                    example: Test2
+                  unrendered_name:
+                    type: string
+                    example: Test1
+                  unrendered_description:
+                    type: string
+                    example: Test2
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: "{\n\t\"errors\": {\n\t\t\"codes\": \"number of redemption codes cannot exceed 10000\"\n\t}\n}"
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: object
+                    properties:
+                      codes:
+                        type: string
+                        example: number of redemption codes cannot exceed 10000
+        '422':
+          description: '422'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: "{\n\t\"errors\": {\n\t\t\"message\": \"You must provide codes\"\n\t}\n}"
+              schema:
+                oneOf:
+                  - type: object
+                    properties:
+                      errors:
+                        type: object
+                        properties:
+                          message:
+                            type: string
+                            example: You must provide redemption_option_id
+                  - type: object
+                    properties:
+                      errors:
+                        type: object
+                        properties:
+                          message:
+                            type: string
+                            example: You must provide codes
+      deprecated: false
+  /api/v2/vip_tiers:
+    get:
+      summary: Fetch VIP Tiers
+      description: ''
+      operationId: fetch-vip-tiers
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    [
+                        {
+                            "id": 12593,
+                            "name": "Base Tier",
+                            "description": "First Tier Every customer earn",
+                            "points_multiplier": "1.0",
+                            "type": "BaseTier",
+                            "points_reward": 0,
+                            "coupon_reward": "",
+                            "entry_threshold": {
+                                "points_earned": 0,
+                                "amount_spent_cents": 0,
+                                "purchases_made": 0,
+                                "referrals_completed": 0,
+                                "requirements_needed": "all_requirements"
+                            },
+                            "retain_threshold": {
+                                "points_earned": 0,
+                                "amount_spent_cents": 0,
+                                "purchases_made": 0,
+                                "referrals_completed": 0
+                            },
+                            "regain_threshold": {
+                                "points_earned": 0,
+                                "amount_spent_cents": 0,
+                                "purchases_made": 0,
+                                "referrals_completed": 0
+                            }
+                        },
+                        {
+                            "id": 12594,
+                            "name": "TierA",
+                            "description": "Spend $50 to Earn the tier",
+                            "points_multiplier": "1.25",
+                            "type": "VipTier",
+                            "points_reward": 50,
+                            "coupon_reward": "Tier A coupon reward $5",
+                            "entry_threshold": {
+                                "points_earned": 0,
+                                "amount_spent_cents": 5000,
+                                "purchases_made": 0,
+                                "referrals_completed": 0,
+                                "requirements_needed": "all_requirements"
+                            },
+                            "retain_threshold": {
+                                "points_earned": 0,
+                                "amount_spent_cents": 5000,
+                                "purchases_made": 0,
+                                "referrals_completed": 0
+                            },
+                            "regain_threshold": {
+                                "points_earned": 0,
+                                "amount_spent_cents": 5000,
+                                "purchases_made": 0,
+                                "referrals_completed": 0
+                            }
+                        },
+                        {
+                            "id": 12595,
+                            "name": "TierB",
+                            "description": "Spend $100 to Earn the tier",
+                            "points_multiplier": "1.5",
+                            "type": "VipTier",
+                            "points_reward": 100,
+                            "coupon_reward": "Tier B coupon reward $10",
+                            "entry_threshold": {
+                                "points_earned": 0,
+                                "amount_spent_cents": 10000,
+                                "purchases_made": 0,
+                                "referrals_completed": 0,
+                                "requirements_needed": "all_requirements"
+                            },
+                            "retain_threshold": {
+                                "points_earned": 0,
+                                "amount_spent_cents": 10000,
+                                "purchases_made": 0,
+                                "referrals_completed": 0
+                            },
+                            "regain_threshold": {
+                                "points_earned": 0,
+                                "amount_spent_cents": 10000,
+                                "purchases_made": 0,
+                                "referrals_completed": 0
+                            }
+                        },
+                        {
+                            "id": 12596,
+                            "name": "TierC",
+                            "description": "Spend $200 to Earn the tier",
+                            "points_multiplier": "1.75",
+                            "type": "VipTier",
+                            "points_reward": 200,
+                            "coupon_reward": "Tier C coupon reward 20%",
+                            "entry_threshold": {
+                                "points_earned": 0,
+                                "amount_spent_cents": 20000,
+                                "purchases_made": 0,
+                                "referrals_completed": 0,
+                                "requirements_needed": "all_requirements"
+                            },
+                            "retain_threshold": {
+                                "points_earned": 0,
+                                "amount_spent_cents": 20000,
+                                "purchases_made": 0,
+                                "referrals_completed": 0
+                            },
+                            "regain_threshold": {
+                                "points_earned": 0,
+                                "amount_spent_cents": 20000,
+                                "purchases_made": 0,
+                                "referrals_completed": 0
+                            }
+                        },
+                        {
+                            "id": 12597,
+                            "name": "TierD",
+                            "description": "Spend $400 to Earn the tier",
+                            "points_multiplier": "2.0",
+                            "type": "VipTier",
+                            "points_reward": 200,
+                            "coupon_reward": "Tier D coupon Reward 30%",
+                            "entry_threshold": {
+                                "points_earned": 0,
+                                "amount_spent_cents": 40000,
+                                "purchases_made": 0,
+                                "referrals_completed": 0,
+                                "requirements_needed": "all_requirements"
+                            },
+                            "retain_threshold": {
+                                "points_earned": 0,
+                                "amount_spent_cents": 40000,
+                                "purchases_made": 0,
+                                "referrals_completed": 0
+                            },
+                            "regain_threshold": {
+                                "points_earned": 0,
+                                "amount_spent_cents": 40000,
+                                "purchases_made": 0,
+                                "referrals_completed": 0
+                            }
+                        },
+                        {
+                            "id": 12598,
+                            "name": "Membership Tier",
+                            "description": "Purchase Product 5560184602783 to earn the Tier",
+                            "points_multiplier": "2.5",
+                            "type": "VipTier",
+                            "points_reward": 500,
+                            "coupon_reward": "Tier Membership coupon reward $50",
+                            "entry_threshold": {
+                                "points_earned": 0,
+                                "amount_spent_cents": 0,
+                                "purchases_made": 0,
+                                "referrals_completed": 0,
+                                "requirements_needed": "all_requirements"
+                            },
+                            "retain_threshold": {
+                                "points_earned": 0,
+                                "amount_spent_cents": 0,
+                                "purchases_made": 0,
+                                "referrals_completed": 0
+                            },
+                            "regain_threshold": {
+                                "points_earned": 0,
+                                "amount_spent_cents": 0,
+                                "purchases_made": 0,
+                                "referrals_completed": 0
+                            }
+                        }
+                    ]
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 12593
+                      default: 0
+                    name:
+                      type: string
+                      example: Base Tier
+                    description:
+                      type: string
+                      example: First Tier Every customer earn
+                    points_multiplier:
+                      type: string
+                      example: '1.0'
+                    type:
+                      type: string
+                      example: BaseTier
+                    points_reward:
+                      type: integer
+                      example: 0
+                      default: 0
+                    coupon_reward:
+                      type: string
+                      example: ''
+                    entry_threshold:
+                      type: object
+                      properties:
+                        points_earned:
+                          type: integer
+                          example: 0
+                          default: 0
+                        amount_spent_cents:
+                          type: integer
+                          example: 0
+                          default: 0
+                        purchases_made:
+                          type: integer
+                          example: 0
+                          default: 0
+                        referrals_completed:
+                          type: integer
+                          example: 0
+                          default: 0
+                        requirements_needed:
+                          type: string
+                          example: all_requirements
+                    retain_threshold:
+                      type: object
+                      properties:
+                        points_earned:
+                          type: integer
+                          example: 0
+                          default: 0
+                        amount_spent_cents:
+                          type: integer
+                          example: 0
+                          default: 0
+                        purchases_made:
+                          type: integer
+                          example: 0
+                          default: 0
+                        referrals_completed:
+                          type: integer
+                          example: 0
+                          default: 0
+                    regain_threshold:
+                      type: object
+                      properties:
+                        points_earned:
+                          type: integer
+                          example: 0
+                          default: 0
+                        amount_spent_cents:
+                          type: integer
+                          example: 0
+                          default: 0
+                        purchases_made:
+                          type: integer
+                          example: 0
+                          default: 0
+                        referrals_completed:
+                          type: integer
+                          example: 0
+                          default: 0
+      deprecated: false
+  /api/v2/referral/referrer:
+    post:
+      summary: Identify Referrer
+      description: Find or create a referral link for an email address.
+      operationId: identify-referrer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  description: The email address of the referring customer who needs the referral link.
+                first_name:
+                  type: string
+                  description: Associates a first name with their Loyalty account. Important to include if you'd like to include first name in any marketing material
+                last_name:
+                  type: string
+                  description: Associates a last name with their Loyalty account. Important to include if you'd like to include first name in any marketing material
+            examples:
+              Request Example:
+                value:
+                  email: referringcustomer@gmail.com
+                  first_name: referring
+                  last_name: customer
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Customer who made referrals:
+                  value: |-
+                    {
+                        "id": 802831867,
+                        "merchant_id": 65048,
+                        "email": "partialrefund@yotpo.com",
+                        "referral_receipts": [
+                            {
+                                "id": 6935178,
+                                "referral_code_id": 669429180,
+                                "customer_id": 802831867,
+                                "signed_up_at": "2021-11-21T13:48:11.000Z",
+                                "completed_at": "2021-11-21T13:48:34.000Z",
+                                "email": "referredpurhcase@test.com",
+                                "merchant_id": 65048,
+                                "source": "other",
+                                "source_host": null,
+                                "reminder_job_id": null
+                            }
+                        ],
+                        "referral_link": "http://rwrd.io/is8rphx",
+                        "referral_discount_code": null,
+                        "referral_discount_code_id": null
+                    }
+                Customer with no referrals:
+                  value: |-
+                    {
+                        "id": 397725873,
+                        "merchant_id": 65048,
+                        "email": "referraltest9@yotpo.com",
+                        "referral_receipts": [],
+                        "referral_link": "http://rwrd.io/lu8mkbz",
+                        "referral_discount_code": "REFERRALTEST9977",
+                        "referral_discount_code_id": 5350671
+                    }
+              schema:
+                oneOf:
+                  - title: Customer who made referrals
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 802831867
+                        default: 0
+                      merchant_id:
+                        type: integer
+                        example: 65048
+                        default: 0
+                      email:
+                        type: string
+                        example: partialrefund@yotpo.com
+                      referral_receipts:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: integer
+                              example: 6935178
+                              default: 0
+                            referral_code_id:
+                              type: integer
+                              example: 669429180
+                              default: 0
+                            customer_id:
+                              type: integer
+                              example: 802831867
+                              default: 0
+                            signed_up_at:
+                              type: string
+                              example: '2021-11-21T13:48:11.000Z'
+                            completed_at:
+                              type: string
+                              example: '2021-11-21T13:48:34.000Z'
+                            email:
+                              type: string
+                              example: referredpurhcase@test.com
+                            merchant_id:
+                              type: integer
+                              example: 65048
+                              default: 0
+                            source:
+                              type: string
+                              example: other
+                            source_host: {}
+                            reminder_job_id: {}
+                      referral_link:
+                        type: string
+                        example: http://rwrd.io/is8rphx
+                      referral_discount_code: {}
+                      referral_discount_code_id: {}
+                  - title: Customer with no referrals
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        example: 397725873
+                        default: 0
+                      merchant_id:
+                        type: integer
+                        example: 65048
+                        default: 0
+                      email:
+                        type: string
+                        example: referraltest9@yotpo.com
+                      referral_receipts:
+                        type: array
+                        items: {}
+                      referral_link:
+                        type: string
+                        example: http://rwrd.io/lu8mkbz
+                      referral_discount_code:
+                        type: string
+                        example: REFERRALTEST9977
+                      referral_discount_code_id:
+                        type: integer
+                        example: 5350671
+                        default: 0
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+  /api/v2/referral/share:
+    post:
+      summary: Send Referral Emails
+      description: Share referral link via email to a list of email addresses
+      operationId: send-referral-emails-1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - emails
+              properties:
+                email:
+                  type: string
+                  description: The email address of the referring customer. Required if no customer_id is passed.
+                customer_id:
+                  type: string
+                  description: The identifier used to uniquely identify the referring customer in your system. Required if no customer_email is passed.
+                emails:
+                  type: string
+                  description: Comma-separated list of email addresses to share the referral link to
+            examples:
+              Request Example:
+                value:
+                  email: referringcustomer@gmail.com
+                  emails: firstreferred@gmail.com,secondreferred@gmail.com
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+        '422':
+          description: '422'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: "{\n\t\"error\": \"NO_LEGITIMATE_EMAILS\",\n  \"details\":{\n    \"email\":\"<fraudulent_email_address>\",\n      \"reason\":\"SELF_REFERRAL|ALREADY_PURCHASED\"\n  }\n}"
+              schema:
+                oneOf:
+                  - type: object
+                    properties:
+                      errors:
+                        type: object
+                        properties:
+                          email:
+                            type: string
+                            example: email is a required field
+                  - type: object
+                    properties:
+                      errors:
+                        type: object
+                        properties:
+                          emails:
+                            type: string
+                            example: emails is a required field
+                  - type: object
+                    properties:
+                      error:
+                        type: string
+                        example: NO_REFERRER_FOUND
+                  - type: object
+                    properties:
+                      error:
+                        type: string
+                        example: NO_VALID_EMAILS
+                  - type: object
+                    properties:
+                      error:
+                        type: string
+                        example: NO_LEGITIMATE_EMAILS
+                      details:
+                        type: object
+                        properties:
+                          email:
+                            type: string
+                            example: <fraudulent_email_address>
+                          reason:
+                            type: string
+                            example: SELF_REFERRAL|ALREADY_PURCHASED
+        '429':
+          description: '429'
+          content:
+            text/plain:
+              examples:
+                Result:
+                  value: RATELIMIT_EXCEEDED
+      deprecated: false
+  /api/v2/redemptions/{point_redemption_id}/cancellation_completed:
+    post:
+      summary: Approve Redemption Cancellation
+      description: This endpoint will confirm the Redemption Cancellation Request webhook so that the customer will receive their points from redemption back into their account. This is the final step in the process of invalidating an imported coupon code to return a customer's point for our In-Store Widget.
+      operationId: approve-redemption-cancellation
+      parameters:
+        - name: point_redemption_id
+          in: path
+          description: The ID of the redemption received via the Redemption Cancellation Request webhook.
+          schema:
+            type: integer
+            format: int32
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - reward_text
+              properties:
+                reward_text:
+                  type: string
+                  description: The discount code associated with the Redemption Cancellation Request webhook. This is the code that was invalidated.
+            examples:
+              Request Example:
+                value:
+                  reward_text: UA87c36Ah
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+  /api/v2/customers/recent:
+    get:
+      summary: Fetch All Recently Updated Customers
+      description: Fetches a list of all the customers who were updated in the last 7 days, and their customer data registered in the Yotpo Loyalty database
+      operationId: fetch-all-recently-updated-customers
+      parameters:
+        - name: page_info
+          in: query
+          description: Used to fetch the next page (taken from the response of the previous call)
+          schema:
+            type: string
+        - name: per_page
+          in: query
+          description: The amount of customers to return per page. Maximum of 500 per page.
+          schema:
+            type: integer
+            format: int32
+            default: 100
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                        "metadata": {
+                          "next_page_info": "MzQxNDczMzczLDE1OTM2ODQ1Nzg="
+                        },
+                        "customers": [
+                            {
+                                "total_spend_cents": 8944,
+                                "total_purchases": 1,
+                                "perks_redeemed": 3,
+                                "last_purchase_at": "2020-06-29T17:47",
+                                "email": "2@gmail.com",
+                                "points_earned": 1050,
+                                "points_balance": 1050,
+                                "points_expire_at": "2020-10-04T07:56",
+                                "first_name": "Swell",
+                                "last_name": "Test",
+                                "phone_number": null,
+                                "last_seen_at": "2020-07-02T10:09",
+                                "thirty_party_id": "3698392793225",
+                                "third_party_id": "3698392793225",
+                                "pos_account_id": null,
+                                "has_store_account": false,
+                                "opt_in": true,
+                                "opted_in_at": "2020-06-29",
+                                "birthday_month": 1,
+                                "birth_day": 1,
+                                "birthday_year": null,
+                                "vip_tier_name": "Bronze",
+                                "vip_tier_entry_date": "2020-06-29T17:47",
+                                "vip_tier_expiration": "2021-12-31T23:59",
+                                "vip_tier_actions_completed": {
+                                    "points_earned": 0,
+                                    "amount_spent_cents": 0,
+                                    "purchases_made": 0,
+                                    "referrals_completed": 0,
+                                    "campaigns_completed": []
+                                },
+                                "vip_tier_maintenance_requirements": {
+                                    "points_needed": 0,
+                                    "amount_cents_needed": 0,
+                                    "purchases_needed": 0,
+                                    "referrals_needed": 0,
+                                    "campaigns_needed": []
+                                },
+                                "vip_tier_upgrade_requirements": {
+                                    "points_needed": 0,
+                                    "amount_cents_needed": 10000,
+                                    "purchases_needed": 0,
+                                    "referrals_needed": 0,
+                                    "campaigns_needed": []
+                                }
+                            }
+                          ]
+                    }
+              schema:
+                type: object
+                properties:
+                  metadata:
+                    type: object
+                    properties:
+                      next_page_info:
+                        type: string
+                        example: MzQxNDczMzczLDE1OTM2ODQ1Nzg=
+                  customers:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        total_spend_cents:
+                          type: integer
+                          example: 8944
+                          default: 0
+                        total_purchases:
+                          type: integer
+                          example: 1
+                          default: 0
+                        perks_redeemed:
+                          type: integer
+                          example: 3
+                          default: 0
+                        last_purchase_at:
+                          type: string
+                          example: 2020-06-29T17:47
+                        email:
+                          type: string
+                          example: 2@gmail.com
+                        points_earned:
+                          type: integer
+                          example: 1050
+                          default: 0
+                        points_balance:
+                          type: integer
+                          example: 1050
+                          default: 0
+                        points_expire_at:
+                          type: string
+                          example: 2020-10-04T07:56
+                        first_name:
+                          type: string
+                          example: Swell
+                        last_name:
+                          type: string
+                          example: Test
+                        phone_number: {}
+                        last_seen_at:
+                          type: string
+                          example: 2020-07-02T10:09
+                        thirty_party_id:
+                          type: string
+                          example: '3698392793225'
+                        third_party_id:
+                          type: string
+                          example: '3698392793225'
+                        pos_account_id: {}
+                        has_store_account:
+                          type: boolean
+                          example: false
+                          default: true
+                        opt_in:
+                          type: boolean
+                          example: true
+                          default: true
+                        opted_in_at:
+                          type: string
+                          example: '2020-06-29'
+                        birthday_month:
+                          type: integer
+                          example: 1
+                          default: 0
+                        birth_day:
+                          type: integer
+                          example: 1
+                          default: 0
+                        birthday_year: {}
+                        vip_tier_name:
+                          type: string
+                          example: Bronze
+                        vip_tier_entry_date:
+                          type: string
+                          example: 2020-06-29T17:47
+                        vip_tier_expiration:
+                          type: string
+                          example: 2021-12-31T23:59
+                        vip_tier_actions_completed:
+                          type: object
+                          properties:
+                            points_earned:
+                              type: integer
+                              example: 0
+                              default: 0
+                            amount_spent_cents:
+                              type: integer
+                              example: 0
+                              default: 0
+                            purchases_made:
+                              type: integer
+                              example: 0
+                              default: 0
+                            referrals_completed:
+                              type: integer
+                              example: 0
+                              default: 0
+                            campaigns_completed:
+                              type: array
+                              items: {}
+                        vip_tier_maintenance_requirements:
+                          type: object
+                          properties:
+                            points_needed:
+                              type: integer
+                              example: 0
+                              default: 0
+                            amount_cents_needed:
+                              type: integer
+                              example: 0
+                              default: 0
+                            purchases_needed:
+                              type: integer
+                              example: 0
+                              default: 0
+                            referrals_needed:
+                              type: integer
+                              example: 0
+                              default: 0
+                            campaigns_needed:
+                              type: array
+                              items: {}
+                        vip_tier_upgrade_requirements:
+                          type: object
+                          properties:
+                            points_needed:
+                              type: integer
+                              example: 0
+                              default: 0
+                            amount_cents_needed:
+                              type: integer
+                              example: 10000
+                              default: 0
+                            purchases_needed:
+                              type: integer
+                              example: 0
+                              default: 0
+                            referrals_needed:
+                              type: integer
+                              example: 0
+                              default: 0
+                            campaigns_needed:
+                              type: array
+                              items: {}
+      deprecated: false
+      security: []
+  /api/v2/customer_anniversary:
+    post:
+      summary: Set/Update Customer Anniversary
+      description: ''
+      operationId: createupdate-customer-anniversary
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - customer_email
+                - day
+                - month
+              properties:
+                customer_email:
+                  type: string
+                  description: The customer's email address.
+                day:
+                  type: integer
+                  description: The day of the month the customer was born (1-31). For example, pass a value of `9` if the customer was born on the 9th of January.
+                  format: int32
+                month:
+                  type: integer
+                  description: The month the customer was born (1-12). For example, pass a value of `1` if the customer was born in January.
+                  format: int32
+                year:
+                  type: integer
+                  description: The four-digit year the customer was born. For example, `1982`.
+                  format: int32
+            examples:
+              Body Params:
+                value:
+                  customer_email: john@example.com
+                  day: '20'
+                  month: '6'
+                  year: '1987'
+      responses:
+        '201':
+          description: '201'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+      security: []
+    get:
+      summary: Get Customer Anniversary
+      description: ''
+      operationId: get-customer-anniversary
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - customer_email
+              properties:
+                customer_email:
+                  type: string
+                  description: The customer's email address.
+            examples:
+              Body Params:
+                value:
+                  customer_email: john@example.com
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                        "customer_anniversary": {
+                            "day": 1,
+                            "month": 1,
+                            "year": null
+                        }
+                    }
+              schema:
+                type: object
+                properties:
+                  customer_anniversary:
+                    type: object
+                    properties:
+                      day:
+                        type: integer
+                        example: 1
+                        default: 0
+                      month:
+                        type: integer
+                        example: 1
+                        default: 0
+                      year: {}
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+      security: []
+    delete:
+      summary: Remove Customer Anniversary
+      description: ''
+      operationId: remove-customer-anniversary
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - customer_email
+              properties:
+                customer_email:
+                  type: string
+                  description: The customer's email address.
+            examples:
+              Body Params:
+                value:
+                  customer_email: john@example.com
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+      security: []
+  /api/v2/privacy/data:
+    get:
+      summary: User data
+      description: An asynchronous request that retrieves existing user data in the Yotpo loyalty system. User data is sent as a JSON file to the account email address associated with the Yotpo loyalty account.
+      operationId: user-data
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  description: The email address of the user you want to retrieve data about.
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                        "status": {
+                            "code": 200,
+                            "message": "OK"
+                        }
+                    }
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 200
+                        default: 0
+                      message:
+                        type: string
+                        example: OK
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+      x-readme:
+        code-samples:
+          - language: curl
+            code: |-
+              curl --request GET \
+                --url https://api.yotpo.com/privacy/data \
+                --header 'Content-Type: application/json'
+        samples-languages:
+          - curl
+  /api/v2/privacy/data/exists:
+    get:
+      summary: Data exists
+      description: A synchronous request that checks for existing account data (true/false) in the Yotpo loyalty system.
+      operationId: data-exists
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  description: The email address of the user you want to retrieve data about.
+            examples:
+              Request Example:
+                value:
+                  email: example@yotpo.com
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                        "status": {
+                            "code": 200,
+                            "message": "OK"
+                        },
+                        "response": {
+                            "has_data": true
+                        }
+                    }
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: object
+                    properties:
+                      code:
+                        type: integer
+                        example: 200
+                        default: 0
+                      message:
+                        type: string
+                        example: OK
+                  response:
+                    type: object
+                    properties:
+                      has_data:
+                        type: boolean
+                        example: true
+                        default: true
+        '400':
+          description: '400'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: '{}'
+              schema:
+                type: object
+                properties: {}
+      deprecated: false
+  /api/v2/points/adjust:
+    post:
+      summary: Adjust a Customer's Point Balance
+      description: ''
+      operationId: adjust-a-customers-point-balance
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - customer_email
+                - point_adjustment_amount
+              properties:
+                customer_email:
+                  type: string
+                  description: The customer's email address. Required if no customer_id is passed.
+                customer_id:
+                  type: string
+                  description: The identifier used to uniquely identify the customer in your system. Required if implementing a generic e-commerce integration.
+                point_adjustment_amount:
+                  type: integer
+                  description: The amount of points you wish to add or remove. You can also provide a negative points value.
+                  format: int32
+                apply_adjustment_to_points_earned:
+                  type: boolean
+                  description: Choose if this should also apply to the customer's total points earned value.
+                history_title:
+                  type: string
+                  description: Use this to override the normal description shown to the user in their history. Will default to the campaign settings otherwise.
+                visible_to_customer:
+                  type: boolean
+                  description: Choose whether the adjustment is visible to the customer on-site
+                  default: true
+            examples:
+              Body Params:
+                value:
+                  customer_email: john.doe@example.com
+                  point_adjustment_amount: '1'
+                  visible_to_customer: false
+                  apply_adjustment_to_points_earned: true
+      responses:
+        '200':
+          description: '200'
+          content:
+            application/json:
+              examples:
+                Result:
+                  value: |-
+                    {
+                        “id”: 560205452,
+                        “created_at”: “2021-12-22T09:46:34.000Z”,
+                        “updated_at”: “2021-12-22T09:46:35.000Z”,
+                        “merchant_id”: 89121,
+                        “customer_id”: 731562454,
+                        “type”: “CustomAction”,
+                        “referral_id”: 29733968,
+                        “ip_address”: null,
+                        “user_agent_id”: null,
+                        “parent_perk_id”: null,
+                        “name”: “manual_adjustment”
+                    }
+        '422':
+          description: '422'
+          content:
+            application/json:
+              examples:
+                Empty adjustment amount:
+                  value: |-
+                    {
+                        “errors”: “point_adjustment_amount is not a number”
+                    }
+            text/plain:
+              examples:
+                Required customer identification:
+                  value: |-
+                    {
+                        “errors”: “you_must_ provid_ customer_email or customer_id”
+                    }
+                Customer does not exist in the system:
+                  value: |-
+                    {
+                        “errors”: “customer_not_found”
+                    }
+      deprecated: false
+      security: []
+x-readme:
+  headers: []
+  explorer-enabled: true
+  proxy-enabled: true
+  samples-enabled: true
+x-readme-fauxas: true
