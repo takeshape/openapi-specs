@@ -1,0 +1,1169 @@
+openapi: 3.0.0
+info:
+  title: Rise.ai API Documentation
+  description: >-
+    Rise.ai API was built to help you make complicated Gift Card & Credit
+    integrations easy - from Point of Sales to advanced 3rd party integrations.
+  version: 1.0.0
+servers:
+  - url: https://application.rise-ai.com
+  - url: https://workflows.rise-ai.com
+tags:
+  - name: How to start?
+    description: >-
+      In order to start using the API you'll need to receive your
+      `access_token`. Send an email to `dev@rise.ai` / your dedicated account
+      manager and we will assist you.
+
+
+      ## Rate limit
+
+
+      Apps can make requests at a maximum rate of **2 requests/second**.  
+
+      any requests exceeding this limit will result in `429 Too Many Requests`
+      error
+
+
+      ## Support
+
+
+      Contact our developers support at `dev@rise.ai`
+  - name: Credit API
+    description: Rise.ai API allows you to Issue, Get & Adjust Gift Cards and Loyalty Cards
+  - name: Gifting API
+    description: "<p>The REST Gifting API allows you to create your own custom front end gifting modules as well as enable gift selling on whatever platform your store is based on (as long as you use the Shopify checkout). With the Gifting API you will no longer be limited to the<a href=\"https://rise.ai/solutions/gift-cards\">native Rise.ai modules</a>.</p>\n\nIn order to start using this API you'll need to receive your\_`gifting_api_key`. Send an email to\_`dev@rise.ai`\_/ your dedicated account manager and we will assist you."
+  - name: Gifting API > Developer Guide
+    description: >-
+      ## Terms
+
+      | Term          | Definition    |
+
+      | ------------- | ------------- | 
+
+      | Session       | Represents a customer's single `gifting_session` at your
+      site. Composed of a session `id` and an array of gifts. |
+
+      | Gift          | A gift card sent as a gift |
+
+      | Developer     | You guys      | 
+
+      | Buyer         | The person purchasing the gift card | 
+
+      | Recipient     | Person receiving the gift | 
+
+
+      <p>&nbsp;</p>
+
+
+      ***
+
+
+      <p>&nbsp;</p>
+
+
+      ## Implementation
+
+      Upon the entrance of a buyer to the <a
+      href="https://tiny-thorns.myshopify.com/products/rise-ai-giftcard-1"
+      target="_blank">gift card page</a>, you should
+      [create](https://documenter.getpostman.com/view/10073572/Tz5wWE8g#fd918b24-8cad-4301-80e9-4a254a654a3a)
+      a session.
+
+
+      A Session id is saved on a cookie called `rise_gifting_session`. This
+      cookie will be saved for 14 days.
+
+      Use the session id (saved on the cookie) for all requests for this
+      customer while the cookie is still available.
+
+      The cookie’s expiration date will reset each time there is a request to
+      the gifting API.
+
+
+      Once the buyer adds a gift to the cart, the developer must
+      [create](https://documenter.getpostman.com/view/10073572/Tz5wWE8g#927b2625-0307-49c4-b4b7-8c40c1042a03)
+      the gift at Rise.ai via the API. The response will return a gift object.
+
+
+      <p>&nbsp;</p>
+
+      <p>&nbsp;</p>
+
+
+      ## Adding Gift Id To The Line Items Properties
+
+
+      <p>&nbsp;</p>
+
+
+      #### Shopify
+
+      Once the `gift` is created, the gift id must be added to the cart's
+      line-items.
+
+      On Shopify, use the
+      [cart](https://shopify.dev/docs/themes/ajax-api/reference/cart#post-cart-add-js)
+      API.
+
+
+      We expect the id's line item property name to be `_id`.
+
+      The line_items properties on the order should be as followed.
+
+
+      ```json
+       properties: [
+           {
+               name: "_id",
+               value: "598983651"
+           }
+       ]
+      ```
+
+
+
+      #### Other
+
+      If you are not using Shopify, make sure that the gift id is added to the
+      order line-item properties at the initial creation of the order.
+
+
+      <p>&nbsp;</p>
+
+      <p>&nbsp;</p>
+
+
+      ## Completed Session
+
+
+      Once a checkout is completed, the developer must send a
+      [session-completed](https://documenter.getpostman.com/view/10073572/Tz5wWE8g#e1735d60-818c-44d7-8ff2-6881b6a3bb75)
+      request. The session will be processed and the gift cards will be created.
+
+      This request must be made immediately after the checkout complete event in
+      order to avoid gift card sending issues.
+
+
+
+      <p>&nbsp;</p>
+
+
+      #### Shopify
+
+
+      After the orders/paid webhook is received, the gift cards will be sent.
+  - name: Gifting API > API Reference
+  - name: Gifting API > API Reference > Session
+  - name: Gifting API > API Reference > Gift
+  - name: Workflows custom-trigger api
+    description: >-
+      Loyalty workflows are the easiet way to offer store-credit rewards to your
+      loyal customers. Workflows are highly customizable and can serve any
+      re-engagement purpose you require. You can read more about workflows here:
+      [https://help.rise.ai/en/articles/4002969-create-store-credit-loyalty-workflows](https://help.rise.ai/en/articles/4002969-create-store-credit-loyalty-workflowsCustom-triggers)
+
+
+      [Custom-triggers](https://help.rise.ai/en/articles/6541343-custom-triggers)
+      are offering developers and tech partners the opportunity to extend
+      workflow triggers to endless use-cases. All that is required is to setup
+      the custom-trigger on your dashboard and integrate the HTTP request like
+      described below.
+paths:
+  /v2/gift-cards/:
+    get:
+      tags:
+        - Credit API
+      summary: Get Customer Loyalty Card
+      description: Retrieves the Loyalty Card of the provided customer.
+      parameters:
+        - name: x-rise-access-token
+          in: header
+          schema:
+            type: string
+          description: Rise.ai API access token
+          example: XXXX-XXXX-XXXX-XXXX
+        - name: customer_id
+          in: query
+          schema:
+            type: integer
+          description: The Shopify Customer Id
+          example: '123456789'
+        - name: shop_url
+          in: query
+          schema:
+            type: string
+          description: The Shopify shop domain
+          example: amazingshop.myshopify.com
+      responses:
+        # TODO Confirm that this is 200
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                amount: 10
+                gift_card_id: AAAA-AAAA-AAAA-AAAA
+                expires_on: 01/01/2028
+                code: xxxxxxxxxxxxxxxx
+  /v2/gift-cards/issue/:
+    post:
+      tags:
+        - Credit API
+      summary: Issue Gift Card
+      description: |
+        Creates & Send a Gift Card.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                gift_card:
+                  balance: 100
+                  note: ''
+                email_details:
+                  recipient: recipientName
+                  title: Cool mail
+                  subject: Hello this is a reason giftcard
+                  body: This is some reason I give you a gift card
+                  recipient_email: ' happy_customer@gmail.com '
+      parameters:
+        - name: x-rise-access-token
+          in: header
+          schema:
+            type: string
+          description: Rise.ai API access token
+          example: XXXX-XXXX-XXXX-XXXX
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: shop_url
+          in: query
+          schema:
+            type: string
+          description: The Shopify shop domain
+          example: amazingshop.myshopify.com
+      responses:
+        # TODO Confirm that this is 200
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                gift_card:
+                  gift_card_id: AAAA-AAAA-AAAA-AAAA
+                  balance: 100
+                  initial_value: 100
+                  expires_on: 01/01/2028
+                  code: xxxxxxxxxxxxxxxx
+  /v2/gift-cards/AAAA-AAAA-AAAA-AAAA:
+    put:
+      tags:
+        - Credit API
+      summary: Adjust Gift Card Balance
+      description: |-
+        Adjust the balance of an existing Gift Card.
+
+        Adjustment type can be either "order" or "refund".
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                amount: 10
+                type: order/refund
+                order_id: '1234567890'
+      parameters:
+        - name: x-rise-access-token
+          in: header
+          schema:
+            type: string
+          description: Rise.ai API access token
+          example: XXXX-XXXX-XXXX-XXXX
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: shop_url
+          in: query
+          schema:
+            type: string
+          description: The Shopify shop domain
+          example: amazingshop.myshopify.com
+      responses:
+        # TODO Confirm that this is 200
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                gift_card:
+                  gift_card_id: AAAA-AAAA-AAAA-AAAA
+                  balance: 90
+                  expires_on: 01/01/2028
+                  code: xxxxxxxxxxxxxxxx
+  /integrations/inbound/gifting/session:
+    post:
+      tags:
+        - Gifting API > API Reference > Session
+      summary: Init  Gifting Session
+      requestBody:
+        content: {}
+      parameters:
+        - name: x-rise-gifting-api-key
+          in: header
+          schema:
+            type: string
+          description: Rise.ai API access token
+          example: XXXX-XXXX-XXXX-XXXX
+      responses:
+        '201':
+          description: Created
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Mon, 12 Apr 2021 11:22:57 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '57'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: '*'
+            ETag:
+              schema:
+                type: string
+                example: W/"39-UduJsuiRwUla5WV/HNYSaoHTbxQ"
+            Set-Cookie:
+              schema:
+                type: string
+                example: >-
+                  rise_gifting_session=j%3A%7B%22session%22%3A%7B%22id%22%3A%22d50c6478-2095-47f6-89a6-a2754e64d254%22%7D%7D;
+                  Path=/; Expires=Mon, 26 Apr 2021 11:22:57 GMT; Secure
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            X-Rise-Api-Bucket-Consumed:
+              schema:
+                type: integer
+                example: '1'
+            X-Rise-Api-Bucket-Limit:
+              schema:
+                type: integer
+                example: '40'
+            CF-Cache-Status:
+              schema:
+                type: string
+                example: DYNAMIC
+            cf-request-id:
+              schema:
+                type: string
+                example: 09676b17b9000040ea98a14000000001
+            Expect-CT:
+              schema:
+                type: string
+                example: >-
+                  max-age=604800,
+                  report-uri="https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct"
+            Report-To:
+              schema:
+                type: string
+                example: >-
+                  {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report?s=5dYldKeYj5sV5WA%2BW%2BdetjlONwYQ4NihyCFt%2FWTNdufn1Civj8ub3zW8ydibUQlLqJb%2Bw3Fg3CJ0mxY7aungHRrY2TehsvmKiigmPTs0QXSl5U8hQDwzjT7QnmhzAA%3D%3D"}]}
+            NEL:
+              schema:
+                type: string
+                example: '{"report_to":"cf-nel","max_age":604800}'
+            Server:
+              schema:
+                type: string
+                example: cloudflare
+            CF-RAY:
+              schema:
+                type: string
+                example: 63ec146c5f5940ea-LHR
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                session:
+                  id: d50c6478-2095-47f6-89a6-a2754e64d254
+  /integrations/inbound/gifting/session/{session_id}:
+    get:
+      tags:
+        - Gifting API > API Reference > Session
+      summary: Get Session
+      parameters:
+        - name: x-rise-gifting-api-key
+          in: header
+          schema:
+            type: string
+          description: Rise.ai API access token
+          example: XXXX-XXXX-XXXX-XXXX
+        - name: shop_url
+          in: query
+          schema:
+            type: string
+          description: The Shopify shop domain
+          example: amazingshop.myshopify.com
+        - name: session_id
+          in: path
+          schema:
+            type: string
+          required: true
+          description: The recevied session id
+          example: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+      responses:
+        '200':
+          description: OK
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Mon, 12 Apr 2021 13:00:36 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Transfer-Encoding:
+              schema:
+                type: string
+                example: chunked
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: '*'
+            ETag:
+              schema:
+                type: string
+                example: W/"26e-a/smcUToUnUWWMF2pnTdXx53oNA"
+            Vary:
+              schema:
+                type: string
+                example: Accept-Encoding
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            X-Rise-Api-Bucket-Consumed:
+              schema:
+                type: integer
+                example: '1'
+            X-Rise-Api-Bucket-Limit:
+              schema:
+                type: integer
+                example: '40'
+            CF-Cache-Status:
+              schema:
+                type: string
+                example: DYNAMIC
+            cf-request-id:
+              schema:
+                type: string
+                example: 0967c47f1a000040ccbda60000000001
+            Expect-CT:
+              schema:
+                type: string
+                example: >-
+                  max-age=604800,
+                  report-uri="https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct"
+            Report-To:
+              schema:
+                type: string
+                example: >-
+                  {"group":"cf-nel","endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report?s=%2Fm%2FNDGisezXpL%2F%2B6mnlkbuipdOwP2fgX5IMeHfSbP%2Fg68ucmXZqkBAFqYAhGeQN%2FlHw8upSnDO2ILiD%2BPlrsAXXMbljgJadYGOqt97g3d0Fb0274xo%2FnjFSb1ZzUwA%3D%3D"}],"max_age":604800}
+            NEL:
+              schema:
+                type: string
+                example: '{"max_age":604800,"report_to":"cf-nel"}'
+            Server:
+              schema:
+                type: string
+                example: cloudflare
+            CF-RAY:
+              schema:
+                type: string
+                example: 63eca3782d6340cc-LHR
+            Content-Encoding:
+              schema:
+                type: string
+                example: br
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                session:
+                  id: d50c6478-2095-47f6-89a6-a2754e64d254
+                  gifts:
+                    - id: 424941699
+                      value: 50
+                      name: Uri
+                      email: uri@rise.ai
+                      message: Uri U'r amazing, Love u ;)
+                      sending_method: email
+                      image: >-
+                        https://assets.rise-ai.com/static/02b2b9cf1ed84edb8fa64cb1799fdd346865793278584a72bbb81d3fb951d413.jpg
+                      send_at: '2021-03-04T12:43:10.000Z'
+                    - id: 514063805
+                      value: 100
+                      name: Adi
+                      email: adi@rise.ai
+                      message: Adi U'r amazing, Love u ;)
+                      sending_method: email
+                      image: >-
+                        https://assets.rise-ai.com/static/02b2b9cf1ed84edb8fa64cb1799fdd346865793278584a72bbb81d3fb951d413.jpg
+                      send_at: '2021-03-04T12:43:10.000Z'
+    post:
+      tags:
+        - Gifting API > API Reference > Gift
+      summary: Create Gift
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                gift:
+                  value: 100
+                  name: Adi
+                  email: adi@rise.ai
+                  message: Adi U'r amazing, Love u ;)
+                  sending_method: email
+                  image: >-
+                    https://assets.rise-ai.com/static/02b2b9cf1ed84edb8fa64cb1799fdd346865793278584a72bbb81d3fb951d413.jpg
+                  send_at: '2021-03-04T12:43:10.000Z'
+      parameters:
+        - name: x-rise-gifting-api-key
+          in: header
+          schema:
+            type: string
+          description: Rise.ai API access token
+          example: XXXX-XXXX-XXXX-XXXX
+        - name: shop_url
+          in: query
+          schema:
+            type: string
+          description: The Shopify shop domain
+          example: amazingshop.myshopify.com
+        - name: session_id
+          in: path
+          schema:
+            type: string
+          required: true
+          description: The recevied session id
+          example: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+      responses:
+        '201':
+          description: Created
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Mon, 12 Apr 2021 11:26:49 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '285'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: '*'
+            ETag:
+              schema:
+                type: string
+                example: W/"11d-NjHuFiGp8WzI/ci5nUq6vXLURz4"
+            Set-Cookie:
+              schema:
+                type: string
+                example: >-
+                  rise_gifting_session=j%3A%7B%22session%22%3A%7B%22id%22%3A%22d50c6478-2095-47f6-89a6-a2754e64d254%22%7D%7D;
+                  Path=/; Expires=Mon, 26 Apr 2021 11:26:49 GMT; Secure
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            X-Rise-Api-Bucket-Consumed:
+              schema:
+                type: integer
+                example: '1'
+            X-Rise-Api-Bucket-Limit:
+              schema:
+                type: integer
+                example: '40'
+            CF-Cache-Status:
+              schema:
+                type: string
+                example: DYNAMIC
+            cf-request-id:
+              schema:
+                type: string
+                example: 09676ea149000040ead910c000000001
+            Expect-CT:
+              schema:
+                type: string
+                example: >-
+                  max-age=604800,
+                  report-uri="https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct"
+            Report-To:
+              schema:
+                type: string
+                example: >-
+                  {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report?s=KyL9hn%2BQFMmubNw5cqXNvoQb2UQM%2B4GkuiiDOYClc3X6jV5HgSRYU8GyB5KwIpjCpQ5sAVUb8gcLnzw1W6Iwj%2BNI4GlfYv5VTOB4in36m0CU%2FDNFudjli9Bmk7itKA%3D%3D"}]}
+            NEL:
+              schema:
+                type: string
+                example: '{"report_to":"cf-nel","max_age":604800}'
+            Server:
+              schema:
+                type: string
+                example: cloudflare
+            CF-RAY:
+              schema:
+                type: string
+                example: 63ec1a154b9140ea-LHR
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                gift:
+                  id: 950146482
+                  value: 50
+                  name: Uri
+                  email: uri@rise.ai
+                  message: Uri U'r amazing, Love u ;)
+                  sending_method: email
+                  image: >-
+                    https://assets.rise-ai.com/static/02b2b9cf1ed84edb8fa64cb1799fdd346865793278584a72bbb81d3fb951d413.jpg
+                  send_at: '2021-03-04T12:43:10.000Z'
+  /integrations/inbound/gifting/session/{session_id}/completed:
+    post:
+      tags:
+        - Gifting API > API Reference > Session
+      summary: Session Completed
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                order_id: ' PLATFORM_ORDER_ID '
+      parameters:
+        - name: x-rise-gifting-api-key
+          in: header
+          schema:
+            type: string
+          description: Rise.ai API access token
+          example: XXXX-XXXX-XXXX-XXXX
+        - name: shop_url
+          in: query
+          schema:
+            type: string
+          description: The Shopify shop domain
+          example: amazingshop.myshopify.com
+        - name: session_id
+          in: path
+          schema:
+            type: string
+          required: true
+          description: The recevied session id
+          example: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /integrations/inbound/gifting/session/{session_id}/gift/{gift_id}:
+    put:
+      tags:
+        - Gifting API > API Reference > Gift
+      summary: Update Gift
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                gift:
+                  value: 125
+                  name: Adi
+                  sending_method: sms
+                  send_at: '2021-03-15T18:00:00.000Z'
+      parameters:
+        - name: x-rise-gifting-api-key
+          in: header
+          schema:
+            type: string
+          description: Rise.ai API access token
+          example: XXXX-XXXX-XXXX-XXXX
+        - name: shop_url
+          in: query
+          schema:
+            type: string
+          description: The Shopify shop domain
+          example: amazingshop.myshopify.com
+        - name: session_id
+          in: path
+          schema:
+            type: string
+          required: true
+          description: The recevied session id
+          example: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+        - name: gift_id
+          in: path
+          schema:
+            type: integer
+          required: true
+          description: The gift id
+          example: '12345678901234'
+      responses:
+        '200':
+          description: OK
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Mon, 12 Apr 2021 11:29:29 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Transfer-Encoding:
+              schema:
+                type: string
+                example: chunked
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: '*'
+            ETag:
+              schema:
+                type: string
+                example: W/"11c-GzTpt0PukyDeWs5kE6iMYoj3FVk"
+            Set-Cookie:
+              schema:
+                type: string
+                example: >-
+                  rise_gifting_session=j%3A%7B%22session%22%3A%7B%22id%22%3A%22d50c6478-2095-47f6-89a6-a2754e64d254%22%7D%7D;
+                  Path=/; Expires=Mon, 26 Apr 2021 11:29:29 GMT; Secure
+            Vary:
+              schema:
+                type: string
+                example: Accept-Encoding
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            X-Rise-Api-Bucket-Consumed:
+              schema:
+                type: integer
+                example: '1'
+            X-Rise-Api-Bucket-Limit:
+              schema:
+                type: integer
+                example: '40'
+            CF-Cache-Status:
+              schema:
+                type: string
+                example: DYNAMIC
+            cf-request-id:
+              schema:
+                type: string
+                example: 096771131e000040eab8b05000000001
+            Expect-CT:
+              schema:
+                type: string
+                example: >-
+                  max-age=604800,
+                  report-uri="https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct"
+            Report-To:
+              schema:
+                type: string
+                example: >-
+                  {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report?s=P5%2BNVD%2BfnoAkRlq0v1fsBfE9pExnFLGuV3ykSKLYi3cFpc%2BPceGonRhYagLJ5%2FaAkunffokhV9NIAq%2BKVZKQiai%2F3kvYED%2FpkiDCDvecIRQMsmnVoepcGbGUDFAt6Q%3D%3D"}]}
+            NEL:
+              schema:
+                type: string
+                example: '{"report_to":"cf-nel","max_age":604800}'
+            Server:
+              schema:
+                type: string
+                example: cloudflare
+            CF-RAY:
+              schema:
+                type: string
+                example: 63ec1dfe9a1540ea-LHR
+            Content-Encoding:
+              schema:
+                type: string
+                example: br
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                gift:
+                  id: 950146482
+                  value: 125
+                  name: Adi
+                  email: uri@rise.ai
+                  message: Uri U'r amazing, Love u ;)
+                  sending_method: sms
+                  image: >-
+                    https://assets.rise-ai.com/static/02b2b9cf1ed84edb8fa64cb1799fdd346865793278584a72bbb81d3fb951d413.jpg
+                  send_at: '2021-03-15T18:00:00.000Z'
+    delete:
+      tags:
+        - Gifting API > API Reference > Gift
+      summary: Delete Gift
+      parameters:
+        - name: x-rise-gifting-api-key
+          in: header
+          schema:
+            type: string
+          description: Rise.ai API access token
+          example: XXXX-XXXX-XXXX-XXXX
+        - name: shop_url
+          in: query
+          schema:
+            type: string
+          description: The Shopify shop domain
+          example: amazingshop.myshopify.com
+        - name: session_id
+          in: path
+          schema:
+            type: string
+          required: true
+          description: The recevied session id
+          example: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+        - name: gift_id
+          in: path
+          schema:
+            type: integer
+          required: true
+          description: The gift id
+          example: '12345678901234'
+      responses:
+        '200':
+          description: OK
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Mon, 12 Apr 2021 11:31:25 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: text/plain; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '2'
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: '*'
+            ETag:
+              schema:
+                type: string
+                example: W/"2-nOO9QiTIwXgNtWtBJezz8kv3SLc"
+            Set-Cookie:
+              schema:
+                type: string
+                example: >-
+                  rise_gifting_session=j%3A%7B%22session%22%3A%7B%22id%22%3A%22d50c6478-2095-47f6-89a6-a2754e64d254%22%7D%7D;
+                  Path=/; Expires=Mon, 26 Apr 2021 11:31:25 GMT; Secure
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            X-Rise-Api-Bucket-Consumed:
+              schema:
+                type: integer
+                example: '1'
+            X-Rise-Api-Bucket-Limit:
+              schema:
+                type: integer
+                example: '40'
+            CF-Cache-Status:
+              schema:
+                type: string
+                example: DYNAMIC
+            cf-request-id:
+              schema:
+                type: string
+                example: 096772d8c3000040eadd331000000001
+            Expect-CT:
+              schema:
+                type: string
+                example: >-
+                  max-age=604800,
+                  report-uri="https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct"
+            Report-To:
+              schema:
+                type: string
+                example: >-
+                  {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report?s=zWKLnwRpEG7fzVor7BGU23FYboH7gRgjtyalYyH58aNbUVkYWK4ozU5hLea1EN4g4gJIIHIlwhNRh3lHHYj0Db2D8tfD8zYmCRJSqtYDlsW8RZ%2BLMBivWjoVG6Bunw%3D%3D"}]}
+            NEL:
+              schema:
+                type: string
+                example: '{"report_to":"cf-nel","max_age":604800}'
+            Server:
+              schema:
+                type: string
+                example: cloudflare
+            CF-RAY:
+              schema:
+                type: string
+                example: 63ec20d46f1a40ea-LHR
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: OK
+  /integrations/inbound/gifting/assets:
+    get:
+      tags:
+        - Gifting API > API Reference
+      summary: Get Assets
+      description: |-
+        GET all images selected for the "pop-up" asset. 
+        Images are selected through the Rise.ai dashboard.
+      parameters:
+        - name: x-rise-access-token
+          in: header
+          schema:
+            type: string
+          description: Rise.ai API access token
+          example: XXXX-XXXX-XXXX-XXXX
+        - name: shop_url
+          in: query
+          schema:
+            type: string
+          description: The Shopify shop domain
+          example: amazingshop.myshopify.com
+      responses:
+        '200':
+          description: OK
+          headers:
+            Date:
+              schema:
+                type: string
+                example: Sun, 21 Mar 2021 12:16:56 GMT
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Transfer-Encoding:
+              schema:
+                type: string
+                example: chunked
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: '*'
+            ETag:
+              schema:
+                type: string
+                example: W/"8d-uBofTJluAYV0a5jI8HQ8/oz6F2s"
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            CF-Cache-Status:
+              schema:
+                type: string
+                example: DYNAMIC
+            cf-request-id:
+              schema:
+                type: string
+                example: 08f650999d000053f17c9da000000001
+            Expect-CT:
+              schema:
+                type: string
+                example: >-
+                  max-age=604800,
+                  report-uri="https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct"
+            Report-To:
+              schema:
+                type: string
+                example: >-
+                  {"group":"cf-nel","endpoints":[{"url":"https:\/\/a.nel.cloudflare.com\/report?s=cG8y%2BmxL6Sg%2BbU6vlF8sedKeFtaniqLAR2%2FiZG4TQrxkzJutQjJubygPsXGAfQte8dv2DdT6VEUK0XEXocVWF42rJlU7hubSElMpdf3U9fbiOTKPUWItCprpxrYHPw%3D%3D"}],"max_age":604800}
+            NEL:
+              schema:
+                type: string
+                example: '{"max_age":604800,"report_to":"cf-nel"}'
+            Server:
+              schema:
+                type: string
+                example: cloudflare
+            CF-RAY:
+              schema:
+                type: string
+                example: 63371d3c2cba53f1-LHR
+            Content-Encoding:
+              schema:
+                type: string
+                example: br
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                assets:
+                  gallery_images_urls:
+                    - >-
+                      https://assets.rise-ai.com/static/02b2b9cf1ed84edb8fa64cb1799fdd346865793278584a72bbb81d3fb951d413.jpg
+  /triggers:
+    post:
+      tags:
+        - Workflows custom-trigger api
+      summary: Create Custom Trigger - Tech partner
+      description: >-
+        Create a Custom Trigger as a tech partner.
+
+
+        Every tech partner will be provided with a client_id and client_secret
+        (that will be saved in our DB.)
+
+
+        - Use **client_id** in the request payload. The Custom Trigger itself
+        should be sent under **scheme**.
+
+        - In order to generate **encoded_shop_url**, use your client_secret as a
+        JWT secret, in order to encode a json of the form `{"shop_url":
+        "amazingshop.myshopify.com"}`. The JWT value should be used as the
+        Bearer token in the Authorization header. **Make sure to encode the same
+        shop url as the one you put in the request's query param**
+
+        - You are limited to creating 1 Trigger per shop URL.
+            
+
+        Trigger Scheme guidelines:
+
+
+        - `meta` - An object containing some general info about the trigger:
+        `title` and `description`
+
+        - `variables` - A list of the Trigger's fields, defined by 3 properties
+            - `title` - A display name of the variable
+            - `type` - Defines the allowed value of the variable. It can be one of: `'Boolean', 'Float', 'Date', 'CommaSeparatedString', 'String', 'Email'`
+                - **A valid trigger must contain exactly 1 Email field**, as this will be used as a recipient when issuing store credit.
+            - `path` - The exact path to the variable, as it's defined in the structure that will be sent to Rise's Trigger system
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                client_id: your_client_id
+                scheme:
+                  variables:
+                    - path: customer_email
+                      type: Email
+                      title: Customer Email
+                  meta:
+                    title: Tech Partner Trigger
+                    description: >-
+                      This is an example of a Custom Trigger made by a Tech
+                      Partner
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          description: >-
+            In order to generate access token, use client_secret as explained in
+            the method guidelines
+          example: Bearer encoded_shop_url
+        - name: shop_url
+          in: query
+          schema:
+            type: string
+          description: The shop URL for which the trigger should be created
+          example: amazingshop.myshopify.com
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /execute/{trigger_id}:
+    post:
+      tags:
+        - Workflows custom-trigger api
+      summary: Custom Trigger Execution Example
+      description: >-
+        Initiates a custom trigger, and processes it upon any using workflows.
+
+
+        In order for a trigger to be processed, the request payload must match
+        the Trigger's scheme.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                customer_email: example@email.com
+                first_name: example
+      parameters:
+        - name: trigger_id
+          in: path
+          schema:
+            type: string
+          required: true
+          description: The trigger ID as received from the server upon creation
+          example: 4e6e96a2-f7be-4b83-8015-00f9bae4a92f
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
