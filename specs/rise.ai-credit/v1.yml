@@ -1,0 +1,414 @@
+openapi: 3.0.0
+info:
+  title: Rise.ai API Documentation
+  description: >-
+    Rise.ai API was built to help you make complicated Gift Card & Credit
+    integrations easy - from Point of Sales to advanced 3rd party integrations.
+  version: 1.0.0
+servers:
+  - url: https://application.rise-ai.com
+  - url: https://workflows.rise-ai.com
+components:
+  parameters:
+    content-type:
+      name: Content-Type
+      in: header
+      schema:
+        type: string
+      example: application/json
+    shop-url:
+      name: shop_url
+      in: query
+      schema:
+        type: string
+      required: true
+      description: The Shopify shop domain
+      example: amazingshop.myshopify.com
+  securitySchemes:
+    rise-access-token:
+      name: x-rise-access-token
+      type: apiKey
+      in: header
+      description: Rise.ai API access token
+security:
+  - rise-access-token: []
+tags:
+  - name: How to start?
+    description: >-
+      In order to start using the API you'll need to receive your
+      `access_token`. Send an email to `dev@rise.ai` / your dedicated account
+      manager and we will assist you.
+
+
+      ## Rate limit
+
+
+      Apps can make requests at a maximum rate of **2 requests/second**.  
+
+      any requests exceeding this limit will result in `429 Too Many Requests`
+      error
+
+
+      ## Support
+
+
+      Contact our developers support at `dev@rise.ai`
+  - name: Credit API
+    description: Rise.ai API allows you to Issue, Get & Adjust Gift Cards and Loyalty Cards
+  - name: Gifting API
+    description: "<p>The REST Gifting API allows you to create your own custom front end gifting modules as well as enable gift selling on whatever platform your store is based on (as long as you use the Shopify checkout). With the Gifting API you will no longer be limited to the<a href=\"https://rise.ai/solutions/gift-cards\">native Rise.ai modules</a>.</p>\n\nIn order to start using this API you'll need to receive your\_`gifting_api_key`. Send an email to\_`dev@rise.ai`\_/ your dedicated account manager and we will assist you."
+  - name: Gifting API > Developer Guide
+    description: >-
+      ## Terms
+
+      | Term          | Definition    |
+
+      | ------------- | ------------- | 
+
+      | Session       | Represents a customer's single `gifting_session` at your
+      site. Composed of a session `id` and an array of gifts. |
+
+      | Gift          | A gift card sent as a gift |
+
+      | Developer     | You guys      | 
+
+      | Buyer         | The person purchasing the gift card | 
+
+      | Recipient     | Person receiving the gift | 
+
+
+      <p>&nbsp;</p>
+
+
+      ***
+
+
+      <p>&nbsp;</p>
+
+
+      ## Implementation
+
+      Upon the entrance of a buyer to the <a
+      href="https://tiny-thorns.myshopify.com/products/rise-ai-giftcard-1"
+      target="_blank">gift card page</a>, you should
+      [create](https://documenter.getpostman.com/view/10073572/Tz5wWE8g#fd918b24-8cad-4301-80e9-4a254a654a3a)
+      a session.
+
+
+      A Session id is saved on a cookie called `rise_gifting_session`. This
+      cookie will be saved for 14 days.
+
+      Use the session id (saved on the cookie) for all requests for this
+      customer while the cookie is still available.
+
+      The cookie’s expiration date will reset each time there is a request to
+      the gifting API.
+
+
+      Once the buyer adds a gift to the cart, the developer must
+      [create](https://documenter.getpostman.com/view/10073572/Tz5wWE8g#927b2625-0307-49c4-b4b7-8c40c1042a03)
+      the gift at Rise.ai via the API. The response will return a gift object.
+
+
+      <p>&nbsp;</p>
+
+      <p>&nbsp;</p>
+
+
+      ## Adding Gift Id To The Line Items Properties
+
+
+      <p>&nbsp;</p>
+
+
+      #### Shopify
+
+      Once the `gift` is created, the gift id must be added to the cart's
+      line-items.
+
+      On Shopify, use the
+      [cart](https://shopify.dev/docs/themes/ajax-api/reference/cart#post-cart-add-js)
+      API.
+
+
+      We expect the id's line item property name to be `_id`.
+
+      The line_items properties on the order should be as followed.
+
+
+      ```json
+       properties: [
+           {
+               name: "_id",
+               value: "598983651"
+           }
+       ]
+      ```
+
+
+
+      #### Other
+
+      If you are not using Shopify, make sure that the gift id is added to the
+      order line-item properties at the initial creation of the order.
+
+
+      <p>&nbsp;</p>
+
+      <p>&nbsp;</p>
+
+
+      ## Completed Session
+
+
+      Once a checkout is completed, the developer must send a
+      [session-completed](https://documenter.getpostman.com/view/10073572/Tz5wWE8g#e1735d60-818c-44d7-8ff2-6881b6a3bb75)
+      request. The session will be processed and the gift cards will be created.
+
+      This request must be made immediately after the checkout complete event in
+      order to avoid gift card sending issues.
+
+
+
+      <p>&nbsp;</p>
+
+
+      #### Shopify
+
+
+      After the orders/paid webhook is received, the gift cards will be sent.
+  - name: Gifting API > API Reference
+  - name: Gifting API > API Reference > Session
+  - name: Gifting API > API Reference > Gift
+  - name: Workflows custom-trigger api
+    description: >-
+      Loyalty workflows are the easiet way to offer store-credit rewards to your
+      loyal customers. Workflows are highly customizable and can serve any
+      re-engagement purpose you require. You can read more about workflows here:
+      [https://help.rise.ai/en/articles/4002969-create-store-credit-loyalty-workflows](https://help.rise.ai/en/articles/4002969-create-store-credit-loyalty-workflowsCustom-triggers)
+
+
+      [Custom-triggers](https://help.rise.ai/en/articles/6541343-custom-triggers)
+      are offering developers and tech partners the opportunity to extend
+      workflow triggers to endless use-cases. All that is required is to setup
+      the custom-trigger on your dashboard and integrate the HTTP request like
+      described below.
+paths:
+  /gift-cards/:
+    get:
+      operationId: getGift Card
+      tags:
+        - Credit API
+      summary: Get Customer Loyalty Card or Gift Card
+      description: Retrieves the Loyalty Card or Gift Card of the provided customer.
+      security: 
+        - rise-access-token: []
+      parameters:
+        # Required to get customer loyalty card
+        - name: customer_id
+          in: query
+          schema:
+            # Using string since it goes above max graphql int size
+            type: string
+          description: The Shopify Customer Id
+          example: '123456789'
+        # Required to get gift card
+        - name: code
+          in: query
+          schema:
+            type: string
+          description: The Gift Card actual code
+          example: XXXXXXXXXXXXXXXX
+        - $ref: '#/components/parameters/shop-url'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  amount:
+                    type: number
+                  gift_card_id:
+                    type: string
+                  expires_on:
+                    type: string
+                    nullable: true
+                  code:
+                    type: string
+              example:
+                amount: 10
+                gift_card_id: AAAA-AAAA-AAAA-AAAA
+                expires_on: 01/01/2028
+                code: xxxxxxxxxxxxxxxx
+  /gift-cards/issue/:
+    post:
+      operationId: issueGiftCard
+      tags:
+        - Credit API
+      summary: Issue Gift Card
+      description: |
+        Creates & Send a Gift Card.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                gift_card:
+                  type: object
+                  properties:
+                    balance:
+                      type: number
+                    note:
+                      type: string
+                  required: [balance]
+                email_details:
+                  type: object
+                  properties:
+                    recipient:
+                      type: string
+                    title:
+                      type: string
+                    subject:
+                      type: string
+                    body:
+                      type: string
+                    recipient_email:
+                      type: string
+              required: [gift_card, email_details]
+              example:
+                gift_card:
+                  balance: 100
+                  note: ''
+                email_details:
+                  recipient: recipientName
+                  title: Cool mail
+                  subject: Hello this is a reason giftcard
+                  body: This is some reason I give you a gift card
+                  recipient_email: ' happy_customer@gmail.com '
+      security: 
+        - rise-access-token: []
+      parameters:
+        - $ref: '#/components/parameters/content-type'
+        - $ref: '#/components/parameters/shop-url'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  gift_card:
+                    type: object
+                    properties: 
+                      collections:
+                        type: array
+                        items:
+                          type: string
+                      created_at:
+                        type: string
+                      gift_card_id:
+                        type: string
+                      id:
+                        type: string
+                      balance:
+                        type: number
+                      initial_value:
+                        type: number
+                      expires_on:
+                        type: string
+                        nullable: true
+                      code:
+                        type: string
+                      gift_card_source:
+                        type: string
+                      platform:
+                        type: string
+                      notified:
+                        type: number
+                      customer_email:
+                        type: string
+                      customer_name:
+                        type: string
+                      customer_id:
+                        type: string
+                        nullable: true
+                      shopify_gift_card_id:
+                        type: string
+                      gift_card_type:
+                        type: string
+                      shop_url:
+                        type: string
+                      updated_at:
+                        type: string
+              example:
+                gift_card:
+                  gift_card_id: AAAA-AAAA-AAAA-AAAA
+                  balance: 100
+                  initial_value: 100
+                  expires_on: 01/01/2028
+                  code: xxxxxxxxxxxxxxxx
+  /gift-cards/{card}:
+    put:
+      operationId: adjustGiftCardBalance
+      tags:
+        - Credit API
+      summary: Adjust Gift Card Balance
+      description: |-
+        Adjust the balance of an existing Gift Card.
+
+        Adjustment type can be either "order" or "refund".
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: number
+                type:
+                  type: string
+                order_id:
+                  type: string
+              example:
+                amount: 10
+                type: order/refund
+                order_id: '1234567890'
+      security: 
+        - rise-access-token: []
+      parameters:
+        - name: card
+          in: path
+          description: Card Number
+          schema:
+            type: string
+          required: true
+        - $ref: '#/components/parameters/content-type'
+        - $ref: '#/components/parameters/shop-url'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  gift_card_id:
+                    type: string
+                  balance:
+                    type: number
+                  expires_on:
+                    type: string
+                  code:
+                    type: string
+              example:
+                gift_card:
+                  gift_card_id: AAAA-AAAA-AAAA-AAAA
+                  balance: 90
+                  expires_on: 01/01/2028
+                  code: xxxxxxxxxxxxxxxx
