@@ -263,7 +263,7 @@ paths:
                   initial_value: 100
                   expires_on: 01/01/2028
                   code: xxxxxxxxxxxxxxxx
-  /v2/gift-cards/AAAA-AAAA-AAAA-AAAA:
+  /v2/gift-cards/{card}:
     put:
       tags:
         - Credit API
@@ -282,6 +282,12 @@ paths:
                 type: order/refund
                 order_id: '1234567890'
       parameters:
+        - name: card
+          in: path
+          description: Card Number
+          schema:
+            type: string
+          required: true
         - name: x-rise-access-token
           in: header
           schema:
