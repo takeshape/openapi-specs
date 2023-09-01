@@ -3941,7 +3941,6 @@ paths:
             schema:
               type: object
               required:
-                - utoken
                 - answer
               properties:
                 answer:
