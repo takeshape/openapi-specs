@@ -11,8 +11,15 @@ components:
       in: header
       name: Authorization
       x-bearer-format: bearer
+    shop-token:
+      type: apiKey
+      in: header
+      name: X-Postscript-Shop-Token
+      description: Shop API Token. **Required for partners**. This header should be used *only* by partners. Shops should include their API token in the *Authorization* header.
 security:
   - sec0: []
+  - sec0: []
+    shop-token: []
 paths:
   /api/v2/keywords/{id}:
     get:
@@ -26,11 +33,6 @@ paths:
           schema:
             type: string
           required: true
-        - name: X-Postscript-Shop-Token
-          in: header
-          description: Shop API Token. **Required for partners**. This header should be used *only* by partners. Shops should include their API token in the *Authorization* header.
-          schema:
-            type: string
       responses:
         '200':
           description: '200'
@@ -97,12 +99,6 @@ paths:
       summary: Get Keywords
       description: Get a list of all active keywords for a shop.
       operationId: get-keywords
-      parameters:
-        - name: X-Postscript-Shop-Token
-          in: header
-          description: Shop API Token. **Required for partners**. This header should be used *only* by partners. Shops should include their API token in the *Authorization* header.
-          schema:
-            type: string
       responses:
         '200':
           description: '200'
@@ -173,11 +169,6 @@ paths:
           schema:
             type: string
           required: true
-        - name: X-Postscript-Shop-Token
-          in: header
-          description: Shop API Token. **Required for partners**. This header should be used *only* by partners. Shops should include their API token in the *Authorization* header.
-          schema:
-            type: string
       requestBody:
         required: true
         content:
@@ -222,11 +213,6 @@ paths:
       description: Get an individual subscriber for a shop.
       operationId: get-subscriber
       parameters:
-        - name: X-Postscript-Shop-Token
-          in: header
-          description: Shop API Token. **Required for partners**. This header should be used *only* by partners. Shops should include their API token in the *Authorization* header.
-          schema:
-            type: string
         - name: id
           in: path
           description: The ID for the subscriber you'd like to get.
@@ -257,12 +243,6 @@ paths:
       summary: Create Subscriber
       description: Create a single subscriber.
       operationId: create-subscriber
-      parameters:
-        - name: X-Postscript-Shop-Token
-          in: header
-          description: Shop API Token. **Required for partners**. This header should be used *only* by partners. Shops should include their API token in the *Authorization* header.
-          schema:
-            type: string
       requestBody:
         required: true
         content:
@@ -457,11 +437,6 @@ paths:
           schema:
             type: string
             format: date
-        - name: X-Postscript-Shop-Token
-          in: header
-          description: Shop API Token. **Required for partners**. This header should be used *only* by partners. Shops should include their API token in the *Authorization* header.
-          schema:
-            type: string
       responses:
         '200':
           description: '200'
@@ -486,12 +461,6 @@ paths:
       summary: Send Message
       description: Send a message to a subscriber.
       operationId: create-message
-      parameters:
-        - name: X-Postscript-Shop-Token
-          in: header
-          description: Shop API Token. **Required for partners**. This header should be used *only* by partners. Shops should include their API token in the *Authorization* header.
-          schema:
-            type: string
       requestBody:
         content:
           application/json:
@@ -643,11 +612,6 @@ paths:
       summary: Verify Identity
       description: ''
       operationId: verify-identity
-      parameters:
-        - name: X-Postscript-Shop-Token
-          in: header
-          schema:
-            type: string
       responses:
         '200':
           description: '200'
@@ -720,12 +684,6 @@ paths:
       summary: Test Shop Webhook
       description: ''
       operationId: test-shop-webhook
-      parameters:
-        - name: X-Postscript-Shop-Token
-          in: header
-          description: Shop API Token. **Required for partners**. This header should be used *only* by partners. Shops should include their API token in the *Authorization* header.
-          schema:
-            type: string
       requestBody:
         content:
           application/json:
@@ -815,11 +773,6 @@ paths:
           schema:
             type: string
           required: true
-        - name: X-Postscript-Shop-Token
-          in: header
-          description: Shop API Token. **Required for partners**. This header should be used *only* by partners. Shops should include their API token in the *Authorization* header.
-          schema:
-            type: string
       responses:
         '200':
           description: '200'
@@ -935,11 +888,6 @@ paths:
           schema:
             type: string
           required: true
-        - name: X-Postscript-Shop-Token
-          in: header
-          description: Shop API Token. **Required for partners**. This header should be used *only* by partners. Shops should include their API token in the *Authorization* header.
-          schema:
-            type: string
       responses:
         '200':
           description: '200'
@@ -1033,12 +981,6 @@ paths:
       summary: Create Webhook Subscription
       description: ''
       operationId: create-webhook-subscription
-      parameters:
-        - name: X-Postscript-Shop-Token
-          in: header
-          description: Shop API Token. **Required for partners**. This header should be used only by partners. Shops should include their API token in the *Authorization* header.
-          schema:
-            type: string
       requestBody:
         required: true
         content:
@@ -1097,12 +1039,6 @@ paths:
       summary: List Webhook Subscriptions
       description: ''
       operationId: list-webhook-subscriptions
-      parameters:
-        - name: X-Postscript-Shop-Token
-          in: header
-          description: Shop API Token. **Required for partners**. This header should be used only by partners. Shops should include their API token in the *Authorization* header.
-          schema:
-            type: string
       responses:
         '200':
           description: '200'
@@ -1146,11 +1082,6 @@ paths:
           schema:
             type: string
           required: true
-        - name: X-Postscript-Shop-Token
-          in: header
-          description: Shop API Token. **Required for partners**. This header should be used only by partners. Shops should include their API token in the *Authorization* header.
-          schema:
-            type: string
       responses:
         '200':
           description: '200'
@@ -1184,11 +1115,6 @@ paths:
           schema:
             type: string
           required: true
-        - name: X-Postscript-Shop-Token
-          in: header
-          description: Shop API Token. **Required for partners**. This header should be used only by partners. Shops should include their API token in the *Authorization* header.
-          schema:
-            type: string
       responses:
         '200':
           description: '200'
@@ -1227,11 +1153,6 @@ paths:
           schema:
             type: string
           required: true
-        - name: X-Postscript-Shop-Token
-          in: header
-          description: Shop API Token. **Required for partners**. This header should be used only by partners. Shops should include their API token in the *Authorization* header.
-          schema:
-            type: string
       requestBody:
         required: true
         content:
@@ -1278,12 +1199,6 @@ paths:
       summary: Get Webhook Signing Token
       description: ''
       operationId: get-webhook-signing-token
-      parameters:
-        - name: X-Postscript-Shop-Token
-          in: header
-          description: Shop API Token. **Required for partners**. This header should be used only by partners. Shops should include their API token in the *Authorization* header.
-          schema:
-            type: string
       responses:
         '200':
           description: '200'
@@ -1331,11 +1246,6 @@ paths:
               - shop.subscriber.opt_out
               - shop.email_collected
             default: shop.test
-        - name: X-Postscript-Shop-Token
-          in: header
-          description: Shop API Token. **Required for partners**. This header should be used only by partners. Shops should include their API token in the *Authorization* header.
-          schema:
-            type: string
       responses:
         '200':
           description: '200'
@@ -1423,12 +1333,6 @@ paths:
       summary: Create Custom Event
       description: ''
       operationId: create-custom-event
-      parameters:
-        - name: X-Postscript-Shop-Token
-          in: header
-          description: Shop API Token. **Required for partners**. This header should be used *only* by partners. Shops should include their API token in the *Authorization* header.
-          schema:
-            type: string
       requestBody:
         content:
           application/json:
