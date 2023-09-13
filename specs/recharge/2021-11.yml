@@ -1,9 +1,10 @@
 openapi: 3.0.0
 info:
-  title: Recharge API - Addresses
+  title: Recharge API
   version: 2021-11
-  description: API specification for the Addresses endpoints of the Recharge API.
-
+  description: API specification for the Recharge REST API
+servers:
+  - url: https://api.rechargeapps.com
 components:
   securitySchemes:
     version:
