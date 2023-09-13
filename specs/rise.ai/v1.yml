@@ -8,6 +8,22 @@ info:
 servers:
   - url: https://application.rise-ai.com
   - url: https://workflows.rise-ai.com
+# TS moved api keys into security schemes
+components:
+  securitySchemes:
+    rise-access-token:
+      name: x-rise-access-token
+      type: apiKey
+      in: header
+      description: Rise.ai API access token
+    rise-gifting-api-key:
+      name: x-rise-gifting-api-key
+      type: apiKey
+      in: header
+      description: Rise.ai API access token
+security:
+  - rise-access-token: []
+  - rise-gifting-api-key: []
 tags:
   - name: How to start?
     description: >-
@@ -176,33 +192,42 @@ paths:
         - Credit API
       summary: Get Customer Loyalty Card
       description: Retrieves the Loyalty Card of the provided customer.
+      security: 
+        - rise-access-token: []
       parameters:
-        - name: x-rise-access-token
-          in: header
-          schema:
-            type: string
-          description: Rise.ai API access token
-          example: XXXX-XXXX-XXXX-XXXX
+        # TS Note: Required to get customer loyalty card
         - name: customer_id
           in: query
           schema:
-            type: integer
+            # TS Note: Using string since it goes above max graphql int size
+            type: string
           description: The Shopify Customer Id
           example: '123456789'
         - name: shop_url
           in: query
           schema:
             type: string
+          required: true
           description: The Shopify shop domain
           example: amazingshop.myshopify.com
       responses:
-        # TODO Confirm that this is 200
         '200':
           description: Success
           content:
             application/json:
               schema:
                 type: object
+                # TS Note: Added properties
+                properties:
+                  amount:
+                    type: number
+                  gift_card_id:
+                    type: string
+                  expires_on:
+                    type: string
+                    nullable: true
+                  code:
+                    type: string
               example:
                 amount: 10
                 gift_card_id: AAAA-AAAA-AAAA-AAAA
@@ -230,13 +255,9 @@ paths:
                   subject: Hello this is a reason giftcard
                   body: This is some reason I give you a gift card
                   recipient_email: ' happy_customer@gmail.com '
+      security: 
+        - rise-access-token: []
       parameters:
-        - name: x-rise-access-token
-          in: header
-          schema:
-            type: string
-          description: Rise.ai API access token
-          example: XXXX-XXXX-XXXX-XXXX
         - name: Content-Type
           in: header
           schema:
@@ -281,6 +302,8 @@ paths:
                 amount: 10
                 type: order/refund
                 order_id: '1234567890'
+      security: 
+        - rise-access-token: []
       parameters:
         - name: card
           in: path
@@ -288,12 +311,6 @@ paths:
           schema:
             type: string
           required: true
-        - name: x-rise-access-token
-          in: header
-          schema:
-            type: string
-          description: Rise.ai API access token
-          example: XXXX-XXXX-XXXX-XXXX
         - name: Content-Type
           in: header
           schema:
@@ -323,16 +340,11 @@ paths:
     post:
       tags:
         - Gifting API > API Reference > Session
-      summary: Init  Gifting Session
+      summary: Init Gifting Session
       requestBody:
         content: {}
-      parameters:
-        - name: x-rise-gifting-api-key
-          in: header
-          schema:
-            type: string
-          description: Rise.ai API access token
-          example: XXXX-XXXX-XXXX-XXXX
+      security: 
+        - rise-gifting-api-key: []
       responses:
         '201':
           description: Created
@@ -422,13 +434,9 @@ paths:
       tags:
         - Gifting API > API Reference > Session
       summary: Get Session
+      security: 
+        - rise-gifting-api-key: []
       parameters:
-        - name: x-rise-gifting-api-key
-          in: header
-          schema:
-            type: string
-          description: Rise.ai API access token
-          example: XXXX-XXXX-XXXX-XXXX
         - name: shop_url
           in: query
           schema:
@@ -566,13 +574,9 @@ paths:
                   image: >-
                     https://assets.rise-ai.com/static/02b2b9cf1ed84edb8fa64cb1799fdd346865793278584a72bbb81d3fb951d413.jpg
                   send_at: '2021-03-04T12:43:10.000Z'
+      security: 
+        - rise-gifting-api-key: []
       parameters:
-        - name: x-rise-gifting-api-key
-          in: header
-          schema:
-            type: string
-          description: Rise.ai API access token
-          example: XXXX-XXXX-XXXX-XXXX
         - name: shop_url
           in: query
           schema:
@@ -690,13 +694,9 @@ paths:
               type: object
               example:
                 order_id: ' PLATFORM_ORDER_ID '
+      security: 
+        - rise-gifting-api-key: []
       parameters:
-        - name: x-rise-gifting-api-key
-          in: header
-          schema:
-            type: string
-          description: Rise.ai API access token
-          example: XXXX-XXXX-XXXX-XXXX
         - name: shop_url
           in: query
           schema:
@@ -731,13 +731,9 @@ paths:
                   name: Adi
                   sending_method: sms
                   send_at: '2021-03-15T18:00:00.000Z'
+      security: 
+        - rise-gifting-api-key: []
       parameters:
-        - name: x-rise-gifting-api-key
-          in: header
-          schema:
-            type: string
-          description: Rise.ai API access token
-          example: XXXX-XXXX-XXXX-XXXX
         - name: shop_url
           in: query
           schema:
@@ -862,13 +858,9 @@ paths:
       tags:
         - Gifting API > API Reference > Gift
       summary: Delete Gift
+      security: 
+        - rise-gifting-api-key: []
       parameters:
-        - name: x-rise-gifting-api-key
-          in: header
-          schema:
-            type: string
-          description: Rise.ai API access token
-          example: XXXX-XXXX-XXXX-XXXX
         - name: shop_url
           in: query
           schema:
@@ -979,13 +971,9 @@ paths:
       description: |-
         GET all images selected for the "pop-up" asset. 
         Images are selected through the Rise.ai dashboard.
+      security: 
+        - rise-access-token: []
       parameters:
-        - name: x-rise-access-token
-          in: header
-          schema:
-            type: string
-          description: Rise.ai API access token
-          example: XXXX-XXXX-XXXX-XXXX
         - name: shop_url
           in: query
           schema:
