@@ -370,6 +370,13 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                amount:
+                  type: number
+                type:
+                  type: string
+                order_id:
+                  type: string
               example:
                 amount: 10
                 type: order/refund
@@ -386,13 +393,21 @@ paths:
         - $ref: '#/components/parameters/content-type'
         - $ref: '#/components/parameters/shop-url'
       responses:
-        # TODO Confirm that this is 200
         '200':
           description: Success
           content:
             application/json:
               schema:
                 type: object
+                properties:
+                  gift_card_id:
+                    type: string
+                  balance:
+                    type: number
+                  expires_on:
+                    type: string
+                  code:
+                    type: string
               example:
                 gift_card:
                   gift_card_id: AAAA-AAAA-AAAA-AAAA
