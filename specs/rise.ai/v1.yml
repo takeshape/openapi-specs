@@ -8,8 +8,22 @@ info:
 servers:
   - url: https://application.rise-ai.com
   - url: https://workflows.rise-ai.com
-# TS moved api keys into security schemes
 components:
+  parameters:
+    content-type:
+      name: Content-Type
+      in: header
+      schema:
+        type: string
+      example: application/json
+    shop-url:
+      name: shop_url
+      in: query
+      schema:
+        type: string
+      required: true
+      description: The Shopify shop domain
+      example: amazingshop.myshopify.com
   securitySchemes:
     rise-access-token:
       name: x-rise-access-token
@@ -195,28 +209,22 @@ paths:
       security: 
         - rise-access-token: []
       parameters:
-        # TS Note: Required to get customer loyalty card
+        # Required to get customer loyalty card
         - name: customer_id
           in: query
           schema:
-            # TS Note: Using string since it goes above max graphql int size
+            # Using string since it goes above max graphql int size
             type: string
           description: The Shopify Customer Id
           example: '123456789'
-        # TS Note: Required to get gift card
+        # Required to get gift card
         - name: code
           in: query
           schema:
             type: string
           description: The Gift Card actual code
           example: XXXXXXXXXXXXXXXX
-        - name: shop_url
-          in: query
-          schema:
-            type: string
-          required: true
-          description: The Shopify shop domain
-          example: amazingshop.myshopify.com
+        - $ref: '#/components/parameters/shop-url'
       responses:
         '200':
           description: Success
@@ -224,7 +232,6 @@ paths:
             application/json:
               schema:
                 type: object
-                # TS Note: Added properties
                 properties:
                   amount:
                     type: number
@@ -248,10 +255,34 @@ paths:
       description: |
         Creates & Send a Gift Card.
       requestBody:
+        required: true
         content:
           application/json:
             schema:
               type: object
+              properties:
+                gift_card:
+                  type: object
+                  properties:
+                    balance:
+                      type: number
+                    note:
+                      type: string
+                  required: [balance]
+                email_details:
+                  type: object
+                  properties:
+                    recipient:
+                      type: string
+                    title:
+                      type: string
+                    subject:
+                      type: string
+                    body:
+                      type: string
+                    recipient_email:
+                      type: string
+              required: [gift_card, email_details]
               example:
                 gift_card:
                   balance: 100
@@ -265,25 +296,59 @@ paths:
       security: 
         - rise-access-token: []
       parameters:
-        - name: Content-Type
-          in: header
-          schema:
-            type: string
-          example: application/json
-        - name: shop_url
-          in: query
-          schema:
-            type: string
-          description: The Shopify shop domain
-          example: amazingshop.myshopify.com
+        - $ref: '#/components/parameters/content-type'
+        - $ref: '#/components/parameters/shop-url'
       responses:
-        # TODO Confirm that this is 200
         '200':
           description: Success
           content:
             application/json:
               schema:
                 type: object
+                properties:
+                  gift_card:
+                    type: object
+                    properties: 
+                      collections:
+                        type: array
+                        items:
+                          type: string
+                      created_at:
+                        type: string
+                      gift_card_id:
+                        type: string
+                      id:
+                        type: string
+                      balance:
+                        type: number
+                      initial_value:
+                        type: number
+                      expires_on:
+                        type: string
+                        nullable: true
+                      code:
+                        type: string
+                      gift_card_source:
+                        type: string
+                      platform:
+                        type: string
+                      notified:
+                        type: number
+                      customer_email:
+                        type: string
+                      customer_name:
+                        type: string
+                      customer_id:
+                        type: string
+                        nullable: true
+                      shopify_gift_card_id:
+                        type: string
+                      gift_card_type:
+                        type: string
+                      shop_url:
+                        type: string
+                      updated_at:
+                        type: string
               example:
                 gift_card:
                   gift_card_id: AAAA-AAAA-AAAA-AAAA
@@ -318,17 +383,8 @@ paths:
           schema:
             type: string
           required: true
-        - name: Content-Type
-          in: header
-          schema:
-            type: string
-          example: application/json
-        - name: shop_url
-          in: query
-          schema:
-            type: string
-          description: The Shopify shop domain
-          example: amazingshop.myshopify.com
+        - $ref: '#/components/parameters/content-type'
+        - $ref: '#/components/parameters/shop-url'
       responses:
         # TODO Confirm that this is 200
         '200':
@@ -444,12 +500,7 @@ paths:
       security: 
         - rise-gifting-api-key: []
       parameters:
-        - name: shop_url
-          in: query
-          schema:
-            type: string
-          description: The Shopify shop domain
-          example: amazingshop.myshopify.com
+        - $ref: '#/components/parameters/shop-url'
         - name: session_id
           in: path
           schema:
@@ -584,12 +635,7 @@ paths:
       security: 
         - rise-gifting-api-key: []
       parameters:
-        - name: shop_url
-          in: query
-          schema:
-            type: string
-          description: The Shopify shop domain
-          example: amazingshop.myshopify.com
+        - $ref: '#/components/parameters/shop-url'
         - name: session_id
           in: path
           schema:
@@ -704,12 +750,7 @@ paths:
       security: 
         - rise-gifting-api-key: []
       parameters:
-        - name: shop_url
-          in: query
-          schema:
-            type: string
-          description: The Shopify shop domain
-          example: amazingshop.myshopify.com
+        - $ref: '#/components/parameters/shop-url'
         - name: session_id
           in: path
           schema:
@@ -741,12 +782,7 @@ paths:
       security: 
         - rise-gifting-api-key: []
       parameters:
-        - name: shop_url
-          in: query
-          schema:
-            type: string
-          description: The Shopify shop domain
-          example: amazingshop.myshopify.com
+        - $ref: '#/components/parameters/shop-url'
         - name: session_id
           in: path
           schema:
@@ -868,12 +904,7 @@ paths:
       security: 
         - rise-gifting-api-key: []
       parameters:
-        - name: shop_url
-          in: query
-          schema:
-            type: string
-          description: The Shopify shop domain
-          example: amazingshop.myshopify.com
+        - $ref: '#/components/parameters/shop-url'
         - name: session_id
           in: path
           schema:
@@ -981,12 +1012,7 @@ paths:
       security: 
         - rise-access-token: []
       parameters:
-        - name: shop_url
-          in: query
-          schema:
-            type: string
-          description: The Shopify shop domain
-          example: amazingshop.myshopify.com
+        - $ref: '#/components/parameters/shop-url'
       responses:
         '200':
           description: OK
@@ -1125,12 +1151,7 @@ paths:
             In order to generate access token, use client_secret as explained in
             the method guidelines
           example: Bearer encoded_shop_url
-        - name: shop_url
-          in: query
-          schema:
-            type: string
-          description: The shop URL for which the trigger should be created
-          example: amazingshop.myshopify.com
+        - $ref: '#/components/parameters/shop-url'
       responses:
         '200':
           description: Successful response
