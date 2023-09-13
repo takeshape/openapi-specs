@@ -3274,10 +3274,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AddressResponse'
-        '400':
-          description: Bad request. Ensure you've provided all required parameters and check their types.
-        '404':
-          description: Resource not found. Ensure you're using the correct endpoint and method.
     get:
       summary: List all addresses.
       operationId: list-addresses
@@ -3362,8 +3358,6 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Address'
-        '404':
-          description: Addresses not found.
   /addresses/{id}:
     parameters:
       - name: id
@@ -3382,8 +3376,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AddressResponse'
-        '404':
-          description: Address not found. Ensure you're using a valid address ID.
     put:
       summary: Update an address by its ID.
       operationId: update-address
@@ -3400,18 +3392,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AddressResponse'
-        '400':
-          description: Bad request. Ensure you've provided all required parameters and check their types.
-        '404':
-          description: Address not found. Ensure you're using a valid address ID.
     delete:
       summary: Delete an address by its ID.
       operationId: delete-address
       responses:
         '204':
           description: Address deleted successfully.
-        '404':
-          description: Address not found. Ensure you're using a valid address ID.
   /addresses/merge:
     post:
       summary: Merge addresses.
@@ -3429,10 +3415,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AddressResponse'
-        '400':
-          description: Bad request. Ensure you've provided all required parameters and check their types.
-        '404':
-          description: Addresses not found. Ensure you're using valid address IDs.
   /addresses/{id}/charges/skip:
     parameters:
       - name: id
@@ -3457,10 +3439,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ChargeResponse'
-        '400':
-          description: Bad request. Ensure you've provided all required parameters and check their types.
-        '404':
-          description: Address not found. Ensure you're using a valid address ID.
   /bundle_selections:
     post:
       summary: Create a bundle selection.
@@ -3478,10 +3456,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BundleSelectionResponse'
-        '400':
-          description: Bad request. Ensure you've provided all required parameters and check their types.
-        '404':
-          description: Resource not found. Ensure you're using the correct endpoint and method.
     put:
       summary: Update an bundle selection by its ID.
       operationId: update-bundle-selection
@@ -3498,10 +3472,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BundleSelectionResponse'
-        '400':
-          description: Bad request. Ensure you've provided all required parameters and check their types.
-        '404':
-          description: Bundle selection not found. Ensure you're using a valid ID.
     get:
       summary: Returns a list of BundleSelections.
       operationId: list-bundle-selections
@@ -3562,8 +3532,6 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/BundleSelection'
-        '404':
-          description: the BundleSelection with bundle_selection_id does not exist
   /bundle_selections/{id}:
     parameters:
       - name: id
@@ -3582,16 +3550,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BundleSelectionResponse'
-        '404':
-          description: Bundle selection not found. Ensure you're using a valid ID.
     delete:
       summary: Delete a bundle selection by its ID.
       operationId: delete-bundle-selection
       responses:
         '204':
           description: Bundle selection deleted successfully.
-        '404':
-          description: Bundle selection not found. Ensure you're using a valid address ID.
   /charges:
     get:
       summary: List all charges.
@@ -3752,8 +3716,6 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Charge'
-        '404':
-          description: Charges not found.
   /charges/{id}:
     parameters:
       - name: id
@@ -3772,8 +3734,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ChargeResponse'
-        '404':
-          description: Charge not found. Ensure you're using a valid ID.
   /charges/{id}/apply_discount:
     parameters:
       - name: id
@@ -3960,10 +3920,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CheckoutResponse'
-        '400':
-          description: Bad request. Ensure you've provided all required parameters and check their types.
-        '404':
-          description: Resource not found. Ensure you're using the correct endpoint and method.
   /checkouts/{token}:
     get:
       summary: Retrieve an checkout by its token.
@@ -3982,8 +3938,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CheckoutResponse'
-        '404':
-          description: Checkout not found. Ensure you're using a valid ID.
     put:
       summary: Update an checkout by its token.
       operationId: update-checkout
@@ -4012,10 +3966,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CheckoutResponse'
-        '400':
-          description: Bad request. Ensure you've provided all required parameters and check their types.
-        '404':
-          description: Checkout not found. Ensure you're using a valid token.
   /checkouts/{token}/shipping_rates:
     get:
       summary: List shipping rates for a checkout
@@ -4091,10 +4041,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CollectionResponse'
-        '422':
-          description: unprocessable entity
-        '500':
-          description: internal server error. (often the external_product_id entered does not exist)
     get:
       summary: List all collections
       operationId: list-collections
@@ -4118,8 +4064,6 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Collection'
-        '404':
-          description: Addresses not found.
   /collections/{id}:
     parameters:
       - name: id
@@ -4138,8 +4082,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CollectionResponse'
-        '404':
-          description: Address not found. Ensure you're using a valid address ID.
     put:
       summary: Modify an existing Collection to match the specified parameters.
       operationId: update-collection
@@ -4156,18 +4098,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CollectionResponse'
-        '415':
-          description: Unprocessable entity
-        '404':
-          description: Not found
     delete:
       summary: Delete a collection by its ID.
       operationId: delete-collection
       responses:
         '204':
           description: Collection deleted successfully.
-        '404':
-          description: Collection not found. Ensure you're using a valid ID.
   /collection_products:
     get:
       summary: Return a list of the product ids included in Collections in your store.
@@ -4185,8 +4121,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CollectionProductResponse'
-        '422':
-          description: Errors. Unprocessable entity.
   /collections/{id}/collection_products-bulk:
     parameters:
       - name: id
@@ -4211,10 +4145,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CollectionProductResponse'
-        '422':
-          description: Unprocessable entity
-        '500':
-          description: internal server error. (often the external_product_id entered does not exist)
     delete:
       summary: Delete a collection by its ID.
       operationId: delete-collection-products
@@ -4227,8 +4157,6 @@ paths:
       responses:
         '204':
           description: Collection products deleted successfully.
-        '404':
-          description: Collection not found. Ensure you're using a valid ID.
   /customers:
     post:
       summary: Create a customer
@@ -4343,8 +4271,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CustomerResponse'
-        '404':
-          description: Customer not found. Ensure you're using a valid address ID.
     put:
       summary: Modify an existing Customer to match the specified parameters.
       operationId: update-customer
@@ -4367,8 +4293,6 @@ paths:
       responses:
         '204':
           description: Customer deleted successfully.
-        '404':
-          description: Customer not found. Ensure you're using a valid ID.
   /customers/{id}/notifications:
     parameters:
       - name: id
@@ -4586,8 +4510,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DiscountResponse'
-        '404':
-          description: Discount not found. Ensure you're using a valid ID.
     put:
       summary: Update an discount by its ID.
       operationId: update-discount
@@ -4604,18 +4526,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DiscountResponse'
-        '400':
-          description: Bad request. Ensure you've provided all required parameters and check their types.
-        '404':
-          description: Discount not found. Ensure you're using a valid ID.
     delete:
       summary: Delete an discount by its ID.
       operationId: delete-discount
       responses:
         '204':
           description: Discount deleted successfully.
-        '404':
-          description: Discount not found. Ensure you're using a valid ID.
   /metafields:
     post:
       summary: Create a new metafield
@@ -4719,8 +4635,6 @@ paths:
       responses:
         '204':
           description: Metafield deleted successfully.
-        '404':
-          description: Metafield not found. Ensure you're using a valid ID.
   /onetimes:
     post:
       summary: Create a new onetime
@@ -5011,8 +4925,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OrderResponse'
-        '404':
-          description: Address not found. Ensure you're using a valid address ID.
     put:
       summary: Updating existing Order using the order_id
       operationId: update-order
@@ -5142,8 +5054,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PaymentMethodResponse'
-        '404':
-          description: Address not found. Ensure you're using a valid address ID.
     put:
       summary: Modify an existing Payment Method.
       operationId: update-payment-method
@@ -5511,10 +5421,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SubscriptionResponse'
-        '400':
-          description: Bad request. Ensure you've provided all required parameters and check their types.
-        '404':
-          description: Resource not found. Ensure you're using the correct endpoint and method.
     get:
       summary: List all subscriptions.
       operationId: list-subscriptions
@@ -5617,8 +5523,6 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Subscription'
-        '404':
-          description: Subscriptions not found.
   /subscriptions/{id}:
     parameters:
       - name: id
@@ -5637,8 +5541,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SubscriptionResponse'
-        '404':
-          description: Subscription not found. Ensure you're using a valid subscription ID.
     put:
       summary: Update an subscription by its ID.
       operationId: update-subscription
@@ -5666,18 +5568,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SubscriptionResponse'
-        '400':
-          description: Bad request. Ensure you've provided all required parameters and check their types.
-        '404':
-          description: Subscription not found. Ensure you're using a valid subscription ID.
     delete:
       summary: Delete an subscription by its ID.
       operationId: delete-subscription
       responses:
         '204':
           description: Subscription deleted successfully.
-        '404':
-          description: Subscription not found. Ensure you're using a valid subscription ID.
   /subscriptions/{id}/set_next_charge_date:
     parameters:
       - name: id
@@ -5709,10 +5605,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SubscriptionResponse'
-        '400':
-          description: Bad request. Ensure you've provided all required parameters and check their types.
-        '404':
-          description: Subscription not found. Ensure you're using a valid subscription ID.
   /subscriptions/{id}/change_address:
     parameters:
       - name: id
@@ -5748,10 +5640,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SubscriptionResponse'
-        '400':
-          description: Bad request. Ensure you've provided all required parameters and check their types.
-        '404':
-          description: Subscription not found. Ensure you're using a valid subscription ID.
   /subscriptions/{id}/cancel:
     parameters:
       - name: id
@@ -5790,10 +5678,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SubscriptionResponse'
-        '400':
-          description: Bad request. Ensure you've provided all required parameters and check their types.
-        '404':
-          description: Subscription not found. Ensure you're using a valid subscription ID.
   /subscriptions/{id}/activate:
     parameters:
       - name: id
@@ -5812,10 +5696,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SubscriptionResponse'
-        '400':
-          description: Bad request. Ensure you've provided all required parameters and check their types.
-        '404':
-          description: Subscription not found. Ensure you're using a valid subscription ID.
   /subscriptions/{id}/skip_gift:
     parameters:
       - name: id
@@ -5852,7 +5732,3 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SubscriptionResponse'
-        '400':
-          description: Bad request. Ensure you've provided all required parameters and check their types.
-        '404':
-          description: Subscription not found. Ensure you're using a valid subscription ID.
