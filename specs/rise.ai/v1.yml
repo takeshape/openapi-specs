@@ -203,6 +203,13 @@ paths:
             type: string
           description: The Shopify Customer Id
           example: '123456789'
+        # TS Note: Required to get gift card
+        - name: code
+          in: query
+          schema:
+            type: string
+          description: The Gift Card actual code
+          example: XXXXXXXXXXXXXXXX
         - name: shop_url
           in: query
           schema:
