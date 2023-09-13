@@ -366,6 +366,7 @@ paths:
 
         Adjustment type can be either "order" or "refund".
       requestBody:
+        required: true
         content:
           application/json:
             schema:
