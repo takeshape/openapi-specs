@@ -1330,6 +1330,10 @@ components:
       required:
         - shipping_rates
       properties:
+        previous_cursor:
+          type: string
+        next_cursor:
+          type: string
         shipping_rates:
           type: array
           items:
@@ -1465,6 +1469,10 @@ components:
       required:
         - collection_products
       properties:
+        previous_cursor:
+          type: string
+        next_cursor:
+          type: string
         collection_products:
           type: array
           items:
@@ -2524,6 +2532,10 @@ components:
       required:
         - plans
       properties:
+        previous_cursor:
+          type: string
+        next_cursor:
+          type: string
         plans:
           type: array
           items:
@@ -2926,7 +2938,7 @@ components:
           type: string
           description: Customer Portal Base URL
         default_api_version:
-          type: integer
+          type: string
           description: Default API version
         email:
           type: string
@@ -3321,11 +3333,11 @@ paths:
             type: integer
             default: 50
             maximum: 250
-        - name: page
+        - name: cursor
           in: query
-          description: The page to show. Default is 1.
+          description: Cursor for pagination
           schema:
-            type: integer
+            type: string
             default: 1
         - name: updated_at_max
           in: query
@@ -3354,6 +3366,10 @@ paths:
                 required:
                   - addresses
                 properties:
+                  previous_cursor:
+                    type: string
+                  next_cursor:
+                    type: string
                   addresses:
                     type: array
                     items:
@@ -3501,11 +3517,11 @@ paths:
             type: integer
             default: 50
             maximum: 250
-        - name: page
+        - name: cursor
           in: query
-          description: The page to show. Default is 1.
+          description: Cursor for pagination
           schema:
-            type: integer
+            type: string
             default: 1
         - name: sort_by
           in: query
@@ -3528,6 +3544,10 @@ paths:
                 required:
                   - bundle_selections
                 properties:
+                  previous_cursor:
+                    type: string
+                  next_cursor:
+                    type: string
                   bundle_selections:
                     type: array
                     items:
@@ -3609,11 +3629,11 @@ paths:
             type: integer
             default: 50
             maximum: 250
-        - name: page
+        - name: cursor
           in: query
-          description: The page to show. Default is 1.
+          description: Cursor for pagination
           schema:
-            type: integer
+            type: string
             default: 1
         - name: purchase_item_id
           in: query
@@ -3704,7 +3724,7 @@ paths:
             type: boolean
       responses:
         '200':
-          description: List of addresses retrieved successfully.
+          description: List of charges retrieved successfully.
           content:
             application/json:
               schema:
@@ -3712,6 +3732,10 @@ paths:
                 required:
                   - charges
                 properties:
+                  previous_cursor:
+                    type: string
+                  next_cursor:
+                    type: string
                   charges:
                     type: array
                     items:
@@ -4060,6 +4084,10 @@ paths:
                 required:
                   - collections
                 properties:
+                  previous_cursor:
+                    type: string
+                  next_cursor:
+                    type: string
                   collections:
                     type: array
                     items:
@@ -4216,11 +4244,11 @@ paths:
             type: integer
             default: 50
             maximum: 250
-        - name: page
+        - name: cursor
           in: query
-          description: The page to show. Default is 1.
+          description: Cursor for pagination
           schema:
-            type: integer
+            type: string
             default: 1
         - name: external_customer_id
           in: query
@@ -4249,6 +4277,10 @@ paths:
                 required:
                   - customers
                 properties:
+                  previous_cursor:
+                    type: string
+                  next_cursor:
+                    type: string
                   customers:
                     type: array
                     items:
@@ -4455,11 +4487,11 @@ paths:
             type: integer
             default: 50
             maximum: 250
-        - name: page
+        - name: cursor
           in: query
-          description: The page to show. Default is 1.
+          description: Cursor for pagination
           schema:
-            type: integer
+            type: string
             default: 1
         - name: status
           in: query
@@ -4488,6 +4520,10 @@ paths:
                 required:
                   - discounts
                 properties:
+                  previous_cursor:
+                    type: string
+                  next_cursor:
+                    type: string
                   discounts:
                     type: array
                     items:
@@ -4575,11 +4611,11 @@ paths:
           description: Objects which support Metafields
           schema:
             $ref: '#/components/schemas/MetafieldOwnerResource'
-        - name: page
+        - name: cursor
           in: query
-          description: The page to show. Default is 1.
+          description: Cursor for pagination
           schema:
-            type: integer
+            type: string
             default: 1
       responses:
         '200':
@@ -4591,6 +4627,10 @@ paths:
                 required:
                   - metafields
                 properties:
+                  previous_cursor:
+                    type: string
+                  next_cursor:
+                    type: string
                   metafields:
                     type: array
                     items:
@@ -4699,11 +4739,11 @@ paths:
             type: integer
             default: 50
             maximum: 250
-        - name: page
+        - name: cursor
           in: query
-          description: The page to show. Default is 1.
+          description: Cursor for pagination
           schema:
-            type: integer
+            type: string
             default: 1
         - name: external_variant_id
           in: query
@@ -4741,6 +4781,10 @@ paths:
                 required:
                   - onetimes
                 properties:
+                  previous_cursor:
+                    type: string
+                  next_cursor:
+                    type: string
                   onetimes:
                     type: array
                     items:
@@ -4843,11 +4887,11 @@ paths:
             type: integer
             default: 50
             maximum: 250
-        - name: page
+        - name: cursor
           in: query
-          description: The page to show. Default is 1.
+          description: Cursor for pagination
           schema:
-            type: integer
+            type: string
             default: 1
         - name: scheduled_at_max
           in: query
@@ -4903,6 +4947,10 @@ paths:
                 required:
                   - orders
                 properties:
+                  previous_cursor:
+                    type: string
+                  next_cursor:
+                    type: string
                   orders:
                     type: array
                     items:
@@ -5032,6 +5080,10 @@ paths:
                 required:
                   - payment_methods
                 properties:
+                  previous_cursor:
+                    type: string
+                  next_cursor:
+                    type: string
                   payment_methods:
                     type: array
                     items:
@@ -5104,11 +5156,11 @@ paths:
             type: integer
             default: 50
             maximum: 250
-        - name: page
+        - name: cursor
           in: query
-          description: The page to show. Default is 1.
+          description: Cursor for pagination
           schema:
-            type: integer
+            type: string
             default: 1
         - name: external_product_id
           in: query
@@ -5213,6 +5265,10 @@ paths:
                 required:
                   - products
                 properties:
+                  previous_cursor:
+                    type: string
+                  next_cursor:
+                    type: string
                   products:
                     type: array
                     items:
@@ -5349,6 +5405,10 @@ paths:
                 required:
                   - retention_strategies
                 properties:
+                  previous_cursor:
+                    type: string
+                  next_cursor:
+                    type: string
                   retention_strategies:
                     type: array
                     items:
@@ -5477,11 +5537,11 @@ paths:
             type: integer
             default: 50
             maximum: 250
-        - name: page
+        - name: cursor
           in: query
-          description: The page to show. Default is 1.
+          description: Cursor for pagination
           schema:
-            type: integer
+            type: string
             default: 1
         - name: cursor
           in: query
@@ -5519,6 +5579,10 @@ paths:
                 required:
                   - subscriptions
                 properties:
+                  previous_cursor:
+                    type: string
+                  next_cursor:
+                    type: string
                   subscriptions:
                     type: array
                     items:
