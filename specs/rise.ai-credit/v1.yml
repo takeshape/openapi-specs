@@ -196,10 +196,11 @@ tags:
 paths:
   /gift-cards/:
     get:
+      operationId: getGiftCard
       tags:
         - Credit API
-      summary: Get Customer Loyalty Card
-      description: Retrieves the Loyalty Card of the provided customer.
+      summary: Get Customer Loyalty Card or Gift Card
+      description: Retrieves the Loyalty Card or Gift Card of the provided customer.
       security: 
         - rise-access-token: []
       parameters:
@@ -243,6 +244,7 @@ paths:
                 code: xxxxxxxxxxxxxxxx
   /gift-cards/issue/:
     post:
+      operationId: issueGiftCard
       tags:
         - Credit API
       summary: Issue Gift Card
@@ -352,6 +354,7 @@ paths:
                   code: xxxxxxxxxxxxxxxx
   /gift-cards/{card}:
     put:
+      operationId: adjustGiftCardBalance
       tags:
         - Credit API
       summary: Adjust Gift Card Balance

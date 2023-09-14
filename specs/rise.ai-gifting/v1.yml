@@ -196,6 +196,7 @@ tags:
 paths:
   /session:
     post:
+      operationId: initGiftingSession
       tags:
         - Gifting API > API Reference > Session
       summary: Init Gifting Session
@@ -289,6 +290,7 @@ paths:
                   id: d50c6478-2095-47f6-89a6-a2754e64d254
   /session/{session_id}:
     get:
+      operationId: getSession
       tags:
         - Gifting API > API Reference > Session
       summary: Get Session
@@ -409,6 +411,7 @@ paths:
                         https://assets.rise-ai.com/static/02b2b9cf1ed84edb8fa64cb1799fdd346865793278584a72bbb81d3fb951d413.jpg
                       send_at: '2021-03-04T12:43:10.000Z'
     post:
+      operationId: createGift
       tags:
         - Gifting API > API Reference > Gift
       summary: Create Gift
@@ -532,6 +535,7 @@ paths:
                   send_at: '2021-03-04T12:43:10.000Z'
   /session/{session_id}/completed:
     post:
+      operationId: sessionCompleted
       tags:
         - Gifting API > API Reference > Session
       summary: Session Completed
@@ -560,6 +564,7 @@ paths:
             application/json: {}
   /session/{session_id}/gift/{gift_id}:
     put:
+      operationId: updateGift
       tags:
         - Gifting API > API Reference > Gift
       summary: Update Gift
@@ -693,6 +698,7 @@ paths:
                     https://assets.rise-ai.com/static/02b2b9cf1ed84edb8fa64cb1799fdd346865793278584a72bbb81d3fb951d413.jpg
                   send_at: '2021-03-15T18:00:00.000Z'
     delete:
+      operationId: deleteGift
       tags:
         - Gifting API > API Reference > Gift
       summary: Delete Gift
@@ -798,14 +804,13 @@ paths:
               example: OK
   /assets:
     get:
+      operationId: getAssets
       tags:
         - Gifting API > API Reference
       summary: Get Assets
       description: |-
         GET all images selected for the "pop-up" asset. 
         Images are selected through the Rise.ai dashboard.
-      security: 
-        - rise-access-token: []
       parameters:
         - $ref: '#/components/parameters/shop-url'
       responses:
@@ -879,6 +884,14 @@ paths:
             application/json:
               schema:
                 type: object
+                properties:
+                  assets:
+                    type: object
+                    properties:
+                      gallery_images_urls:
+                        type: array
+                        items:
+                          type: string
               example:
                 assets:
                   gallery_images_urls:
