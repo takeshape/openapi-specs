@@ -30,6 +30,58 @@ components:
       type: apiKey
       in: header
       description: Rise.ai API access token
+  schemas:
+    GiftInput:
+      type: object
+      properties:
+        gift:
+          type: object
+          properties:
+            variant_id:
+              type: string
+            value:
+              type: number
+            name:
+              type: string
+            email:
+              type: string
+            message:
+              type: string
+            sending_method:
+              type: string
+            image:
+              type: string
+            send_at:
+              type: string
+      example:
+        gift:
+          value: 100
+          name: Adi
+          email: adi@rise.ai
+          message: Adi U'r amazing, Love u ;)
+          sending_method: email
+          image: >-
+            https://assets.rise-ai.com/static/02b2b9cf1ed84edb8fa64cb1799fdd346865793278584a72bbb81d3fb951d413.jpg
+          send_at: '2021-03-04T12:43:10.000Z'
+    GiftOutput:
+      type: object
+      properties:
+        gift_id:
+          type: string
+        value:
+          type: number
+        name:
+          type: string
+        email:
+          type: string
+        message:
+          type: string
+        sending_method:
+          type: string
+        image:
+          type: string
+        send_at:
+          type: string
 security:
   - rise-gifting-api-key: []
 tags:
@@ -285,6 +337,12 @@ paths:
             application/json:
               schema:
                 type: object
+                properties:
+                  session:
+                    type: object
+                    properties:
+                      id:
+                        type: string
               example:
                 session:
                   id: d50c6478-2095-47f6-89a6-a2754e64d254
@@ -388,6 +446,16 @@ paths:
             application/json:
               schema:
                 type: object
+                properties:
+                  session:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      gifts:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/GiftOutput'
               example:
                 session:
                   id: d50c6478-2095-47f6-89a6-a2754e64d254
@@ -416,20 +484,14 @@ paths:
         - Gifting API > API Reference > Gift
       summary: Create Gift
       requestBody:
+        required: true
         content:
           application/json:
             schema:
               type: object
-              example:
+              properties:
                 gift:
-                  value: 100
-                  name: Adi
-                  email: adi@rise.ai
-                  message: Adi U'r amazing, Love u ;)
-                  sending_method: email
-                  image: >-
-                    https://assets.rise-ai.com/static/02b2b9cf1ed84edb8fa64cb1799fdd346865793278584a72bbb81d3fb951d413.jpg
-                  send_at: '2021-03-04T12:43:10.000Z'
+                  $ref: '#/components/schemas/GiftInput'
       security: 
         - rise-gifting-api-key: []
       parameters:
@@ -522,6 +584,9 @@ paths:
             application/json:
               schema:
                 type: object
+                properties:
+                  gift:
+                    $ref: '#/components/schemas/GiftOutput'
               example:
                 gift:
                   id: 950146482
@@ -540,10 +605,14 @@ paths:
         - Gifting API > API Reference > Session
       summary: Session Completed
       requestBody:
+        required: true
         content:
           application/json:
             schema:
               type: object
+              properties:
+                order_id:
+                  type: number
               example:
                 order_id: ' PLATFORM_ORDER_ID '
       security: 
@@ -573,6 +642,7 @@ paths:
           application/json:
             schema:
               type: object
+              # TODO
               example:
                 gift:
                   value: 125
@@ -593,7 +663,7 @@ paths:
         - name: gift_id
           in: path
           schema:
-            type: integer
+            type: string
           required: true
           description: The gift id
           example: '12345678901234'
@@ -716,7 +786,7 @@ paths:
         - name: gift_id
           in: path
           schema:
-            type: integer
+            type: string
           required: true
           description: The gift id
           example: '12345678901234'
