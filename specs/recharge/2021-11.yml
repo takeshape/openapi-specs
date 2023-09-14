@@ -18,6 +18,19 @@ components:
   schemas:
     Address:
       type: object
+      required:
+        - id
+        - created_at
+        - updated_at
+        - customer_id
+        - address1
+        - city
+        - country_code
+        - first_name
+        - last_name
+        - phone
+        - province
+        - zip
       properties:
         id:
           type: integer
@@ -1024,6 +1037,11 @@ components:
             type: integer
     Checkout:
       type: object
+      required:
+        - token
+        - created_at
+        - updated_at
+        - line_items
       properties:
         charge_id:
           type: integer
@@ -1352,6 +1370,12 @@ components:
           description: Total tax value for the checkout.
     Collection:
       type: object
+      required:
+        - id
+        - created_at
+        - updated_at
+        - description
+        - title
       properties:
         id:
           type: integer
@@ -1479,6 +1503,13 @@ components:
             $ref: '#/components/schemas/CollectionProduct'
     Customer:
       type: object
+      required:
+        - id
+        - created_at
+        - updated_at
+        - email
+        - first_name
+        - last_name
       properties:
         id:
           type: integer
@@ -1771,6 +1802,13 @@ components:
         `disabled` and `fully_disabled` can both be reverted to `enabled`. However once a Discount has been updated to `fully_disabled` it will be removed from all Charges it had been applied to. This removal from Charges is irreversible.
     Discount:
       type: object
+      required:
+        - id
+        - created_at
+        - updated_at
+        - code
+        - value
+        - value_type
       properties:
         id:
           type: integer
@@ -1951,6 +1989,16 @@ components:
       description: Objects which support Metafields
     Metafield:
       type: object
+      required:
+        - id
+        - created_at
+        - updated_at
+        - key
+        - namespace
+        - owner_id
+        - owner_resource
+        - value
+        - value_type
       properties:
         id:
           type: integer
@@ -2052,6 +2100,16 @@ components:
             - json_string
     Onetime:
       type: object
+      required:
+        - id
+        - created_at
+        - updated_at
+        - address_id
+        - external_variant_id
+        - next_charge_scheduled_at
+        - price
+        - product_title
+        - quantity
       properties:
         id:
           type: integer
@@ -2384,6 +2442,14 @@ components:
         - mollie
     PaymentMethod:
       type: object
+      required:
+        - id
+        - created_at
+        - updated_at
+        - customer_id
+        - payment_type
+        - processor_customer_token
+        - processor_name
       properties:
         id:
           type: integer
@@ -2485,6 +2551,14 @@ components:
       description: The type of the plan. Products with a prepaid plan cannot have plans of other types.
     Plan:
       type: object
+      required:
+        - id
+        - created_at
+        - updated_at
+        - external_product_id
+        - subscription_preferences
+        - title
+        - type
       properties:
         id:
           type: integer
@@ -2611,6 +2685,14 @@ components:
             $ref: '#/components/schemas/UpdatePlanInput'
     Product:
       type: object
+      required:
+        - external_product_id
+        - external_updated_at
+        - external_created_at
+        - options
+        - title
+        - variants
+        - vendor
       properties:
         external_product_id:
           type: string
@@ -2846,6 +2928,12 @@ components:
           description: The vendor of the product
     RetentionStrategy:
       type: object
+      required:
+        - id
+        - created_at
+        - updated_at
+        - prevention_text
+        - reason
       properties:
         id:
           type: integer
@@ -3025,6 +3113,17 @@ components:
           description: The symbol of the currency.
     Subscription:
       type: object
+      required:
+        - id
+        - created_at
+        - updated_at
+        - address_id
+        - charge_interval_frequency
+        - next_charge_scheduled_at
+        - order_interval_frequency
+        - order_interval_unit
+        - quantity
+        - external_variant_id
       properties:
         id:
           type: integer
