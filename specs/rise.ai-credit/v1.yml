@@ -196,7 +196,7 @@ tags:
 paths:
   /gift-cards/:
     get:
-      operationId: getGiftCard
+      operationId: getGift Card
       tags:
         - Credit API
       summary: Get Customer Loyalty Card or Gift Card
