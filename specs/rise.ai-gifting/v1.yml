@@ -34,25 +34,22 @@ components:
     GiftInput:
       type: object
       properties:
-        gift:
-          type: object
-          properties:
-            variant_id:
-              type: string
-            value:
-              type: number
-            name:
-              type: string
-            email:
-              type: string
-            message:
-              type: string
-            sending_method:
-              type: string
-            image:
-              type: string
-            send_at:
-              type: string
+        variant_id:
+          type: string
+        value:
+          type: number
+        name:
+          type: string
+        email:
+          type: string
+        message:
+          type: string
+        sending_method:
+          type: string
+        image:
+          type: string
+        send_at:
+          type: string
       example:
         gift:
           value: 100
