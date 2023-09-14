@@ -25,18 +25,12 @@ components:
       description: The Shopify shop domain
       example: amazingshop.myshopify.com
   securitySchemes:
-    rise-access-token:
-      name: x-rise-access-token
-      type: apiKey
-      in: header
-      description: Rise.ai API access token
     rise-gifting-api-key:
       name: x-rise-gifting-api-key
       type: apiKey
       in: header
       description: Rise.ai API access token
 security:
-  - rise-access-token: []
   - rise-gifting-api-key: []
 tags:
   - name: How to start?
@@ -200,222 +194,7 @@ tags:
       the custom-trigger on your dashboard and integrate the HTTP request like
       described below.
 paths:
-  /v2/gift-cards/:
-    get:
-      tags:
-        - Credit API
-      summary: Get Customer Loyalty Card
-      description: Retrieves the Loyalty Card of the provided customer.
-      security: 
-        - rise-access-token: []
-      parameters:
-        # Required to get customer loyalty card
-        - name: customer_id
-          in: query
-          schema:
-            # Using string since it goes above max graphql int size
-            type: string
-          description: The Shopify Customer Id
-          example: '123456789'
-        # Required to get gift card
-        - name: code
-          in: query
-          schema:
-            type: string
-          description: The Gift Card actual code
-          example: XXXXXXXXXXXXXXXX
-        - $ref: '#/components/parameters/shop-url'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  amount:
-                    type: number
-                  gift_card_id:
-                    type: string
-                  expires_on:
-                    type: string
-                    nullable: true
-                  code:
-                    type: string
-              example:
-                amount: 10
-                gift_card_id: AAAA-AAAA-AAAA-AAAA
-                expires_on: 01/01/2028
-                code: xxxxxxxxxxxxxxxx
-  /v2/gift-cards/issue/:
-    post:
-      tags:
-        - Credit API
-      summary: Issue Gift Card
-      description: |
-        Creates & Send a Gift Card.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                gift_card:
-                  type: object
-                  properties:
-                    balance:
-                      type: number
-                    note:
-                      type: string
-                  required: [balance]
-                email_details:
-                  type: object
-                  properties:
-                    recipient:
-                      type: string
-                    title:
-                      type: string
-                    subject:
-                      type: string
-                    body:
-                      type: string
-                    recipient_email:
-                      type: string
-              required: [gift_card, email_details]
-              example:
-                gift_card:
-                  balance: 100
-                  note: ''
-                email_details:
-                  recipient: recipientName
-                  title: Cool mail
-                  subject: Hello this is a reason giftcard
-                  body: This is some reason I give you a gift card
-                  recipient_email: ' happy_customer@gmail.com '
-      security: 
-        - rise-access-token: []
-      parameters:
-        - $ref: '#/components/parameters/content-type'
-        - $ref: '#/components/parameters/shop-url'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  gift_card:
-                    type: object
-                    properties: 
-                      collections:
-                        type: array
-                        items:
-                          type: string
-                      created_at:
-                        type: string
-                      gift_card_id:
-                        type: string
-                      id:
-                        type: string
-                      balance:
-                        type: number
-                      initial_value:
-                        type: number
-                      expires_on:
-                        type: string
-                        nullable: true
-                      code:
-                        type: string
-                      gift_card_source:
-                        type: string
-                      platform:
-                        type: string
-                      notified:
-                        type: number
-                      customer_email:
-                        type: string
-                      customer_name:
-                        type: string
-                      customer_id:
-                        type: string
-                        nullable: true
-                      shopify_gift_card_id:
-                        type: string
-                      gift_card_type:
-                        type: string
-                      shop_url:
-                        type: string
-                      updated_at:
-                        type: string
-              example:
-                gift_card:
-                  gift_card_id: AAAA-AAAA-AAAA-AAAA
-                  balance: 100
-                  initial_value: 100
-                  expires_on: 01/01/2028
-                  code: xxxxxxxxxxxxxxxx
-  /v2/gift-cards/{card}:
-    put:
-      tags:
-        - Credit API
-      summary: Adjust Gift Card Balance
-      description: |-
-        Adjust the balance of an existing Gift Card.
-
-        Adjustment type can be either "order" or "refund".
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                amount:
-                  type: number
-                type:
-                  type: string
-                order_id:
-                  type: string
-              example:
-                amount: 10
-                type: order/refund
-                order_id: '1234567890'
-      security: 
-        - rise-access-token: []
-      parameters:
-        - name: card
-          in: path
-          description: Card Number
-          schema:
-            type: string
-          required: true
-        - $ref: '#/components/parameters/content-type'
-        - $ref: '#/components/parameters/shop-url'
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  gift_card_id:
-                    type: string
-                  balance:
-                    type: number
-                  expires_on:
-                    type: string
-                  code:
-                    type: string
-              example:
-                gift_card:
-                  gift_card_id: AAAA-AAAA-AAAA-AAAA
-                  balance: 90
-                  expires_on: 01/01/2028
-                  code: xxxxxxxxxxxxxxxx
-  /integrations/inbound/gifting/session:
+  /session:
     post:
       tags:
         - Gifting API > API Reference > Session
@@ -508,7 +287,7 @@ paths:
               example:
                 session:
                   id: d50c6478-2095-47f6-89a6-a2754e64d254
-  /integrations/inbound/gifting/session/{session_id}:
+  /session/{session_id}:
     get:
       tags:
         - Gifting API > API Reference > Session
@@ -751,7 +530,7 @@ paths:
                   image: >-
                     https://assets.rise-ai.com/static/02b2b9cf1ed84edb8fa64cb1799fdd346865793278584a72bbb81d3fb951d413.jpg
                   send_at: '2021-03-04T12:43:10.000Z'
-  /integrations/inbound/gifting/session/{session_id}/completed:
+  /session/{session_id}/completed:
     post:
       tags:
         - Gifting API > API Reference > Session
@@ -779,7 +558,7 @@ paths:
           description: Successful response
           content:
             application/json: {}
-  /integrations/inbound/gifting/session/{session_id}/gift/{gift_id}:
+  /session/{session_id}/gift/{gift_id}:
     put:
       tags:
         - Gifting API > API Reference > Gift
@@ -1017,7 +796,7 @@ paths:
               schema:
                 type: string
               example: OK
-  /integrations/inbound/gifting/assets:
+  /assets:
     get:
       tags:
         - Gifting API > API Reference
@@ -1105,103 +884,3 @@ paths:
                   gallery_images_urls:
                     - >-
                       https://assets.rise-ai.com/static/02b2b9cf1ed84edb8fa64cb1799fdd346865793278584a72bbb81d3fb951d413.jpg
-  /triggers:
-    post:
-      tags:
-        - Workflows custom-trigger api
-      summary: Create Custom Trigger - Tech partner
-      description: >-
-        Create a Custom Trigger as a tech partner.
-
-
-        Every tech partner will be provided with a client_id and client_secret
-        (that will be saved in our DB.)
-
-
-        - Use **client_id** in the request payload. The Custom Trigger itself
-        should be sent under **scheme**.
-
-        - In order to generate **encoded_shop_url**, use your client_secret as a
-        JWT secret, in order to encode a json of the form `{"shop_url":
-        "amazingshop.myshopify.com"}`. The JWT value should be used as the
-        Bearer token in the Authorization header. **Make sure to encode the same
-        shop url as the one you put in the request's query param**
-
-        - You are limited to creating 1 Trigger per shop URL.
-            
-
-        Trigger Scheme guidelines:
-
-
-        - `meta` - An object containing some general info about the trigger:
-        `title` and `description`
-
-        - `variables` - A list of the Trigger's fields, defined by 3 properties
-            - `title` - A display name of the variable
-            - `type` - Defines the allowed value of the variable. It can be one of: `'Boolean', 'Float', 'Date', 'CommaSeparatedString', 'String', 'Email'`
-                - **A valid trigger must contain exactly 1 Email field**, as this will be used as a recipient when issuing store credit.
-            - `path` - The exact path to the variable, as it's defined in the structure that will be sent to Rise's Trigger system
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              example:
-                client_id: your_client_id
-                scheme:
-                  variables:
-                    - path: customer_email
-                      type: Email
-                      title: Customer Email
-                  meta:
-                    title: Tech Partner Trigger
-                    description: >-
-                      This is an example of a Custom Trigger made by a Tech
-                      Partner
-      parameters:
-        - name: Authorization
-          in: header
-          schema:
-            type: string
-          description: >-
-            In order to generate access token, use client_secret as explained in
-            the method guidelines
-          example: Bearer encoded_shop_url
-        - $ref: '#/components/parameters/shop-url'
-      responses:
-        '200':
-          description: Successful response
-          content:
-            application/json: {}
-  /execute/{trigger_id}:
-    post:
-      tags:
-        - Workflows custom-trigger api
-      summary: Custom Trigger Execution Example
-      description: >-
-        Initiates a custom trigger, and processes it upon any using workflows.
-
-
-        In order for a trigger to be processed, the request payload must match
-        the Trigger's scheme.
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              example:
-                customer_email: example@email.com
-                first_name: example
-      parameters:
-        - name: trigger_id
-          in: path
-          schema:
-            type: string
-          required: true
-          description: The trigger ID as received from the server upon creation
-          example: 4e6e96a2-f7be-4b83-8015-00f9bae4a92f
-      responses:
-        '200':
-          description: Successful response
-          content:
-            application/json: {}
