@@ -627,7 +627,10 @@ paths:
         '200':
           description: Successful response
           content:
-            application/json: {}
+            application/json:
+              schema:
+                type: string
+              example: OK
   /session/{session_id}/gift/{gift_id}:
     put:
       operationId: updateGift
@@ -635,11 +638,14 @@ paths:
         - Gifting API > API Reference > Gift
       summary: Update Gift
       requestBody:
+        required: true
         content:
           application/json:
             schema:
               type: object
-              # TODO
+              properties:
+                gift:
+                  $ref: '#/components/schemas/GiftInput'
               example:
                 gift:
                   value: 125
@@ -753,6 +759,9 @@ paths:
             application/json:
               schema:
                 type: object
+                properties:
+                  gift:
+                    $ref: '#/components/schemas/GiftOutput'
               example:
                 gift:
                   id: 950146482
