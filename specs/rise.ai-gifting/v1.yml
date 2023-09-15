@@ -460,24 +460,8 @@ paths:
             schema:
               type: object
               properties:
-                variant_id:
-                  type: string
-                gift_id:
-                  type: string
-                value:
-                  type: number
-                name:
-                  type: string
-                email:
-                  type: string
-                message:
-                  type: string
-                sending_method:
-                  type: string
-                image:
-                  type: string
-                send_at:
-                  type: string
+                gift:
+                  $ref: '#/components/schemas/Gift'
       security: 
         - rise-gifting-api-key: []
       parameters:
@@ -633,24 +617,8 @@ paths:
             schema:
               type: object
               properties:
-                variant_id:
-                  type: string
-                gift_id:
-                  type: string
-                value:
-                  type: number
-                name:
-                  type: string
-                email:
-                  type: string
-                message:
-                  type: string
-                sending_method:
-                  type: string
-                image:
-                  type: string
-                send_at:
-                  type: string
+                gift:
+                  $ref: '#/components/schemas/Gift'
               example:
                 gift:
                   value: 125
