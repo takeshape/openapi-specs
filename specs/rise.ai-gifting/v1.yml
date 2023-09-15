@@ -582,7 +582,7 @@ paths:
               type: object
               properties:
                 order_id:
-                  type: number
+                  type: string
               example:
                 order_id: ' PLATFORM_ORDER_ID '
       security: 
