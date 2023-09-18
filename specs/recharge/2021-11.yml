@@ -108,6 +108,30 @@ components:
           type: string
           format: date-time
           description: The date and time when the address was last updated.
+        include:
+          $ref: '#/components/schemas/AddressInclude'
+    AddressInclude:
+      type: object
+      properties:
+        customer:
+          $ref: '#/components/schemas/Customer'
+        discount:
+          $ref: '#/components/schemas/Discount'
+        payment_methods:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentMethod'
+        subscriptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Subscription'
+    AddressIncludeOptions:
+      type: string
+      enum:
+        - customer
+        - discount
+        - payment_methods
+        - subscriptions
     InlineAddress:
       type: object
       properties:
@@ -686,6 +710,27 @@ components:
         updated_at:
           type: string
           format: date-time
+    ChargeInclude:
+      type: object
+      properties:
+        customers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Customer'
+        metafields:
+          type: array
+          items:
+            $ref: '#/components/schemas/Metafield'
+        payment_methods:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentMethod'
+    ChargeIncludeOptions:
+      type: string
+      enum:
+        - customers
+        - metafields
+        - payment_methods
     ChargeResponse:
       type: object
       required:
@@ -1560,6 +1605,34 @@ components:
           type: string
           format: date-time
           description: The date and time when the customer was last updated
+        include:
+          $ref: '#/components/schemas/CustomerInclude'
+    CustomerInclude:
+      type: object
+      properties:
+        addresses:
+          type: array
+          items:
+            $ref: '#/components/schemas/Address'
+        metafields:
+          type: array
+          items:
+            $ref: '#/components/schemas/Metafield'
+        payment_methods:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentMethod'
+        subscriptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Subscription'
+    CustomerIncludeOptions:
+      type: string
+      enum:
+        - addresses
+        - metafields
+        - payment_methods
+        - subscriptions
     CustomerResponse:
       type: object
       required:
@@ -2363,6 +2436,22 @@ components:
         updated_at:
           type: string
           format: date-time
+        include:
+          $ref: '#/components/schemas/OrderInclude'
+    OrderInclude:
+      type: object
+      properties:
+        customer:
+          $ref: '#/components/schemas/Customer'
+        metafields:
+          type: array
+          items:
+            $ref: '#/components/schemas/Metafield'
+    OrderIncludeOptions:
+      type: string
+      enum:
+        - customer
+        - metafields
     OrderResponse:
       type: object
       required:
@@ -2515,6 +2604,19 @@ components:
           format: date-time
         billing_address:
           $ref: '#/components/schemas/InlineAddress'
+        include:
+          $ref: '#/components/schemas/PaymentMethodInclude'
+    PaymentMethodInclude:
+      type: object
+      properties:
+        addresses:
+          type: array
+          items:
+            $ref: '#/components/schemas/Address'
+    PaymentMethodIncludeOptions:
+      type: string
+      enum:
+        - addresses
     PaymentMethodResponse:
       type: object
       required:
@@ -3273,6 +3375,31 @@ components:
         variant_title:
           type: string
           description: The name of the variant in a shop’s catalog.
+        include:
+          $ref: '#/components/schemas/SubscriptionInclude'
+    SubscriptionInclude:
+      type: object
+      properties:
+        address:
+          $ref: '#/components/schemas/Address'
+        bundle_product:
+          $ref: '#/components/schemas/Product'
+        bundle_selections:
+          $ref: '#/components/schemas/BundleSelection'
+        customer:
+          $ref: '#/components/schemas/Customer'
+        metafields:
+          type: array
+          items:
+            $ref: '#/components/schemas/Metafield'
+    SubscriptionIncludeOptions:
+      type: string
+      enum:
+        - address
+        - customer
+        - metafields
+        - bundle_product
+        - bundle_selections
     SubscriptionResponse:
       type: object
       required:
@@ -3498,6 +3625,14 @@ paths:
           description: Returns active addresses
           schema:
             type: boolean
+        - name: include
+          in: query
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/AddressIncludeOptions'
+          style: form
+          explode: false
       responses:
         '200':
           description: List of addresses retrieved successfully.
@@ -3527,6 +3662,15 @@ paths:
     get:
       summary: Retrieve an address by its ID.
       operationId: get-address
+      parameters:
+        - name: include
+          in: query
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/AddressIncludeOptions'
+          style: form
+          explode: false
       responses:
         '200':
           description: Address retrieved successfully.
@@ -3864,6 +4008,14 @@ paths:
           description: Returns active addresses
           schema:
             type: boolean
+        - name: include
+          in: query
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/ChargeIncludeOptions'
+          style: form
+          explode: false
       responses:
         '200':
           description: List of charges retrieved successfully.
@@ -3893,6 +4045,15 @@ paths:
     get:
       summary: Retrieve a Charge by its ID.
       operationId: get-charge
+      parameters:
+        - name: include
+          in: query
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/ChargeIncludeOptions'
+          style: form
+          explode: false
       responses:
         '200':
           description: Charge retrieved successfully.
@@ -4410,6 +4571,14 @@ paths:
           schema:
             type: string
             format: date-time
+        - name: include
+          in: query
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/CustomerIncludeOptions'
+          style: form
+          explode: false
       responses:
         '200':
           description: List of customers retrieved successfully.
@@ -4439,6 +4608,15 @@ paths:
     get:
       summary: Retrieve one customer using customer_id.
       operationId: get-customer
+      parameters:
+        - name: include
+          in: query
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/CustomerIncludeOptions'
+          style: form
+          explode: false
       responses:
         '200':
           description: Customer retrieved successfully.
@@ -5082,6 +5260,14 @@ paths:
           schema:
             type: string
             format: date-time
+        - name: include
+          in: query
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/OrderIncludeOptions'
+          style: form
+          explode: false
       responses:
         '200':
           description: List of orders retrieved successfully.
@@ -5111,6 +5297,15 @@ paths:
     get:
       summary: Retrieve one Order using the Recharge order_id
       operationId: get-order
+      parameters:
+        - name: include
+          in: query
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/OrderIncludeOptions'
+          style: form
+          explode: false
       responses:
         '200':
           description: Order retrieved successfully.
@@ -5215,6 +5410,14 @@ paths:
           description: Gets all Payment methods for this customer
           schema:
             type: string
+        - name: include
+          in: query
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/PaymentMethodIncludeOptions'
+          style: form
+          explode: false
       responses:
         '200':
           description: List of payment method retrieved successfully.
@@ -5244,6 +5447,15 @@ paths:
     get:
       summary: Retrieve an payment method by its ID.
       operationId: get-payment-method
+      parameters:
+        - name: include
+          in: query
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/PaymentMethodIncludeOptions'
+          style: form
+          explode: false
       responses:
         '200':
           description: Payment method retrieved successfully.
@@ -5708,6 +5920,14 @@ paths:
               - active
               - cancelled
               - expired
+        - name: include
+          in: query
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/SubscriptionIncludeOptions'
+          style: form
+          explode: false
       responses:
         '200':
           description: List of subscriptions retrieved successfully.
@@ -5737,6 +5957,15 @@ paths:
     get:
       summary: Retrieve an subscription by its ID.
       operationId: get-subscription
+      parameters:
+        - name: include
+          in: query
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/SubscriptionIncludeOptions'
+          style: form
+          explode: false
       responses:
         '200':
           description: Subscription retrieved successfully.
