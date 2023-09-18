@@ -38,6 +38,7 @@ components:
           description: Unique numeric identifier for the Address.
         payment_method_id:
           type: integer
+          format: int56
           description: Unique numeric identifier for the Payment Method associated to the Address.
         address1:
           type: string
@@ -56,6 +57,7 @@ components:
           description: 2-letter country code.
         customer_id:
           type: integer
+          format: int56
           description: Unique numeric identifier for the customer associated with the address.
         discounts:
           type: array
@@ -190,6 +192,7 @@ components:
       properties:
         payment_method_id:
           type: integer
+          format: int56
           description: Unique numeric identifier for the Payment Method associated to the Address.
         address1:
           type: string
@@ -208,6 +211,7 @@ components:
           description: 2-letter country code.
         customer_id:
           type: integer
+          format: int56
           description: Unique numeric identifier for the customer associated with the address.
         discounts:
           type: array
@@ -250,6 +254,7 @@ components:
       properties:
         payment_method_id:
           type: integer
+          format: int56
           description: Unique numeric identifier for the Payment Method associated to the Address.
         address1:
           type: string
@@ -315,9 +320,11 @@ components:
           description: The unique numeric identifier for the BundleSelection.
         bundle_variant_id:
           type: integer
+          format: int56
           description: The ID of the BundleVariant associated with the BundleSelection.
         purchase_item_id:
           type: integer
+          format: int56
           description: The ID of the PurchaseItem associated with the BundleSelection.
         created_at:
           type: string
@@ -382,6 +389,7 @@ components:
       properties:
         purchase_item_id:
           type: integer
+          format: int56
           description: The ID of the PurchaseItem associated with the BundleSelection.
         items:
           type: array
@@ -546,6 +554,7 @@ components:
           description: The unique numeric identifier for the Charge.
         address_id:
           type: integer
+          format: int56
           description: The ID of the shipping Address tied to the Charge.
         analytics_data:
           $ref: '#/components/schemas/AnalyticsData'
@@ -580,7 +589,7 @@ components:
           type: boolean
           description: Indicates if Recharge was able to find the external_variant_id from the Charge.
         external_order_id:
-          $ref: '#/components/schemas/ExternalOrderId'
+          $ref: '#/components/schemas/ExternalEcommerceId'
         external_transaction_id:
           $ref: '#/components/schemas/ExternalTransactionId'
         has_uncommited_changes:
@@ -625,13 +634,13 @@ components:
         status:
           type: string
           enum:
-            - success,
-            - error,
-            - queued,
-            - skipped,
-            - refunded,
-            - partially_refunded,
-            - pending_manual_payment,
+            - success
+            - error
+            - queued
+            - skipped
+            - refunded
+            - partially_refunded
+            - pending_manual_payment
             - pending
         subtotal_price:
           type: string
@@ -689,11 +698,12 @@ components:
       properties:
         purchase_item_id:
           type: integer
+          format: int56
           description: The Subscription or Onetime ID associated with the line_item.
         external_product_id:
-          $ref: '#/components/schemas/ExternalProductId'
+          $ref: '#/components/schemas/ExternalEcommerceId'
         external_variant_id:
-          $ref: '#/components/schemas/ExternalVariantId'
+          $ref: '#/components/schemas/ExternalEcommerceId'
         grams:
           type: integer
           description: The weight of the item in grams.
@@ -759,11 +769,12 @@ components:
           description: Unique identifier of the line_item
         purchase_item_id:
           type: integer
+          format: int56
           description: The Subscription or Onetime ID associated with the line_item.
         external_product_id:
-          $ref: '#/components/schemas/ExternalProductId'
+          $ref: '#/components/schemas/ExternalEcommerceId'
         external_variant_id:
-          $ref: '#/components/schemas/ExternalVariantId'
+          $ref: '#/components/schemas/ExternalEcommerceId'
         weight:
           type: integer
           description: The total weight of the line_item
@@ -828,9 +839,9 @@ components:
       type: object
       properties:
         external_product_id:
-          $ref: '#/components/schemas/ExternalProductId'
+          $ref: '#/components/schemas/ExternalEcommerceId'
         external_variant_id:
-          $ref: '#/components/schemas/ExternalVariantId'
+          $ref: '#/components/schemas/ExternalEcommerceId'
         handle:
           type: string
           description: A unique, human-friendly string for the Product.
@@ -947,46 +958,23 @@ components:
         hash:
           type: string
           description: The hash of the Customer associated with the Charge.
-    ExternalVariantId:
+    ExternalEcommerceId:
       type: object
-      description: An object containing the associated variant ID as it appears in the external system.
+      description: An object containing the associated ID as it appears in the external system.
       properties:
         ecommerce:
           type: string
-          description: The variant id as it appears in the external e-commerce platform. The external_variant_id of the Product record in Recharge, linking a Plan to a Product.
-    ExternalProductId:
-      type: object
-      description: An object containing the associated product ID as it appears in the external system.
-      properties:
-        ecommerce:
-          type: string
-          description: The product id as it appears in the external e-commerce platform. The external_product_id of the Product record in Recharge, linking a Plan to a Product.
-    ExternalDiscountId:
-      type: object
-      description: An object containing external ids of the discount.
-      properties:
-        ecommerce:
-          type: string
-          description: The discount id as it appears in the external e-commerce platform
+          description: The id as it appears in the external e-commerce platform.
+      required:
+        - ecommerce
     ExternalTransactionId:
       type: object
       properties:
         payment_processor:
-          type: integer
+          type: string
           description: The ID of the associated transaction in a payment processor system (like Stripe).
-    ExternalOrderId:
-      type: object
-      description: An object containing the associated external order ID.
-      properties:
-        ecommerce:
-          type: string
-          description: The order ID as it appears in the external e-commerce platform.
-    ExternalCustomerId:
-      type: object
-      description: The customer ID as it appears in the external e-commerce platform.
-      properties:
-        ecommerce:
-          type: string
+      required:
+        - payment_processor
     ClientDetails:
       type: object
       properties:
@@ -1053,6 +1041,7 @@ components:
       properties:
         charge_id:
           type: integer
+          format: int56
           description: ID for the Charge resulting from processing the Checkout.
         analytics_data:
           $ref: '#/components/schemas/AnalyticsData'
@@ -1088,7 +1077,7 @@ components:
           type: string
           description: External checkout platform, if one exists.
         external_customer_id:
-          $ref: '#/components/schemas/ExternalCustomerId'
+          $ref: '#/components/schemas/ExternalEcommerceId'
         external_transaction_id:
           $ref: '#/components/schemas/ExternalTransactionId'
         line_items:
@@ -1467,6 +1456,7 @@ components:
       properties:
         collection_id:
           type: integer
+          format: int56
           description: Unique numeric identifier for a Collection
         created_at:
           type: string
@@ -1534,7 +1524,7 @@ components:
           type: string
           description: The email address of the customer
         external_customer_id:
-          $ref: '#/components/schemas/ExternalProductId'
+          $ref: '#/components/schemas/ExternalEcommerceId'
         first_charge_processed_at:
           type: string
           format: date-time
@@ -1588,7 +1578,7 @@ components:
           type: string
           description: The email address of the customer
         external_customer_id:
-          $ref: '#/components/schemas/ExternalProductId'
+          $ref: '#/components/schemas/ExternalEcommerceId'
         first_name:
           type: string
           description: The customer’s first name
@@ -1608,7 +1598,7 @@ components:
           type: string
           description: The email address of the customer
         external_customer_id:
-          $ref: '#/components/schemas/ExternalProductId'
+          $ref: '#/components/schemas/ExternalEcommerceId'
         first_name:
           type: string
           description: The customer’s first name
@@ -1658,9 +1648,11 @@ components:
           description: Unique numeric identifier for the order. Defaults to null if the Charge linked to this order has not been processed yet
         address_id:
           type: integer
+          format: int56
           description: Unique numeric identifier for the customer’s address for which the delivery is due.
         charge_id:
           type: integer
+          format: int56
           description: Unique numeric identifier for the Charge linked to the order. May be null for projected orders with no charge yet created.
         line_items:
           type: array
@@ -1716,11 +1708,12 @@ components:
       properties:
         subscription_id:
           type: integer
+          format: int56
           description: Unique numeric identifier for the subscription linked to this line_item in the order
         external_product_id:
-          $ref: '#/components/schemas/ExternalProductId'
+          $ref: '#/components/schemas/ExternalEcommerceId'
         external_variant_id:
-          $ref: '#/components/schemas/ExternalVariantId'
+          $ref: '#/components/schemas/ExternalEcommerceId'
         images:
           $ref: '#/components/schemas/Images'
         is_prepaid:
@@ -1779,6 +1772,7 @@ components:
       properties:
         customer_id:
           type: integer
+          format: int56
           description: Unique numeric identifier for the Customer.
         total_available_balance:
           type: string
@@ -1847,7 +1841,7 @@ components:
           format: date-time
           description: The expiration timestamp of the discount. Past this time the Discount can no longer be redeemed. After ends_at the status of the Discount will go from active to disabled. Recurring discounts applied prior to their ends_at time will still apply.
         external_discount_id:
-          $ref: '#/components/schemas/ExternalDiscountId'
+          $ref: '#/components/schemas/ExternalEcommerceId'
         first_time_customer_restriction:
           type: boolean
           description: Discount can be used on checkout for customer that still don’t exist in Recharge database
@@ -1982,7 +1976,7 @@ components:
         purchase_item_type:
           type: string
           enum:
-            - ALL,
+            - ALL
             - ONETIME
             - SUBSCRIPTION
           description: An indicator of whether the discount applies to onetimes, subscriptions, or all purchase item types.
@@ -2132,6 +2126,7 @@ components:
           description: Unique numeric identifier for the Onetime purchase
         address_id:
           type: integer
+          format: int56
           description: Unique numeric identifier for the address the Onetime Purchase is associated with (cannot be used with next_charge_scheduled_at)
         created_at:
           type: string
@@ -2139,11 +2134,12 @@ components:
           description: The time the Onetime item was first created.
         customer_id:
           type: integer
+          format: int56
           description: Unique numeric identifier for the customer the Onetime purchase is tied to.
         external_product_id:
-          $ref: '#/components/schemas/ExternalProductId'
+          $ref: '#/components/schemas/ExternalEcommerceId'
         external_variant_id:
-          $ref: '#/components/schemas/ExternalVariantId'
+          $ref: '#/components/schemas/ExternalEcommerceId'
         is_cancelled:
           type: boolean
           description: Flag indicating if the the onetime is cancelled.
@@ -2200,14 +2196,15 @@ components:
       properties:
         address_id:
           type: integer
+          format: int56
           description: Unique numeric identifier for the address the Onetime Purchase is associated with (cannot be used with next_charge_scheduled_at)
         add_to_next_charge:
           type: boolean
           description: Instructs to add the Onetime to the next charge scheduled under this Address.
         external_product_id:
-          $ref: '#/components/schemas/ExternalProductId'
+          $ref: '#/components/schemas/ExternalEcommerceId'
         external_variant_id:
-          $ref: '#/components/schemas/ExternalVariantId'
+          $ref: '#/components/schemas/ExternalEcommerceId'
         next_charge_scheduled_at:
           type: string
           format: date-time
@@ -2234,11 +2231,12 @@ components:
       properties:
         address_id:
           type: integer
+          format: int56
           description: Unique numeric identifier for the address the Onetime Purchase is associated with (cannot be used with next_charge_scheduled_at)
         external_product_id:
-          $ref: '#/components/schemas/ExternalProductId'
+          $ref: '#/components/schemas/ExternalEcommerceId'
         external_variant_id:
-          $ref: '#/components/schemas/ExternalVariantId'
+          $ref: '#/components/schemas/ExternalEcommerceId'
         next_charge_scheduled_at:
           type: string
           format: date-time
@@ -2269,6 +2267,7 @@ components:
           description: The unique numeric identifier for the order
         address_id:
           type: integer
+          format: int56
           description: The id of the associated Address within Recharge
         billing_address:
           $ref: '#/components/schemas/InlineAddress'
@@ -2293,9 +2292,9 @@ components:
           type: string
           description: The cart token as it appears in an external system
         external_order_id:
-          $ref: '#/components/schemas/ExternalOrderId'
+          $ref: '#/components/schemas/ExternalEcommerceId'
         external_order_number:
-          $ref: '#/components/schemas/ExternalOrderId'
+          $ref: '#/components/schemas/ExternalEcommerceId'
         is_prepaid:
           type: boolean
           description: A boolean representing if this Order is generated from a prepaid purchase
@@ -2383,7 +2382,7 @@ components:
           items:
             $ref: '#/components/schemas/LineItem'
         external_order_id:
-          $ref: '#/components/schemas/ExternalOrderId'
+          $ref: '#/components/schemas/ExternalEcommerceId'
         scheduled_at:
           type: string
           format: date-time
@@ -2454,7 +2453,7 @@ components:
     ProcessorName:
       type: string
       enum:
-        - stripe,
+        - stripe
         - braintree
         - authorize
         - shopify_payments
@@ -2476,6 +2475,7 @@ components:
           description: The unique payment method id for a customer.
         customer_id:
           type: integer
+          format: int56
           description: The Recharge customer_id.
         created_at:
           type: string
@@ -2532,6 +2532,7 @@ components:
       properties:
         customer_id:
           type: integer
+          format: int56
           description: The Recharge customer_id.
         default:
           type: boolean
@@ -2601,7 +2602,7 @@ components:
         discount_type:
           $ref: '#/components/schemas/DiscountType'
         external_product_id:
-          $ref: '#/components/schemas/ExternalProductId'
+          $ref: '#/components/schemas/ExternalEcommerceId'
         sort_order:
           type: integer
           description: The number indicating the order which the plan will be in a list of related plans.
@@ -2653,7 +2654,7 @@ components:
         discount_type:
           $ref: '#/components/schemas/DiscountType'
         external_product_id:
-          $ref: '#/components/schemas/ExternalProductId'
+          $ref: '#/components/schemas/ExternalEcommerceId'
         sort_order:
           type: integer
           description: The number indicating the order which the plan will be in a list of related plans.
@@ -2677,7 +2678,7 @@ components:
         discount_type:
           $ref: '#/components/schemas/DiscountType'
         external_product_id:
-          $ref: '#/components/schemas/ExternalProductId'
+          $ref: '#/components/schemas/ExternalEcommerceId'
         sort_order:
           type: integer
           description: The number indicating the order which the plan will be in a list of related plans.
@@ -3137,16 +3138,30 @@ components:
     Subscription:
       type: object
       required:
-        - id
-        - created_at
-        - updated_at
         - address_id
+        - analytics_data
         - charge_interval_frequency
-        - next_charge_scheduled_at
+        - created_at
+        - customer_id
+        - external_product_id
+        - external_variant_id
+        - has_queued_charges
+        - id
+        - is_prepaid
+        - is_skippable
+        - is_swappable
+        - max_retries_reached
         - order_interval_frequency
         - order_interval_unit
+        - presentment_currency
+        - price
+        - product_title
+        - properties
         - quantity
-        - external_variant_id
+        - sku_override
+        - status
+        - updated_at
+        - variant_title
       properties:
         id:
           type: integer
@@ -3154,9 +3169,11 @@ components:
           description: Unique numeric identifier for the subscription.
         address_id:
           type: integer
+          format: int56
           description: Unique numeric identifier for the address the subscription is associated with.
         customer_id:
           type: integer
+          format: int56
           description: Unique numeric identifier for the customer the subscription is tied to.
         analytics_data:
           $ref: '#/components/schemas/AnalyticsData'
@@ -3181,9 +3198,9 @@ components:
           type: integer
           description: Set the number of charges until subscription expires.
         external_product_id:
-          $ref: '#/components/schemas/ExternalProductId'
+          $ref: '#/components/schemas/ExternalEcommerceId'
         external_variant_id:
-          $ref: '#/components/schemas/ExternalVariantId'
+          $ref: '#/components/schemas/ExternalEcommerceId'
         has_queued_charges:
           type: boolean
           description: Retrieves true if there is queued charge. Otherwise, retrieves false.
@@ -3245,8 +3262,8 @@ components:
         status:
           type: string
           enum:
-            - active,
-            - cancelled,
+            - active
+            - cancelled
             - expired
           description: The status of the subscription. EXPIRED - This status occurs when the maximum number of charges for a product has been reached.
         updated_at:
@@ -3276,6 +3293,7 @@ components:
       properties:
         address_id:
           type: integer
+          format: int56
           description: Unique numeric identifier for the address the subscription is associated with.
         charge_interval_frequency:
           type: string
@@ -3318,14 +3336,14 @@ components:
           type: integer
           description: The number of items in the subscription.
         external_product_id:
-          $ref: '#/components/schemas/ExternalProductId'
+          $ref: '#/components/schemas/ExternalEcommerceId'
         external_variant_id:
-          $ref: '#/components/schemas/ExternalVariantId'
+          $ref: '#/components/schemas/ExternalEcommerceId'
         status:
           type: string
           enum:
-            - active,
-            - cancelled,
+            - active
+            - cancelled
             - expired
           description: The status of the subscription. EXPIRED - This status occurs when the maximum number of charges for a product has been reached.
         variant_title:
@@ -3372,6 +3390,7 @@ components:
           description: The number of items in the subscription.
         plan_id:
           type: integer
+          format: int56
           description: 'A Recharge Plan id that provides interval information. Automatically fills the following properties from the plan if they were not provided directly: charge_interval_frequency, expire_after_specific_number_of_charges, order_day_of_month, order_day_of_week, order_interval_frequency, order_interval_unit.'
         sku:
           type: string
@@ -3380,7 +3399,7 @@ components:
           type: boolean
           description: Flag is automatically updated to true when SKU is passed on create or update. When sku_override is true, the SKU on the subscription will be used to generate charges and orders. When sku_override is false, Recharge will dynamically fetch the sku from the corresponding external platform variant.
         external_variant_id:
-          $ref: '#/components/schemas/ExternalVariantId'
+          $ref: '#/components/schemas/ExternalEcommerceId'
         use_external_variant_defaults:
           type: boolean
           description: Flag instructing to pull the price from the product variant passed. You need to pass the variant_id under external_variant_id.ecommerce and set this attribute to true in the request for the flag to work.
@@ -3904,6 +3923,7 @@ paths:
                   description: Code of the Discount you want to apply to a Charge.
                 discount_id:
                   type: integer
+                  format: int56
                   description: ID of the Discount you want to apply to a Charge.
       responses:
         '200':
@@ -4155,7 +4175,7 @@ paths:
                 payment_processor:
                   type: string
                   enum:
-                    - stripe,
+                    - stripe
                     - braintree
                     - authorize
                   description: The name of payment processor
@@ -4485,9 +4505,11 @@ paths:
                   properties:
                     address_id:
                       type: integer
+                      format: int56
                       description: If needed by the template_type, the address_id associated with the indicated Customer, and the object of the Notification.
                     charge_id:
                       type: integer
+                      format: int56
                       description: If needed by the template_type, the charge_id of the Charge for which the notification should be sent.
 
 
@@ -5662,12 +5684,6 @@ paths:
             maximum: 250
         - name: cursor
           in: query
-          description: Cursor for pagination
-          schema:
-            type: string
-            default: 1
-        - name: cursor
-          in: query
           description: Return either the next or previous page of subscriptions using next_cursor or previous_cursor attributes in the response.
           schema:
             type: string
@@ -5814,6 +5830,7 @@ paths:
               properties:
                 address_id:
                   type: integer
+                  format: int56
                   description: Unique id of the address that need to be associated with subscription.
                 next_charge_scheduled_at:
                   type: string
