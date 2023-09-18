@@ -5587,7 +5587,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StoreResponse'
-  /subcriptions:
+  /subscriptions:
     post:
       summary: Create a new subscription
       operationId: create-subscription
