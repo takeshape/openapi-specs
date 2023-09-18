@@ -1010,16 +1010,12 @@ components:
         ecommerce:
           type: string
           description: The id as it appears in the external e-commerce platform.
-      required:
-        - ecommerce
     ExternalTransactionId:
       type: object
       properties:
         payment_processor:
           type: string
           description: The ID of the associated transaction in a payment processor system (like Stripe).
-      required:
-        - payment_processor
     ClientDetails:
       type: object
       properties:
