@@ -1072,6 +1072,7 @@ components:
           description: A list containing the Subscription IDs to be skipped.
           items:
             type: integer
+            format: int56
     Checkout:
       type: object
       required:
@@ -3589,6 +3590,7 @@ paths:
             type: array
             items:
               type: integer
+              format: int56
           style: form
           explode: false
         - name: limit
@@ -3721,6 +3723,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int56
     post:
       summary: Skip future charge for an address.
       operationId: skip-future-charge-for-address
@@ -3781,6 +3784,7 @@ paths:
             type: array
             items:
               type: integer
+              format: int56
           style: form
           explode: false
         - name: bundle_variant_ids
@@ -3790,6 +3794,7 @@ paths:
             type: array
             items:
               type: integer
+              format: int56
           style: form
           explode: false
         - name: limit
@@ -3842,6 +3847,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int56
     get:
       summary: Retrieve a bundle selection by its ID.
       operationId: get-bundle-selection
@@ -3902,6 +3908,7 @@ paths:
             type: array
             items:
               type: integer
+              format: int56
           style: form
           explode: false
         - name: limit
@@ -4038,6 +4045,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int56
     get:
       summary: Retrieve a Charge by its ID.
       operationId: get-charge
@@ -4065,6 +4073,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int56
     post:
       summary: Apply Discount to an existing queued Charge.
       operationId: apply-charge-discount
@@ -4097,6 +4106,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int56
     post:
       summary: Remove a Discount from a Charge without destroying the Discount.
       operationId: remove-charge-discount
@@ -4115,6 +4125,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int56
     post:
       summary: Skip a Charge.
       operationId: skip-charge
@@ -4133,6 +4144,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int56
     post:
       summary: Unskip a Charge.
       operationId: unskip-charge
@@ -4151,6 +4163,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int56
     post:
       summary: Refund a Charge.
       operationId: refund-charge
@@ -4193,6 +4206,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int56
     post:
       summary: Process a Charge.
       operationId: process-charge
@@ -4211,6 +4225,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int56
     post:
       summary: If you are leveraging the authorize/capture workflow with Recharge, the charge/{id}/capture_payment endpoint is how to capture the funds of a previously authorized Charge.
       operationId: capture-charge
@@ -4400,6 +4415,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int56
     get:
       summary: Retrieve one Collection using collection_id.
       operationId: get-collection
@@ -4442,6 +4458,7 @@ paths:
           description: The id of the Collection for which you want to see the products
           schema:
             type: integer
+            format: int56
       responses:
         '200':
           description: Collection products retrieved successfully.
@@ -4457,6 +4474,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int56
     post:
       summary: Add products to a Collection in Recharge.
       operationId: add-collection-products
@@ -4535,6 +4553,7 @@ paths:
             type: array
             items:
               type: integer
+              format: int56
           style: form
           explode: false
         - name: limit
@@ -4601,6 +4620,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int56
     get:
       summary: Retrieve one customer using customer_id.
       operationId: get-customer
@@ -4650,6 +4670,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int56
     post:
       summary: Sends a notification email to the customer
       operationId: send-email-notification
@@ -4701,6 +4722,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int56
     get:
       summary: Returns the list of projected deliveries in a specific interval.
       operationId: get-customer-delivery-schedule
@@ -4737,6 +4759,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int56
     get:
       summary: Returns a credit summary for the customer.
       operationId: get-customer-credit-summary
@@ -4855,6 +4878,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int56
     get:
       summary: Retrieve a discount by its ID.
       operationId: get-discount
@@ -4962,6 +4986,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int56
     get:
       summary: Retrieves a single metafield based on a specified id.
       operationId: get-metafield
@@ -5088,6 +5113,7 @@ paths:
             type: array
             items:
               type: integer
+              format: int56
           style: form
           explode: false
       responses:
@@ -5116,6 +5142,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int56
     get:
       summary: Retrieve a onetime by its ID.
       operationId: get-onetime
@@ -5180,6 +5207,7 @@ paths:
           description: Filter orders by customer
           schema:
             type: integer
+            format: int56
         - name: external_customer_id
           in: query
           description: Filter orders by external_customer_id
@@ -5197,6 +5225,7 @@ paths:
             type: array
             items:
               type: integer
+              format: int56
           style: form
           explode: false
         - name: limit
@@ -5290,6 +5319,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int56
     get:
       summary: Retrieve one Order using the Recharge order_id
       operationId: get-order
@@ -5339,6 +5369,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int56
     post:
       summary: Clone an Order
       operationId: clone-order
@@ -5370,6 +5401,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int56
     post:
       summary: Delay a prepaid Order by one interval
       operationId: delay-order
@@ -5440,6 +5472,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int56
     get:
       summary: Retrieve an payment method by its ID.
       operationId: get-payment-method
@@ -5527,6 +5560,7 @@ paths:
             type: array
             items:
               type: integer
+              format: int56
           style: form
           explode: false
         - name: updated_at_max
@@ -5556,6 +5590,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int56
     put:
       summary: Update a Plan
       operationId: update-plan
@@ -5774,6 +5809,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int56
     get:
       summary: Retrieve a retention strategy using the Recharge retention_strategy_id.
       operationId: get-retention-strategy
@@ -5855,11 +5891,13 @@ paths:
           description: Unique identifier of the customer.
           schema:
             type: integer
+            format: int56
         - name: address_id
           in: query
           description: Return the subscriptions linked to the given address_id.
           schema:
             type: integer
+            format: int56
         - name: address_ids
           in: query
           description: Returns subscriptions that have the provided discount_id.
@@ -5867,6 +5905,7 @@ paths:
             type: array
             items:
               type: integer
+              format: int56
           style: form
           explode: false
         - name: external_variant_id
@@ -5881,6 +5920,7 @@ paths:
             type: array
             items:
               type: integer
+              format: int56
           style: form
           explode: false
         - name: limit
@@ -5950,6 +5990,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int56
     get:
       summary: Retrieve an subscription by its ID.
       operationId: get-subscription
@@ -6010,6 +6051,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int56
     post:
       summary: Update an existing subscription’s next charge date.
       operationId: set-subscription-next-charge-date
@@ -6041,6 +6083,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int56
     post:
       summary: Update an existing subscription’s address.
       operationId: set-subscription-address
@@ -6077,6 +6120,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int56
     post:
       summary: Cancel an active subscription.
       operationId: cancel-subscription
@@ -6115,6 +6159,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int56
     post:
       summary: 'Activate a cancelled subscription. When activating subscription, following attributes will be set to null: cancelled_at, cancellation_reason and cancellation_reason_comments.'
       operationId: activate-subscription
@@ -6133,6 +6178,7 @@ paths:
         required: true
         schema:
           type: integer
+          format: int56
     post:
       summary: Gift a skipped Subscription to a recipient.
       operationId: gift-skipped-subscription
@@ -6151,6 +6197,7 @@ paths:
                   description: A list containing the Subscription IDs to be skipped.
                   items:
                     type: integer
+                    format: int56
                 recipient_address:
                   $ref: '#/components/schemas/GiftAddress'
 
