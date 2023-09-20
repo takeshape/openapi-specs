@@ -14,6 +14,238 @@ components:
       type: apiKey
       in: header
       name: x-api-key
+  schemas:
+    CustomerDetails:
+      type: object
+      additionalProperties: false
+      properties:
+        total_spend_cents:
+          type: integer
+        total_purchases:
+          type: integer
+        perks_redeemed:
+          type: integer
+        last_purchase_at:
+          type: string
+          format: date-time
+        first_name:
+          type: string
+        last_name:
+          type: string
+        phone_number:
+          type: string
+        email:
+          type: string
+        points_balance:
+          type: integer
+        points_earned:
+          type: integer
+        last_seen_at:
+          type: string
+          format: date-time
+        thirty_party_id:
+          type: string
+        third_party_id:
+          type: string
+        pos_account_id:
+          type: string
+        has_store_account:
+          type: boolean
+        credit_balance:
+          type: string
+        credit_balance_in_customer_currency:
+          type: string
+        opt_in:
+          type: boolean
+        opted_in_at:
+          type: string
+          format: date
+        points_expire_at:
+          type: string
+          format: date-time
+        next_points_expire_on:
+          type: string
+          format: date
+        next_points_expire_amount:
+          type: integer
+        vip_tier_actions_completed:
+          "$ref": "#/components/schemas/VipTierActionsCompleted"
+        vip_tier_upgrade_requirements:
+          "$ref": "#/components/schemas/VipTierRequirements"
+        vip_tier_maintenance_requirements:
+          "$ref": "#/components/schemas/VipTierRequirements"
+        referral_code:
+          "$ref": "#/components/schemas/ReferralCode"
+        history_items:
+          type: array
+          items:
+            "$ref": "#/components/schemas/HistoryItem"
+      required:
+        - credit_balance
+        - credit_balance_in_customer_currency
+        - email
+        - first_name
+        - has_store_account
+        - last_name
+        - last_seen_at
+        - opt_in
+        - opted_in_at
+        - perks_redeemed
+        - points_balance
+        - points_earned
+        - total_purchases
+        - total_spend_cents
+        - vip_tier_actions_completed
+        - vip_tier_upgrade_requirements
+      title: CustomerDetails
+    HistoryItem:
+      type: object
+      additionalProperties: false
+      properties:
+        created_at:
+          type: string
+          format: date-time
+        date:
+          type: string
+          format: date
+        completed_at:
+          type: string
+          format: date-time
+        action:
+          type: string
+        points:
+          type: integer
+        status:
+          type: string
+        action_name:
+          type: string
+        order_ids:
+          type: array
+          items: { }
+      required:
+        - action
+        - completed_at
+        - created_at
+        - date
+        - order_ids
+        - points
+        - status
+      title: HistoryItem
+    ReferralCode:
+      type: object
+      additionalProperties: false
+      properties:
+        code:
+          type: string
+        shares:
+          type: integer
+        facebook_shares:
+          type: integer
+        twitter_shares:
+          type: integer
+        email_shares:
+          type: integer
+        emails_sent:
+          type: integer
+        emails_viewed:
+          type: integer
+        links_clicked_from_email:
+          type: integer
+        links_clicked_from_twitter:
+          type: integer
+        links_clicked_from_facebook:
+          type: integer
+        orders:
+          type: integer
+        amount_cents:
+          type: integer
+        average_amount_cents:
+          type: integer
+        expires_at:
+          type: string
+          format: date-time
+        expired:
+          type: boolean
+        completed_referral_customers:
+          type: array
+          items: { }
+        email:
+          type: string
+        unique_clicks:
+          type: integer
+        total_clicks:
+          type: integer
+      required:
+        - amount_cents
+        - average_amount_cents
+        - code
+        - completed_referral_customers
+        - email
+        - email_shares
+        - emails_sent
+        - emails_viewed
+        - expired
+        - facebook_shares
+        - links_clicked_from_email
+        - links_clicked_from_facebook
+        - links_clicked_from_twitter
+        - orders
+        - shares
+        - total_clicks
+        - twitter_shares
+        - unique_clicks
+      title: ReferralCode
+    VipTierActionsCompleted:
+      type: object
+      additionalProperties: false
+      properties:
+        points_earned:
+          type: integer
+        amount_spent_cents:
+          type: integer
+        amount_spent_cents_in_customer_currency:
+          type: integer
+        purchases_made:
+          type: integer
+        referrals_completed:
+          type: integer
+        campaigns_completed:
+          type: array
+          items: { }
+      required:
+        - amount_spent_cents
+        - amount_spent_cents_in_customer_currency
+        - campaigns_completed
+        - points_earned
+        - purchases_made
+        - referrals_completed
+      title: VipTierActionsCompleted
+    VipTierRequirements:
+      type: object
+      additionalProperties: false
+      properties:
+        points_needed:
+          type: integer
+        amount_cents_needed:
+          type: integer
+        amount_cents_needed_in_customer_currency:
+          type: integer
+        purchases_needed:
+          type: integer
+        referrals_needed:
+          type: integer
+        campaigns_needed:
+          type: array
+          items: { }
+      required:
+        - amount_cents_needed
+        - amount_cents_needed_in_customer_currency
+        - campaigns_needed
+        - points_needed
+        - purchases_needed
+        - referrals_needed
+      title: VipTierUpgradeRequirements
+
 security:
   - guid: []
     apiKey: []
@@ -22,8 +254,9 @@ paths:
     post:
       summary: Record a Customer Action
       description: This endpoint records an action performed by a customer. It will apply the action to all active custom action campaigns and award the necessary points and/or discounts.
-      operationId: record-a-customer-action
+      operationId: record-customer-action
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -133,8 +366,9 @@ paths:
     post:
       summary: Create/Update Customer Records
       description: This endpoint both creates and updates a customer’s record in the Yotpo system. Use this primarily to notify Yotpo when you add a customer manually in your admin, or a customer changes their email address.
-      operationId: createupdate-customer-records
+      operationId: upsert-customer
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -210,32 +444,28 @@ paths:
       deprecated: false
       security: []
     get:
-      summary: Fetch Customer Details
+      summary: Get Customer Details
       description: This endpoint returns a customer record. Most commonly used to fetch a customer’s point balance and unique referral link.
-      operationId: fetch-customer-details
+      operationId: get-customer
       parameters:
         - name: customer_email
           in: query
           description: The customer’s email address. Required if no `pos_account_id`, `customer_id` or `phone_number` is passed.
-          required: true
           schema:
             type: string
         - name: customer_id
           in: query
           description: The identifier used to uniquely identify the customer in your system. Required if no `customer_email`, `pos_account_id` or `phone_number` is passed.
-          required: true
           schema:
             type: string
         - name: pos_account_id
           in: query
           description: The identifier used to uniquely identify the customer in your POS system. Required if no `customer_email`, `customer_id` or `phone_number` is passed.
-          required: true
           schema:
             type: string
         - name: phone_number
           in: query
           description: The customer's phone number in E.164 format. e.g +14155552671. Must be an exact match. Required if no `customer_email`, `pos_account_id` or `customer_id` or  is passed.
-          required: true
           schema:
             type: string
         - name: country_iso_code
@@ -461,6 +691,8 @@ paths:
                         }
                       ]
                     }
+              schema:
+                $ref: '#/components/schemas/CustomerDetails'
         '400':
           description: '400'
           content:
@@ -479,6 +711,7 @@ paths:
       description: ''
       operationId: set-customer-birthday
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -542,6 +775,7 @@ paths:
       description: This endpoint will redeem a customer’s points for a particular redemption option. It will check to ensure the customer is eligible and has enough points for the selected redemption option and then it will deduct the points from their balance, generate the coupon code, and return it in the response.
       operationId: create-redemption
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -626,22 +860,17 @@ paths:
                     example: $5QUY0X4MK
                   approved:
                     type: boolean
-                    example: true
-                    default: true
                   approved_at:
                     type: string
                     example: '2021-11-23T15:21:10.000Z'
                   is_admin:
                     type: boolean
-                    example: false
                     default: true
                   is_pos:
                     type: boolean
-                    example: false
                     default: true
                   at_checkout:
                     type: boolean
-                    example: false
                     default: true
                   amount: {}
                   token:
@@ -1378,7 +1607,6 @@ paths:
                     action_name: {}
                     ask_year:
                       type: boolean
-                      example: false
                       default: true
                     extra_copy1:
                       type: string
@@ -1439,6 +1667,7 @@ paths:
       description: This endpoint records an order made by a customer. It will apply the order to all matching active campaigns and award the necessary points and/or discounts.
       operationId: create-order
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -1588,6 +1817,7 @@ paths:
       description: 'Send a new refund to the Yotpo API to adjust previously processed order. Requests are processed asynchronously. If you''re on SFCC use the following URL instead of the below, with the same parameters POST: https://loyalty.yotpo.com/commerce-cloud/refunds'
       operationId: create-refund
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -1741,6 +1971,7 @@ paths:
       description: ''
       operationId: add-coupon-codes
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -1876,7 +2107,7 @@ paths:
     get:
       summary: Fetch VIP Tiers
       description: ''
-      operationId: fetch-vip-tiers
+      operationId: list-vip-tiers
       responses:
         '200':
           description: '200'
@@ -2150,6 +2381,7 @@ paths:
       description: Find or create a referral link for an email address.
       operationId: identify-referrer
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -2284,12 +2516,12 @@ paths:
       description: Share referral link via email to a list of email addresses
       operationId: send-referral-emails-1
       requestBody:
+        required: true
         content:
           application/json:
             schema:
               type: object
               required:
-                - email
                 - emails
               properties:
                 email:
@@ -2388,6 +2620,7 @@ paths:
             format: int32
           required: true
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -2426,9 +2659,9 @@ paths:
       deprecated: false
   /api/v2/customers/recent:
     get:
-      summary: Fetch All Recently Updated Customers
+      summary: List Recently Updated Customers
       description: Fetches a list of all the customers who were updated in the last 7 days, and their customer data registered in the Yotpo Loyalty database
-      operationId: fetch-all-recently-updated-customers
+      operationId: list-recently-updated-customers
       parameters:
         - name: page_info
           in: query
@@ -2516,157 +2749,16 @@ paths:
                   customers:
                     type: array
                     items:
-                      type: object
-                      properties:
-                        total_spend_cents:
-                          type: integer
-                          example: 8944
-                          default: 0
-                        total_purchases:
-                          type: integer
-                          example: 1
-                          default: 0
-                        perks_redeemed:
-                          type: integer
-                          example: 3
-                          default: 0
-                        last_purchase_at:
-                          type: string
-                          example: 2020-06-29T17:47
-                        email:
-                          type: string
-                          example: 2@gmail.com
-                        points_earned:
-                          type: integer
-                          example: 1050
-                          default: 0
-                        points_balance:
-                          type: integer
-                          example: 1050
-                          default: 0
-                        points_expire_at:
-                          type: string
-                          example: 2020-10-04T07:56
-                        first_name:
-                          type: string
-                          example: Swell
-                        last_name:
-                          type: string
-                          example: Test
-                        phone_number: {}
-                        last_seen_at:
-                          type: string
-                          example: 2020-07-02T10:09
-                        thirty_party_id:
-                          type: string
-                          example: '3698392793225'
-                        third_party_id:
-                          type: string
-                          example: '3698392793225'
-                        pos_account_id: {}
-                        has_store_account:
-                          type: boolean
-                          example: false
-                          default: true
-                        opt_in:
-                          type: boolean
-                          example: true
-                          default: true
-                        opted_in_at:
-                          type: string
-                          example: '2020-06-29'
-                        birthday_month:
-                          type: integer
-                          example: 1
-                          default: 0
-                        birth_day:
-                          type: integer
-                          example: 1
-                          default: 0
-                        birthday_year: {}
-                        vip_tier_name:
-                          type: string
-                          example: Bronze
-                        vip_tier_entry_date:
-                          type: string
-                          example: 2020-06-29T17:47
-                        vip_tier_expiration:
-                          type: string
-                          example: 2021-12-31T23:59
-                        vip_tier_actions_completed:
-                          type: object
-                          properties:
-                            points_earned:
-                              type: integer
-                              example: 0
-                              default: 0
-                            amount_spent_cents:
-                              type: integer
-                              example: 0
-                              default: 0
-                            purchases_made:
-                              type: integer
-                              example: 0
-                              default: 0
-                            referrals_completed:
-                              type: integer
-                              example: 0
-                              default: 0
-                            campaigns_completed:
-                              type: array
-                              items: {}
-                        vip_tier_maintenance_requirements:
-                          type: object
-                          properties:
-                            points_needed:
-                              type: integer
-                              example: 0
-                              default: 0
-                            amount_cents_needed:
-                              type: integer
-                              example: 0
-                              default: 0
-                            purchases_needed:
-                              type: integer
-                              example: 0
-                              default: 0
-                            referrals_needed:
-                              type: integer
-                              example: 0
-                              default: 0
-                            campaigns_needed:
-                              type: array
-                              items: {}
-                        vip_tier_upgrade_requirements:
-                          type: object
-                          properties:
-                            points_needed:
-                              type: integer
-                              example: 0
-                              default: 0
-                            amount_cents_needed:
-                              type: integer
-                              example: 10000
-                              default: 0
-                            purchases_needed:
-                              type: integer
-                              example: 0
-                              default: 0
-                            referrals_needed:
-                              type: integer
-                              example: 0
-                              default: 0
-                            campaigns_needed:
-                              type: array
-                              items: {}
+                      $ref: '#/components/schemas/CustomerDetails'
       deprecated: false
       security: []
   /api/v2/customer_anniversary:
     post:
-      summary: Set/Update Customer Anniversary
+      summary: Set Customer Anniversary
       description: ''
-      operationId: createupdate-customer-anniversary
+      operationId: set-customer-anniversary
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -2726,6 +2818,7 @@ paths:
       description: ''
       operationId: get-customer-anniversary
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -2787,6 +2880,7 @@ paths:
       description: ''
       operationId: remove-customer-anniversary
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -2826,10 +2920,11 @@ paths:
       security: []
   /api/v2/privacy/data:
     get:
-      summary: User data
+      summary: Request User data email
       description: An asynchronous request that retrieves existing user data in the Yotpo loyalty system. User data is sent as a JSON file to the account email address associated with the Yotpo loyalty account.
-      operationId: user-data
+      operationId: request-user-data-email
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -2893,6 +2988,7 @@ paths:
       description: A synchronous request that checks for existing account data (true/false) in the Yotpo loyalty system.
       operationId: data-exists
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -2942,8 +3038,6 @@ paths:
                     properties:
                       has_data:
                         type: boolean
-                        example: true
-                        default: true
         '400':
           description: '400'
           content:
@@ -2959,8 +3053,9 @@ paths:
     post:
       summary: Adjust a Customer's Point Balance
       description: ''
-      operationId: adjust-a-customers-point-balance
+      operationId: adjust-customer-point-balance
       requestBody:
+        required: true
         content:
           application/json:
             schema:
