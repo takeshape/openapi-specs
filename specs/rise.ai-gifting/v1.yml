@@ -52,12 +52,10 @@ components:
           type: string
         send_at:
           type: string
-    GiftInput:
+    UpdateGiftInput:
       type: object
       properties:
         variant_id:
-          type: string
-        gift_id:
           type: string
         value:
           type: number
@@ -73,6 +71,26 @@ components:
           type: string
         send_at:
           type: string
+    CreateGiftInput:
+      type: object
+      properties:
+        variant_id:
+          type: string
+        value:
+          type: number
+        name:
+          type: string
+        email:
+          type: string
+        message:
+          type: string
+        sending_method:
+          type: string
+        image:
+          type: string
+        send_at:
+          type: string
+      required: ['name', 'sending_method', 'variant_id']
 security:
   - rise-gifting-api-key: []
 tags:
@@ -482,7 +500,7 @@ paths:
               type: object
               properties:
                 gift:
-                  $ref: '#/components/schemas/GiftInput'
+                  $ref: '#/components/schemas/CreateGiftInput'
       security: 
         - rise-gifting-api-key: []
       parameters:
@@ -639,7 +657,7 @@ paths:
               type: object
               properties:
                 gift:
-                  $ref: '#/components/schemas/GiftInput'
+                  $ref: '#/components/schemas/UpdateGiftInput'
               example:
                 gift:
                   value: 125
