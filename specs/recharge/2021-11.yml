@@ -1073,6 +1073,17 @@ components:
           items:
             type: integer
             format: int56
+    SkipPurchaseIds:
+      type: object
+      required:
+        - purchase_item_ids
+      properties:
+        purchase_item_ids:
+          type: array
+          description: A list containing the Subscription IDs to be skipped
+          items:
+            type: integer
+            format: int56
     Checkout:
       type: object
       required:
@@ -4127,8 +4138,14 @@ paths:
           type: integer
           format: int56
     post:
-      summary: Skip a Charge.
+      summary: Skip a Charge
       operationId: skip-charge
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SkipPurchaseIds'
       responses:
         '200':
           description: Charge skipped
@@ -4148,6 +4165,12 @@ paths:
     post:
       summary: Unskip a Charge.
       operationId: unskip-charge
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SkipPurchaseIds'
       responses:
         '200':
           description: Charge unskipped
@@ -6194,7 +6217,7 @@ paths:
               properties:
                 purchase_item_ids:
                   type: array
-                  description: A list containing the Subscription IDs to be skipped.
+                  description: A list containing the Subscription IDs to be skipped
                   items:
                     type: integer
                     format: int56
