@@ -28,7 +28,6 @@ components:
         - country_code
         - first_name
         - last_name
-        - phone
         - province
         - zip
       properties:
@@ -2425,7 +2424,7 @@ components:
           type: string
           description: The total cost of duties for the Order
         total_line_items_price:
-          type: integer
+          type: string
           description: The total price of all line items of the Order
         total_price:
           type: string
