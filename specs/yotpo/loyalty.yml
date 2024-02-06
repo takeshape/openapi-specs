@@ -781,10 +781,6 @@ paths:
             schema:
               type: object
               required:
-                - customer_email
-                - pos_account_id
-                - phone_number
-                - customer_id
                 - redemption_option_id
               properties:
                 customer_email:
