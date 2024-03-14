@@ -5411,7 +5411,6 @@ components:
             required:
               - finish_reason
               - index
-              - logprobs
               - text
             properties:
               finish_reason:
@@ -6107,7 +6106,6 @@ components:
               - finish_reason
               - index
               - message
-              - logprobs
             properties:
               finish_reason:
                 type: string
@@ -6187,7 +6185,6 @@ components:
               - finish_reason
               - index
               - message
-              - logprobs
             properties:
               finish_reason:
                 type: string
@@ -7410,9 +7407,6 @@ components:
           description: The file ID used for validation. You can retrieve the validation results with the [Files API](/docs/api-reference/files/retrieve-contents).
       required:
         - created_at
-        - error
-        - finished_at
-        - fine_tuned_model
         - hyperparameters
         - id
         - model
@@ -7420,9 +7414,7 @@ components:
         - organization_id
         - result_files
         - status
-        - trained_tokens
         - training_file
-        - validation_file
       x-oaiMeta:
         name: The fine-tuning job object
         example: *fine_tuning_example
@@ -7904,13 +7896,6 @@ components:
         - thread_id
         - assistant_id
         - status
-        - required_action
-        - last_error
-        - expires_at
-        - started_at
-        - cancelled_at
-        - failed_at
-        - completed_at
         - model
         - instructions
         - tools
@@ -8264,8 +8249,6 @@ components:
         - thread_id
         - role
         - content
-        - assistant_id
-        - run_id
         - file_ids
         - metadata
       x-oaiMeta:
@@ -8589,7 +8572,6 @@ components:
         - cancelled_at
         - failed_at
         - completed_at
-        - metadata
         - usage
       x-oaiMeta:
         name: The run step object
