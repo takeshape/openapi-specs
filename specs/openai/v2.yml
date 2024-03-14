@@ -7330,10 +7330,6 @@ components:
               type: string
               description: The parameter that was invalid, usually `training_file` or `validation_file`. This field will be null if the failure was not parameter-specific.
               nullable: true
-          required:
-            - code
-            - message
-            - param
         fine_tuned_model:
           type: string
           nullable: true
