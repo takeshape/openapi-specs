@@ -7527,6 +7527,7 @@ components:
         object:
           description: The object type, which is always `assistant`.
           type: string
+          nullable: true
           enum: [assistant]
         created_at:
           description: The Unix timestamp (in seconds) for when the assistant was created.
@@ -7718,9 +7719,11 @@ components:
             $ref: "#/components/schemas/AssistantObject"
         first_id:
           type: string
+          nullable: true
           example: "asst_abc123"
         last_id:
           type: string
+          nullable: true
           example: "asst_abc456"
         has_more:
           type: boolean
@@ -7992,9 +7995,11 @@ components:
             $ref: "#/components/schemas/RunObject"
         first_id:
           type: string
+          nullable: true
           example: "run_abc123"
         last_id:
           type: string
+          nullable: true
           example: "run_abc456"
         has_more:
           type: boolean
@@ -8186,9 +8191,11 @@ components:
             $ref: "#/components/schemas/ThreadObject"
         first_id:
           type: string
+          nullable: true
           example: "asst_abc123"
         last_id:
           type: string
+          nullable: true
           example: "asst_abc456"
         has_more:
           type: boolean
@@ -8352,9 +8359,11 @@ components:
             $ref: "#/components/schemas/MessageObject"
         first_id:
           type: string
+          nullable: true
           example: "msg_abc123"
         last_id:
           type: string
+          nullable: true
           example: "msg_abc123"
         has_more:
           type: boolean
@@ -8564,6 +8573,7 @@ components:
           nullable: true
         usage:
           $ref: "#/components/schemas/RunStepCompletionUsage"
+          nullable: true
       required:
         - id
         - object
@@ -8597,9 +8607,11 @@ components:
             $ref: "#/components/schemas/RunStepObject"
         first_id:
           type: string
+          nullable: true
           example: "step_abc123"
         last_id:
           type: string
+          nullable: true
           example: "step_abc456"
         has_more:
           type: boolean
@@ -8851,9 +8863,11 @@ components:
             $ref: "#/components/schemas/AssistantFileObject"
         first_id:
           type: string
+          nullable: true
           example: "file-abc123"
         last_id:
           type: string
+          nullable: true
           example: "file-abc456"
         has_more:
           type: boolean
@@ -8912,9 +8926,11 @@ components:
             $ref: "#/components/schemas/MessageFileObject"
         first_id:
           type: string
+          nullable: true
           example: "file-abc123"
         last_id:
           type: string
+          nullable: true
           example: "file-abc456"
         has_more:
           type: boolean
