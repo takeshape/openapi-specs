@@ -5165,10 +5165,8 @@ components:
           type: string
           nullable: false
       required:
-        - type
         - message
         - param
-        - code
     ErrorResponse:
       type: object
       properties:
@@ -5393,7 +5391,6 @@ components:
             A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse. [Learn more](/docs/guides/safety-best-practices/end-user-ids).
       required:
         - model
-        - prompt
 
     CreateCompletionResponse:
       type: object
@@ -5669,7 +5666,6 @@ components:
           description: The name of the function to call.
       required:
         - role
-        - content
         - name
 
     FunctionParameters:
@@ -5867,7 +5863,6 @@ components:
             - arguments
       required:
         - role
-        - content
 
     ChatCompletionStreamResponseDelta:
       type: object
@@ -6257,7 +6252,6 @@ components:
       required:
         - token
         - logprob
-        - bytes
         - top_logprobs
 
     ListPaginatedFineTuningJobsResponse:
@@ -7414,7 +7408,6 @@ components:
         - organization_id
         - result_files
         - status
-        - training_file
       x-oaiMeta:
         name: The fine-tuning job object
         example: *fine_tuning_example
@@ -7573,15 +7566,10 @@ components:
           nullable: true
       required:
         - id
-        - object
         - created_at
-        - name
-        - description
         - model
-        - instructions
         - tools
         - file_ids
-        - metadata
       x-oaiMeta:
         name: The assistant object
         beta: true
@@ -7723,8 +7711,6 @@ components:
       required:
         - object
         - data
-        - first_id
-        - last_id
         - has_more
       x-oaiMeta:
         name: List assistants response object
@@ -7900,8 +7886,6 @@ components:
         - instructions
         - tools
         - file_ids
-        - metadata
-        - usage
       x-oaiMeta:
         name: The run object
         beta: true
@@ -7966,7 +7950,6 @@ components:
           x-oaiTypeLabel: map
           nullable: true
       required:
-        - thread_id
         - assistant_id
     ListRunsResponse:
       type: object
@@ -7992,8 +7975,6 @@ components:
       required:
         - object
         - data
-        - first_id
-        - last_id
         - has_more
     ModifyRunRequest:
       type: object
@@ -8086,7 +8067,6 @@ components:
           x-oaiTypeLabel: map
           nullable: true
       required:
-        - thread_id
         - assistant_id
 
     ThreadObject:
@@ -8113,7 +8093,6 @@ components:
         - id
         - object
         - created_at
-        - metadata
       x-oaiMeta:
         name: The thread object
         beta: true
@@ -8188,8 +8167,6 @@ components:
       required:
         - object
         - data
-        - first_id
-        - last_id
         - has_more
 
     MessageObject:
@@ -8250,7 +8227,6 @@ components:
         - role
         - content
         - file_ids
-        - metadata
       x-oaiMeta:
         name: The message object
         beta: true
@@ -8354,8 +8330,6 @@ components:
       required:
         - object
         - data
-        - first_id
-        - last_id
         - has_more
 
     MessageContentImageFileObject:
@@ -8567,12 +8541,6 @@ components:
         - type
         - status
         - step_details
-        - last_error
-        - expired_at
-        - cancelled_at
-        - failed_at
-        - completed_at
-        - usage
       x-oaiMeta:
         name: The run step object
         beta: true
@@ -8601,8 +8569,6 @@ components:
       required:
         - object
         - data
-        - first_id
-        - last_id
         - has_more
 
     RunStepDetailsMessageCreationObject:
@@ -8769,7 +8735,6 @@ components:
           required:
             - name
             - arguments
-            - output
       required:
         - id
         - type
@@ -8858,8 +8823,6 @@ components:
         - object
         - data
         - items
-        - first_id
-        - last_id
         - has_more
 
     MessageFileObject:
@@ -8921,8 +8884,6 @@ components:
         - object
         - data
         - items
-        - first_id
-        - last_id
         - has_more
 
 security:
