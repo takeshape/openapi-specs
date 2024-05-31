@@ -484,8 +484,6 @@ components:
         - role
         - content
         - model
-        - stop_reason
-        - stop_sequence
         - usage
       properties:
         id:
