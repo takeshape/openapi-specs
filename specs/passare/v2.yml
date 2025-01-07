@@ -3,17 +3,17 @@ info:
   title: Passare Public API
   description: |-
     Welcome to Passare’s Public API V2. Below you will find the endpoints that are available through your unique token.
-    To get started, click `Authorize` and copy and paste the Token that was provided.
-    Click `Authorize`.
-    Now you are able to test out the endpoints listed below.
-    Simply click on the endpoint, click `Try it out` and then `Execute`.
+                      To get started, click `Authorize` and copy and paste the Token that was provided.
+                      Click `Authorize`.
+                      Now you are able to test out the endpoints listed below.
+                      Simply click on the endpoint, click `Try it out` and then `Execute`.
   version: 2.0.0
 servers:
-  - url: /
+  - url: https://cap.passare.com/api/public/v2/
 security:
-  - bearerAuth: [ ]
+  - bearerAuth: []
 paths:
-  /api/public/v2/organizations:
+  /organizations:
     get:
       tags:
         - Organizations
@@ -28,7 +28,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/OrganizationList'
-  /api/public/v2/branches:
+  /branches:
     get:
       tags:
         - Branches
@@ -48,7 +48,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
-  /api/public/v2/branches/{branch_uuid}:
+  /branches/{branch_uuid}:
     get:
       tags:
         - Branches
@@ -74,7 +74,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
-  /api/public/v2/branches/{branch_uuid}/races:
+  /branches/{branch_uuid}/races:
     get:
       tags:
         - Branches
@@ -95,13 +95,18 @@ paths:
             application/json:
               schema:
                 type: object
+                properties:
+                  decedent_settings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DecedentSettingModel'
         default:
           description: Error Response
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
-  /api/public/v2/branches/{branch_uuid}/ethnicities:
+  /branches/{branch_uuid}/ethnicities:
     get:
       tags:
         - Branches
@@ -122,13 +127,18 @@ paths:
             application/json:
               schema:
                 type: object
+                properties:
+                  decedent_settings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DecedentSettingModel'
         default:
           description: Error Response
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
-  /api/public/v2/branches/{branch_uuid}/educations:
+  /branches/{branch_uuid}/educations:
     get:
       tags:
         - Branches
@@ -149,13 +159,18 @@ paths:
             application/json:
               schema:
                 type: object
+                properties:
+                  decedent_settings:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DecedentSettingModel'
         default:
           description: Error Response
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
-  /api/public/v2/cases:
+  /cases:
     get:
       tags:
         - Case
@@ -190,14 +205,14 @@ paths:
             date.
           schema:
             type: string
-            format: date
+            format: date-time
         - name: date_end
           in: query
           description: Date to search for cases where the date of death is BEFORE given
             date.
           schema:
             type: string
-            format: date
+            format: date-time
         - name: decedent_name
           in: query
           description: Use to find cases where the first, middle, or last name is LIKE
@@ -220,7 +235,7 @@ paths:
             event was updated after this date
           schema:
             type: string
-            format: date
+            format: date-time
         - name: items_per_page
           in: query
           description: Number of cases that will be returned per "page" or request.
@@ -237,7 +252,7 @@ paths:
           in: query
           description: 'Comma separated string of case types to search for. Acceptable
           values are: "pre_need", "at_need", "cash_sale", "transfer", "imminent_need",
-          "trade_case", "pet_case" '
+          "trade_case", "pet_case"'
           schema:
             type: string
         - name: page
@@ -252,6 +267,23 @@ paths:
             application/json:
               schema:
                 type: object
+                properties:
+                  page:
+                    type: integer
+                    format: int64
+                  items_per_page:
+                    type: integer
+                    format: int64
+                  total_pages:
+                    type: integer
+                    format: int64
+                  total_records:
+                    type: integer
+                    format: int64
+                  records:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CaseListModel'
     post:
       tags:
         - Case
@@ -278,7 +310,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
       x-codegen-request-body-name: body
-  /api/public/v2/cases/{case_uuid}:
+  /cases/{case_uuid}:
     get:
       tags:
         - Case
@@ -341,7 +373,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
       x-codegen-request-body-name: body
-  /api/public/v2/cases/{case_uuid}/obituary/memorial_donations:
+  /cases/{case_uuid}/obituary/memorial_donations:
     get:
       tags:
         - Memorial Donations
@@ -370,7 +402,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
-  /api/public/v2/cases/{case_uuid}/obituary:
+  /cases/{case_uuid}/obituary:
     get:
       tags:
         - Obituary
@@ -398,7 +430,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
-  /api/public/v2/cases/{case_uuid}/services:
+  /cases/{case_uuid}/services:
     get:
       tags:
         - Case
@@ -425,7 +457,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
-  /api/public/v2/cases/{case_uuid}/decedent:
+  /cases/{case_uuid}/decedent:
     get:
       tags:
         - Case
@@ -451,7 +483,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
-  /api/public/v2/cases/{case_uuid}/acquaintances:
+  /cases/{case_uuid}/acquaintances:
     get:
       tags:
         - Case
@@ -471,13 +503,18 @@ paths:
             application/json:
               schema:
                 type: object
+                properties:
+                  acquaintances:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Acquaintance'
         default:
           description: unexpected error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
-  /api/public/v2/contact_informations/{contact_information_uuid}:
+  /contact_informations/{contact_information_uuid}:
     get:
       tags:
         - Contact Information
@@ -540,7 +577,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
       x-codegen-request-body-name: body
-  /api/public/v2/contact_informations:
+  /contact_informations:
     post:
       tags:
         - Contact Information
@@ -570,7 +607,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
       x-codegen-request-body-name: body
-  /api/public/v2/contact_informations/{contact_information_uuid}/phone_number:
+  /contact_informations/{contact_information_uuid}/phone_number:
     get:
       tags:
         - Contact Information
@@ -625,7 +662,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
       x-codegen-request-body-name: body
-  /api/public/v2/acquaintance_types:
+  /acquaintance_types:
     get:
       tags:
         - Acquaintances
@@ -639,7 +676,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/AcquaintanceTypesModel'
-  /api/public/v2/acquaintances:
+  /acquaintances:
     post:
       tags:
         - Acquaintances
@@ -661,7 +698,9 @@ paths:
           content:
             application/json:
               schema:
-                type: object
+                type: array
+                items:
+                  $ref: '#/components/schemas/Acquaintance'
         default:
           description: An error occurred.
           content:
@@ -669,7 +708,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
       x-codegen-request-body-name: body
-  /api/public/v2/acquaintances/{acquaintance_uuid}:
+  /acquaintances/{acquaintance_uuid}:
     get:
       tags:
         - Acquaintances
@@ -728,7 +767,9 @@ paths:
           content:
             application/json:
               schema:
-                type: object
+                type: array
+                items:
+                  $ref: '#/components/schemas/Acquaintance'
         default:
           description: An error occurred.
           content:
@@ -736,7 +777,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
       x-codegen-request-body-name: body
-  /api/public/v2/addresses/{address_uuid}:
+  /addresses/{address_uuid}:
     get:
       tags:
         - Address
@@ -803,7 +844,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
       x-codegen-request-body-name: body
-  /api/public/v2/addresses:
+  /addresses:
     post:
       tags:
         - Address
@@ -837,7 +878,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
       x-codegen-request-body-name: body
-  /api/public/v2/cases/{case_uuid}/notes:
+  /cases/{case_uuid}/notes:
     get:
       tags:
         - Note
@@ -858,6 +899,11 @@ paths:
             application/json:
               schema:
                 type: object
+                properties:
+                  notes:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/NoteModel'
         default:
           description: Error Response
           content:
@@ -898,7 +944,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
       x-codegen-request-body-name: case_file_note
-  /api/public/v2/cases/{case_uuid}/notes/{note_uuid}:
+  /cases/{case_uuid}/notes/{note_uuid}:
     put:
       tags:
         - Note
@@ -940,7 +986,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
       x-codegen-request-body-name: case_file_note
-  /api/public/v2/decedent_settings/{decedent_settings_uuid}:
+  /decedent_settings/{decedent_settings_uuid}:
     get:
       tags:
         - Decedent Settings
@@ -967,7 +1013,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
-  /api/public/v2/cases/{case_uuid}/documents:
+  /cases/{case_uuid}/documents:
     get:
       tags:
         - Documents
@@ -980,6 +1026,11 @@ paths:
           schema:
             type: string
             format: uuid
+        - name: use_in_memorial_video
+          in: query
+          description: If the resource is to be used in a memorial video
+          schema:
+            type: boolean
       responses:
         200:
           description: OK Response
@@ -1026,7 +1077,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
       x-codegen-request-body-name: document_data
-  /api/public/v2/cases/{case_uuid}/documents/{document_uuid}:
+  /cases/{case_uuid}/documents/{document_uuid}:
     get:
       tags:
         - Documents
@@ -1059,7 +1110,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
-  /api/public/v2/decedent/{decedent_uuid}:
+  /decedent/{decedent_uuid}:
     get:
       tags:
         - Decedent
@@ -1118,7 +1169,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
       x-codegen-request-body-name: body
-  /api/public/v2/decedent/{decedent_uuid}/person:
+  /decedent/{decedent_uuid}/person:
     get:
       tags:
         - Decedent
@@ -1177,7 +1228,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorModel'
       x-codegen-request-body-name: body
-  /api/public/v2/organizations/{organization_uuid}/contacts:
+  /organizations/{organization_uuid}/contacts:
     get:
       tags:
         - Organizations
@@ -1217,7 +1268,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ContactList'
-  /api/public/v2/organizations/{organization_uuid}/contacts/{contact_uuid}:
+  /organizations/{organization_uuid}/contacts/{contact_uuid}:
     get:
       tags:
         - Organizations
@@ -1251,6 +1302,7 @@ components:
       properties:
         organization_uuid:
           type: string
+          format: uuid
         organization_name:
           type: string
     ErrorModel:
@@ -1337,7 +1389,7 @@ components:
       properties:
         case_uuid:
           type: string
-          format: case_uuid
+          format: uuid
         memorial_donations:
           $ref: '#/components/schemas/MemorialDonationModel'
         uuid:
@@ -1357,9 +1409,9 @@ components:
     DecedentPersonModel:
       required:
         - address
-        - death
-        - highest_rank
-        - obituary
+#        - death
+#        - highest_rank
+#        - obituary
         - person
       type: object
       properties:
@@ -1372,7 +1424,6 @@ components:
           format: dateTime
         highest_rank:
           type: string
-          format: string
         obituary:
           $ref: '#/components/schemas/ObituaryModel'
     DecedentAnimalModel:
@@ -1386,19 +1437,15 @@ components:
       properties:
         name:
           type: string
-          format: string
         gender:
           type: string
-          format: string
         weight:
           type: integer
           format: int64
         type:
           type: string
-          format: string
         breed:
           type: string
-          format: string
     PersonModel:
       type: object
       properties:
@@ -1429,14 +1476,10 @@ components:
               format: uuid
         - $ref: '#/components/schemas/Address'
     EventModel:
-      required:
-        - location
-        - name
       type: object
       properties:
         name:
           type: string
-          format: string
         location:
           $ref: '#/components/schemas/LocationModel'
         event_uuid:
@@ -1452,14 +1495,9 @@ components:
       properties:
         name:
           type: string
-          format: string
         address:
           $ref: '#/components/schemas/AddressModel'
     ObituaryModel:
-      required:
-        - content
-        - primary_photo
-        - secondary_photo
       type: object
       properties:
         content:
@@ -1482,13 +1520,11 @@ components:
       properties:
         name:
           type: string
-          format: string
         website:
           type: string
-          format: string
         memorial_donation_uuid:
           type: string
-          format: string
+          format: uuid
         last_updated:
           type: string
     CaseEventListModel:
@@ -1810,6 +1846,7 @@ components:
       properties:
         contact_uuid:
           type: string
+          format: uuid
         name:
           type: string
         contact_type:
@@ -1825,6 +1862,7 @@ components:
       properties:
         contact_uuid:
           type: string
+          format: uuid
         name:
           type: string
         contact_type:
@@ -1845,11 +1883,13 @@ components:
           type: string
         contact_information_uuid:
           type: string
+          format: uuid
     CaseListModel:
       type: object
       properties:
         case_uuid:
-          type: integer
+          type: string
+          format: uuid
         full_name:
           type: string
         branch_name:
@@ -1863,26 +1903,7 @@ components:
           type: string
         created_at:
           type: string
-          format: date
-    PetCaseListModel:
-      type: object
-      properties:
-        case_uuid:
-          type: integer
-        full_name:
-          type: string
-        branch_name:
-          type: string
-        branch_uuid:
-          type: string
-          format: uuid
-        case_identifier:
-          type: string
-        case_types:
-          type: string
-        created_at:
-          type: string
-          format: date
+          format: date-time
   securitySchemes:
     bearerAuth:
       type: apiKey

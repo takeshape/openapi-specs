@@ -6,8 +6,8 @@ servers:
     description: Reviews.io API server
 
 info:
-  version: v0.1.0-3
-  title: Reviews.io API
+  version: v0.0.0
+  title: REVIEWS.io API
   x-logo:
     url: https://raw.githubusercontent.com/takeshape/openapi-specs/main/specs/reviews.io/reviews-io.png
     altText: Reviews.io Logo
@@ -16,6 +16,8 @@ info:
     url: https://support.reviews.io/
     email: support@reviews.io
   description: |
+    WARNING: This is a pre-versioned API document, mirroring the API described at https://developer.reviews.io/reference/product-review-invitations
+    
     Create your own widgets, send SMS invitations, customise your review emails and more with API access.
 
     # Authentication

@@ -1467,6 +1467,8 @@ components:
             - unconfirmed-buyer
             - buyer
             - admin
+            - verified-buyer
+            - confirmed-buyer
           description: |
             Verified status of the review. `buyer`, `confirmed-buyer`, `admin` mean the review is verified-buyer.
             `buyer` is the legacy status for `confirmed-buyer`.

@@ -1,0 +1,28 @@
+{
+  "name": "openapi-specs",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "spectral lint ./specs/**/*.{json,yml,yaml}"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/takeshape/openapi-specs.git"
+  },
+  "author": "andrew@takeshape.io",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/takeshape/openapi-specs/issues"
+  },
+  "homepage": "https://github.com/takeshape/openapi-specs#readme",
+  "devDependencies": {
+    "@stoplight/spectral-cli": "^6.10.1",
+    "@takeshape/util": "^8.271.1",
+    "cheerio": "^1.0.0-rc.12",
+    "got": "^12.5.3",
+    "lodash": "^4.17.21",
+    "p-map": "^5.5.0"
+  }
+}
