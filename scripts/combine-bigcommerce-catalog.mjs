@@ -44,6 +44,23 @@ function isEmptyObjectSchema(obj) {
 }
 
 /**
+ * Checks if a schema is an "open" object schema that shouldn't be deduplicated.
+ * Open object schemas are used as placeholders and matching them would be incorrect.
+ */
+function isOpenObjectSchema(obj) {
+  if (typeof obj !== 'object' || obj === null) return false;
+  if (obj.type !== 'object') return false;
+
+  // Schema with additionalProperties: true is open
+  if (obj.additionalProperties === true) return true;
+
+  // Schema with no properties or empty properties is open
+  if (!obj.properties || Object.keys(obj.properties).length === 0) return true;
+
+  return false;
+}
+
+/**
  * Normalizes a property schema for comparison.
  * - Treats x-nullable and nullable as equivalent
  * - Ignores descriptions and other metadata
@@ -186,6 +203,11 @@ function buildComponentIndex(components) {
   if (!components?.schemas) return index;
 
   for (const [name, schema] of Object.entries(components.schemas)) {
+    // Skip open object schemas - they shouldn't be matched against
+    if (isOpenObjectSchema(schema)) {
+      continue;
+    }
+
     // Get direct fingerprint (without resolving allOf)
     const fingerprint = getSchemaFingerprint(schema);
     if (fingerprint) {
@@ -317,16 +339,26 @@ function deduplicateSchemas(obj, componentIndex, components, path = []) {
   if (typeof obj === 'object') {
     // Handle allOf - try to match entire allOf to a component
     if (obj.allOf && Array.isArray(obj.allOf)) {
-      const matchedComponent = tryMatchAllOfToComponent(obj.allOf, componentIndex, components);
-      // Avoid self-references
-      if (matchedComponent && matchedComponent !== currentComponent) {
-        console.log(`  Replaced allOf at ${path.join('.')} with $ref to ${matchedComponent}`);
-        return { $ref: `#/components/schemas/${matchedComponent}` };
+      // Check if object has sibling properties that must be preserved
+      const siblingKeys = Object.keys(obj).filter((k) => k !== 'allOf');
+      const hasSiblings = siblingKeys.length > 0;
+
+      // Only collapse allOf to $ref if there are no siblings
+      // (In OpenAPI 3.0, $ref can't coexist with other properties)
+      if (!hasSiblings) {
+        const matchedComponent = tryMatchAllOfToComponent(obj.allOf, componentIndex, components);
+        // Avoid self-references
+        if (matchedComponent && matchedComponent !== currentComponent) {
+          console.log(`  Replaced allOf at ${path.join('.')} with $ref to ${matchedComponent}`);
+          return { $ref: `#/components/schemas/${matchedComponent}` };
+        }
       }
 
-      // Otherwise, try to replace individual items in the allOf
+      // Try to replace individual items in the allOf
       const newAllOf = obj.allOf.map((item, i) => {
         if (item.$ref) return item; // Already a ref
+        // Skip open object schemas - they're placeholders
+        if (isOpenObjectSchema(item)) return item;
 
         const match = findMatchingComponent(item, componentIndex, components);
         // Avoid self-references
@@ -337,19 +369,21 @@ function deduplicateSchemas(obj, componentIndex, components, path = []) {
         return deduplicateSchemas(item, componentIndex, components, [...path, 'allOf', i]);
       });
 
-      // After replacing items, try again to match the whole allOf
-      const afterMatch = tryMatchAllOfToComponent(newAllOf, componentIndex, components);
-      // Avoid self-references
-      if (afterMatch && afterMatch !== currentComponent) {
-        console.log(`  Collapsed allOf at ${path.join('.')} to $ref to ${afterMatch}`);
-        return { $ref: `#/components/schemas/${afterMatch}` };
+      // After replacing items, try again to match the whole allOf (only if no siblings)
+      if (!hasSiblings) {
+        const afterMatch = tryMatchAllOfToComponent(newAllOf, componentIndex, components);
+        // Avoid self-references
+        if (afterMatch && afterMatch !== currentComponent) {
+          console.log(`  Collapsed allOf at ${path.join('.')} to $ref to ${afterMatch}`);
+          return { $ref: `#/components/schemas/${afterMatch}` };
+        }
       }
 
       return { ...obj, allOf: newAllOf };
     }
 
-    // Handle inline object schemas
-    if (obj.type === 'object' && obj.properties && !obj.$ref) {
+    // Handle inline object schemas (skip open object schemas - they're placeholders)
+    if (obj.type === 'object' && obj.properties && !obj.$ref && !isOpenObjectSchema(obj)) {
       const match = findMatchingComponent(obj, componentIndex, components);
       // Avoid self-references
       if (match && match !== currentComponent) {
@@ -392,15 +426,23 @@ function cleanupSpec(obj) {
           // Skip the allOf entirely if all items are empty
           continue;
         } else if (filtered.length === 1) {
-          // If only one item remains, merge it into parent or keep as ref
-          const remaining = filtered[0];
-          if (remaining.$ref) {
-            // Just use the ref directly (unwrap single-item allOf)
-            result.$ref = remaining.$ref;
+          // Check if the parent has other sibling keys besides 'allOf'
+          const siblingKeys = Object.keys(obj).filter((k) => k !== 'allOf');
+          if (siblingKeys.length > 0) {
+            // Keep the allOf intact to preserve valid schema structure
+            // (In OpenAPI 3.0, $ref can't coexist with other properties)
+            result[key] = filtered.map(cleanupSpec);
           } else {
-            // Merge the non-ref schema into parent
-            const cleaned = cleanupSpec(remaining);
-            Object.assign(result, cleaned);
+            // If only one item remains and no siblings, merge it into parent or keep as ref
+            const remaining = filtered[0];
+            if (remaining.$ref) {
+              // Just use the ref directly (unwrap single-item allOf)
+              result.$ref = remaining.$ref;
+            } else {
+              // Merge the non-ref schema into parent
+              const cleaned = cleanupSpec(remaining);
+              Object.assign(result, cleaned);
+            }
           }
         } else {
           result[key] = filtered.map(cleanupSpec);
