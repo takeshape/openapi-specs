@@ -23,6 +23,36 @@ import yaml from 'js-yaml';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
+// ============================================================================
+// Schema $ref utilities
+// ============================================================================
+
+const SCHEMA_REF_PREFIX = '#/components/schemas/';
+
+/**
+ * Check if a value is a $ref to a component schema.
+ */
+function isSchemaRef(obj) {
+  return obj?.$ref?.startsWith(SCHEMA_REF_PREFIX) ?? false;
+}
+
+/**
+ * Extract the schema name from a $ref object or string.
+ * Returns null if not a valid schema ref.
+ */
+function getSchemaName(obj) {
+  const ref = typeof obj === 'string' ? obj : obj?.$ref;
+  if (!ref?.startsWith(SCHEMA_REF_PREFIX)) return null;
+  return ref.replace(SCHEMA_REF_PREFIX, '');
+}
+
+/**
+ * Create a $ref object pointing to a component schema.
+ */
+function makeSchemaRef(name) {
+  return { $ref: `${SCHEMA_REF_PREFIX}${name}` };
+}
+
 const BIGCOMMERCE_DOCS_BASE_URL =
   'https://raw.githubusercontent.com/bigcommerce/docs/main/reference/catalog';
 
@@ -107,8 +137,8 @@ function extractProperties(schema, componentSchemas = {}) {
   if (!schema || typeof schema !== 'object') return null;
 
   // If it's a $ref, resolve it
-  if (schema.$ref) {
-    const refName = schema.$ref.replace('#/components/schemas/', '');
+  if (isSchemaRef(schema)) {
+    const refName = getSchemaName(schema);
     const resolved = componentSchemas[refName];
     if (resolved) {
       return extractProperties(resolved, componentSchemas);
@@ -272,7 +302,7 @@ function deduplicateInlineSchemas(spec) {
       if (matchedComponent) {
         console.log(`  Replacing inline schema at ${path.join('.')} -> ${matchedComponent}`);
         replacementCount++;
-        return { $ref: `#/components/schemas/${matchedComponent}` };
+        return makeSchemaRef(matchedComponent);
       }
     }
 
@@ -311,12 +341,12 @@ function mergeInlineExtensions(spec) {
     if (!Array.isArray(allOf) || allOf.length !== 2) return null;
 
     // Find the $ref item and the inline object item
-    const refItem = allOf.find(item => item.$ref?.startsWith('#/components/schemas/'));
+    const refItem = allOf.find(item => isSchemaRef(item));
     const inlineItem = allOf.find(item => !item.$ref && item.properties);
 
     if (!refItem || !inlineItem) return null;
 
-    const refName = refItem.$ref.replace('#/components/schemas/', '');
+    const refName = getSchemaName(refItem);
 
     // Make sure the component exists
     if (!componentSchemas[refName]) return null;
@@ -359,7 +389,7 @@ function mergeInlineExtensions(spec) {
 
         // Return simplified $ref, preserving sibling properties like title
         const { allOf, ...siblings } = value;
-        return { $ref: `#/components/schemas/${refName}`, ...siblings };
+        return { ...makeSchemaRef(refName), ...siblings };
       }
     }
 
@@ -412,10 +442,10 @@ function updateRefs(obj, nameMap) {
 
   const result = {};
   for (const [key, value] of Object.entries(obj)) {
-    if (key === '$ref' && typeof value === 'string' && value.startsWith('#/components/schemas/')) {
-      const oldName = value.replace('#/components/schemas/', '');
+    if (key === '$ref' && getSchemaName(value)) {
+      const oldName = getSchemaName(value);
       const newName = nameMap.get(oldName) || oldName;
-      result[key] = `#/components/schemas/${newName}`;
+      result[key] = makeSchemaRef(newName).$ref;
     } else {
       result[key] = updateRefs(value, nameMap);
     }
@@ -621,7 +651,7 @@ function hasVariantsProperty(schema) {
 function addVariantsProperty(schema, allSchemas) {
   const variantsProperty = {
     type: 'array',
-    items: { $ref: '#/components/schemas/productVariant_Full' },
+    items: makeSchemaRef('productVariant_Full'),
     description: 'Product variants. Only returned when include=variants is specified.'
   };
 
@@ -652,8 +682,8 @@ function countSchemaRefs(spec) {
     }
     if (typeof obj !== 'object') return;
 
-    if (obj.$ref && typeof obj.$ref === 'string' && obj.$ref.startsWith('#/components/schemas/')) {
-      const refName = obj.$ref.replace('#/components/schemas/', '');
+    if (isSchemaRef(obj)) {
+      const refName = getSchemaName(obj);
       refCounts.set(refName, (refCounts.get(refName) || 0) + 1);
     }
 
@@ -683,8 +713,8 @@ function flattenSingleUseAllOf(spec) {
     // Find $refs in this allOf that are only used once
     const refsToFlatten = [];
     for (const item of schema.allOf) {
-      if (item.$ref?.startsWith('#/components/schemas/')) {
-        const refName = item.$ref.replace('#/components/schemas/', '');
+      if (isSchemaRef(item)) {
+        const refName = getSchemaName(item);
         if (refCounts.get(refName) === 1 && schemas[refName]) {
           refsToFlatten.push(refName);
         }
@@ -698,8 +728,8 @@ function flattenSingleUseAllOf(spec) {
     const newAllOf = [];
 
     for (const item of schema.allOf) {
-      if (item.$ref?.startsWith('#/components/schemas/')) {
-        const refName = item.$ref.replace('#/components/schemas/', '');
+      if (isSchemaRef(item)) {
+        const refName = getSchemaName(item);
         if (refsToFlatten.includes(refName)) {
           const refSchema = schemas[refName];
           if (refSchema.properties) {
