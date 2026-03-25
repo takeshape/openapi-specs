@@ -1,6 +1,12 @@
 /**
  * Script to combine BigCommerce Catalog API specs into a single OpenAPI specification.
  *
+ * Strategy:
+ * 1. Combine all specs and merge components
+ * 2. Replace inline schemas with $refs to existing components (deduplication)
+ * 3. Rename component schemas to PascalCase
+ * 4. Update all $refs to use new PascalCase names
+ *
  * Usage: node scripts/combine-bigcommerce-catalog.mjs
  */
 
@@ -33,204 +39,209 @@ async function fetchSpec(specName) {
 }
 
 /**
- * Resolves a $ref to its schema.
+ * Converts a schema name to PascalCase.
+ * Examples:
+ *   productVariant_Base -> ProductVariantBase
+ *   productVariant_Full -> ProductVariant (removes _Full suffix)
+ *   metaCollection_Full -> MetaCollection
+ *   error_Base -> ErrorBase
+ *   brand_Full -> Brand
  */
-function resolveRef(ref, components) {
-  if (!ref || !ref.startsWith('#/components/schemas/')) return null;
-  const name = ref.replace('#/components/schemas/', '');
-  return components?.schemas?.[name];
-}
+function toPascalCase(name) {
+  // Remove _Full suffix - the "Full" version is the main type
+  let cleanName = name.replace(/_Full$/, '');
 
-/**
- * Deep clones an object.
- */
-function deepClone(obj) {
-  return JSON.parse(JSON.stringify(obj));
-}
+  // Split on underscores and camelCase boundaries
+  const parts = cleanName
+    .replace(/([a-z])([A-Z])/g, '$1_$2')
+    .split('_')
+    .filter(Boolean);
 
-/**
- * Flattens an allOf array into a single merged schema.
- * Resolves $refs and merges all properties together.
- */
-function flattenAllOf(allOf, components) {
-  const merged = {
-    type: 'object',
-    properties: {}
-  };
-  const requiredFields = [];
-  let description = null;
-  let title = null;
-
-  for (const member of allOf) {
-    let schema = member;
-
-    // Resolve $ref
-    if (member.$ref) {
-      const resolved = resolveRef(member.$ref, components);
-      if (!resolved) continue;
-      schema = deepClone(resolved);
-    }
-
-    // Skip empty objects
-    if (schema.type === 'object' && (!schema.properties || Object.keys(schema.properties).length === 0)) {
-      continue;
-    }
-
-    // Recursively flatten nested allOf
-    if (schema.allOf) {
-      schema = flattenAllOf(schema.allOf, components);
-    }
-
-    // Merge properties
-    if (schema.properties) {
-      Object.assign(merged.properties, schema.properties);
-    }
-
-    // Collect required fields
-    if (schema.required) {
-      requiredFields.push(...schema.required);
-    }
-
-    // Keep first title and description
-    if (!title && schema.title) title = schema.title;
-    if (!description && schema.description) description = schema.description;
-  }
-
-  if (requiredFields.length > 0) {
-    merged.required = [...new Set(requiredFields)];
-  }
-  if (title) merged.title = title;
-  if (description) merged.description = description;
-
-  return merged;
-}
-
-/**
- * Converts a path like /catalog/variants to a PascalCase name like CatalogVariants
- */
-function pathToName(path) {
-  return path
-    .split('/')
-    .filter(Boolean)
-    .filter(p => !p.startsWith('{'))
-    .map(p => p.charAt(0).toUpperCase() + p.slice(1).replace(/-([a-z])/g, (_, c) => c.toUpperCase()))
+  // Capitalize each part and join
+  return parts
+    .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
     .join('');
 }
 
 /**
- * Processes the spec to flatten allOf structures in response schemas.
- * Creates new component schemas for flattened structures.
+ * Build a map of old names to new PascalCase names.
  */
-function flattenResponseAllOfs(spec) {
-  const newComponents = {};
-  let flattenCount = 0;
+function buildNameMap(schemas) {
+  const nameMap = new Map();
+  const newNameCounts = new Map();
 
-  function processSchema(schema, contextName) {
-    if (!schema || typeof schema !== 'object') return schema;
+  // First pass: generate new names and count collisions
+  for (const oldName of Object.keys(schemas)) {
+    const newName = toPascalCase(oldName);
+    newNameCounts.set(newName, (newNameCounts.get(newName) || 0) + 1);
+  }
 
-    // Handle arrays
-    if (Array.isArray(schema)) {
-      return schema.map((item, i) => processSchema(item, `${contextName}${i}`));
+  // Second pass: resolve collisions
+  for (const oldName of Object.keys(schemas)) {
+    let newName = toPascalCase(oldName);
+
+    // If there's a collision and this is a _Base type, keep Base suffix
+    if (newNameCounts.get(newName) > 1) {
+      if (oldName.endsWith('_Base')) {
+        newName = toPascalCase(oldName.replace('_Base', '')) + 'Base';
+      } else if (oldName.endsWith('_Post')) {
+        newName = toPascalCase(oldName.replace('_Post', '')) + 'Post';
+      } else if (oldName.endsWith('_Put')) {
+        newName = toPascalCase(oldName.replace('_Put', '')) + 'Put';
+      }
     }
 
-    // Handle allOf - flatten it
-    if (schema.allOf && Array.isArray(schema.allOf)) {
-      const flattened = flattenAllOf(schema.allOf, spec.components);
+    nameMap.set(oldName, newName);
+  }
 
-      // Process the flattened schema's nested structures
-      if (flattened.properties) {
-        for (const [propName, propSchema] of Object.entries(flattened.properties)) {
-          flattened.properties[propName] = processSchema(propSchema, `${contextName}${propName.charAt(0).toUpperCase() + propName.slice(1)}`);
+  return nameMap;
+}
+
+/**
+ * Mapping of inline schema titles to the component they should reference.
+ */
+const INLINE_TITLE_TO_COMPONENT = {
+  'Variant Base': 'productVariant_Full',
+  'Option Value Product Base': 'productVariantOptionValue_Full',
+  'Option Value Variant': 'productVariantOptionValue_Full',
+  'Product Variant Option Value': 'productVariantOptionValue_Full',
+};
+
+/**
+ * Check if an allOf pattern matches a known component.
+ * Returns the component name to use, or null if no match.
+ */
+function matchAllOfToComponent(allOf) {
+  if (!Array.isArray(allOf) || allOf.length < 1) return null;
+
+  const first = allOf[0];
+  const second = allOf[1];
+
+  // Pattern: Variant Base + object with id/product_id/sku -> productVariant_Full
+  if (first.title === 'Variant Base' ||
+      first.$ref === '#/components/schemas/productVariant_Base') {
+    if (second?.type === 'object' && second?.properties) {
+      const props = Object.keys(second.properties);
+      if (props.includes('id') && props.includes('product_id') && props.includes('sku')) {
+        return 'productVariant_Full';
+      }
+    }
+  }
+
+  // Pattern: Option Value Product Base + object with id/option_id -> productVariantOptionValue_Full
+  if (first.title === 'Option Value Product Base' ||
+      first.$ref === '#/components/schemas/productVariantOptionValue_Base') {
+    if (second?.type === 'object' && second?.properties) {
+      const props = Object.keys(second.properties);
+      if (props.includes('id') && props.includes('option_id')) {
+        return 'productVariantOptionValue_Full';
+      }
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Process the spec to replace inline schemas with $refs to existing components.
+ */
+function deduplicateInlineSchemas(spec) {
+  let replacementCount = 0;
+
+  function processValue(value, path = []) {
+    if (value === null || value === undefined) return value;
+    if (Array.isArray(value)) {
+      return value.map((item, i) => processValue(item, [...path, i]));
+    }
+    if (typeof value !== 'object') return value;
+
+    // Check for allOf that matches a known component
+    if (value.allOf && Array.isArray(value.allOf)) {
+      const matchedComponent = matchAllOfToComponent(value.allOf);
+      if (matchedComponent) {
+        // Prevent self-referential replacements - if we're inside the schema definition
+        // for the matched component, don't replace it with a ref to itself
+        const isInsideSchema = path[0] === 'components' && path[1] === 'schemas' && path[2] === matchedComponent;
+        if (!isInsideSchema) {
+          console.log(`  Replacing allOf at ${path.join('.')} -> ${matchedComponent}`);
+          replacementCount++;
+          return { $ref: `#/components/schemas/${matchedComponent}` };
         }
       }
 
-      // If this flattened schema has substantial properties, create a component
-      const propCount = Object.keys(flattened.properties || {}).length;
-      if (propCount > 2) {
-        const componentName = flattened.title || contextName;
-        // Clean up the name
-        const cleanName = componentName.replace(/[^a-zA-Z0-9_]/g, '');
-
-        if (!newComponents[cleanName]) {
-          newComponents[cleanName] = flattened;
-          flattenCount++;
-        }
-        return { $ref: `#/components/schemas/${cleanName}` };
-      }
-
-      return flattened;
+      // Process allOf members recursively
+      return {
+        ...value,
+        allOf: value.allOf.map((item, i) => processValue(item, [...path, 'allOf', i]))
+      };
     }
 
-    // Process object properties recursively
+    // Check for inline object with title that matches a known component
+    if (value.title && value.type === 'object' && INLINE_TITLE_TO_COMPONENT[value.title]) {
+      const component = INLINE_TITLE_TO_COMPONENT[value.title];
+      console.log(`  Replacing inline "${value.title}" at ${path.join('.')} -> ${component}`);
+      replacementCount++;
+      return { $ref: `#/components/schemas/${component}` };
+    }
+
+    // Recurse into object properties
     const result = {};
-    for (const [key, value] of Object.entries(schema)) {
-      if (key === 'properties' && typeof value === 'object') {
-        result[key] = {};
-        for (const [propName, propSchema] of Object.entries(value)) {
-          result[key][propName] = processSchema(propSchema, `${contextName}${propName.charAt(0).toUpperCase() + propName.slice(1)}`);
-        }
-      } else if (key === 'items') {
-        result[key] = processSchema(value, `${contextName}Item`);
-      } else if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-        result[key] = processSchema(value, contextName);
-      } else {
-        result[key] = value;
-      }
+    for (const [key, val] of Object.entries(value)) {
+      result[key] = processValue(val, [...path, key]);
     }
     return result;
   }
 
-  // Process all paths - both responses and request bodies
-  for (const [path, pathItem] of Object.entries(spec.paths || {})) {
-    const baseName = pathToName(path);
-
-    for (const [method, operation] of Object.entries(pathItem)) {
-      if (!operation || typeof operation !== 'object') continue;
-
-      const opName = operation.operationId || `${method}${baseName}`;
-
-      // Process responses
-      if (operation.responses) {
-        for (const [statusCode, response] of Object.entries(operation.responses)) {
-          if (!response?.content?.['application/json']?.schema) continue;
-
-          const contextName = `${opName.charAt(0).toUpperCase() + opName.slice(1)}Response`;
-          response.content['application/json'].schema = processSchema(
-            response.content['application/json'].schema,
-            contextName
-          );
-        }
-      }
-
-      // Process request bodies
-      if (operation.requestBody?.content?.['application/json']?.schema) {
-        const contextName = `${opName.charAt(0).toUpperCase() + opName.slice(1)}Input`;
-        operation.requestBody.content['application/json'].schema = processSchema(
-          operation.requestBody.content['application/json'].schema,
-          contextName
-        );
-      }
-    }
-  }
-
-  // Process component schemas
-  if (spec.components?.schemas) {
-    for (const [name, schema] of Object.entries(spec.components.schemas)) {
-      spec.components.schemas[name] = processSchema(schema, name);
-    }
-  }
-
-  // Add new components to spec
-  if (!spec.components) spec.components = {};
-  if (!spec.components.schemas) spec.components.schemas = {};
-  Object.assign(spec.components.schemas, newComponents);
-
-  console.log(`  Flattened ${flattenCount} allOf structures into components`);
-  return spec;
+  const processed = processValue(spec);
+  console.log(`  Total inline replacements: ${replacementCount}`);
+  return processed;
 }
 
 /**
- * Removes empty object schemas from allOf arrays.
+ * Update all $refs to use new PascalCase names.
+ */
+function updateRefs(obj, nameMap) {
+  if (obj === null || obj === undefined) return obj;
+  if (Array.isArray(obj)) return obj.map(item => updateRefs(item, nameMap));
+  if (typeof obj !== 'object') return obj;
+
+  const result = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (key === '$ref' && typeof value === 'string' && value.startsWith('#/components/schemas/')) {
+      const oldName = value.replace('#/components/schemas/', '');
+      const newName = nameMap.get(oldName) || oldName;
+      result[key] = `#/components/schemas/${newName}`;
+    } else {
+      result[key] = updateRefs(value, nameMap);
+    }
+  }
+  return result;
+}
+
+/**
+ * Rename component schemas to PascalCase.
+ */
+function renameSchemas(components, nameMap) {
+  if (!components?.schemas) return components;
+
+  const newSchemas = {};
+  for (const [oldName, schema] of Object.entries(components.schemas)) {
+    const newName = nameMap.get(oldName) || oldName;
+
+    // Update the title if it matches the old name
+    const updatedSchema = { ...schema };
+    if (updatedSchema.title === oldName) {
+      updatedSchema.title = newName;
+    }
+
+    newSchemas[newName] = updatedSchema;
+  }
+
+  return { ...components, schemas: newSchemas };
+}
+
+/**
+ * Clean up the spec - remove empty allOf, unwrap single-item allOf, etc.
  */
 function cleanupSpec(obj) {
   if (obj === null || obj === undefined) return obj;
@@ -242,6 +253,7 @@ function cleanupSpec(obj) {
     if (value === undefined) continue;
 
     if (key === 'allOf' && Array.isArray(value)) {
+      // Filter out empty objects
       const filtered = value.filter(item => {
         if (item.type === 'object' && item.properties && Object.keys(item.properties).length === 0) {
           return false;
@@ -251,6 +263,7 @@ function cleanupSpec(obj) {
 
       if (filtered.length === 0) continue;
       if (filtered.length === 1) {
+        // Unwrap single-item allOf
         if (filtered[0].$ref) {
           result.$ref = filtered[0].$ref;
         } else {
@@ -328,6 +341,7 @@ async function combineSpecs() {
     mergeTags(combined.tags, spec.tags);
   }
 
+  // Sort paths and tags
   const sortedPaths = {};
   for (const path of Object.keys(combined.paths).sort()) {
     sortedPaths[path] = combined.paths[path];
@@ -344,10 +358,34 @@ async function main() {
   try {
     let spec = await combineSpecs();
 
-    console.log('\nFlattening allOf structures in responses...');
-    spec = flattenResponseAllOfs(spec);
+    console.log(`\nMerged ${Object.keys(spec.components?.schemas ?? {}).length} component schemas`);
 
-    console.log('\nCleaning up spec...');
+    // Step 1: Deduplicate inline schemas
+    console.log('\nStep 1: Deduplicating inline schemas...');
+    spec = deduplicateInlineSchemas(spec);
+
+    // Step 2: Build name map for PascalCase conversion
+    console.log('\nStep 2: Building PascalCase name map...');
+    const nameMap = buildNameMap(spec.components.schemas);
+
+    // Log example renames
+    const examples = ['productVariant_Base', 'productVariant_Full', 'metaCollection_Full', 'brand_Full', 'error_Base'];
+    for (const ex of examples) {
+      if (nameMap.has(ex)) {
+        console.log(`  ${ex} -> ${nameMap.get(ex)}`);
+      }
+    }
+
+    // Step 3: Rename schemas
+    console.log('\nStep 3: Renaming schemas to PascalCase...');
+    spec.components = renameSchemas(spec.components, nameMap);
+
+    // Step 4: Update all $refs
+    console.log('Step 4: Updating $refs to new names...');
+    spec = updateRefs(spec, nameMap);
+
+    // Step 5: Clean up
+    console.log('Step 5: Cleaning up spec...');
     spec = cleanupSpec(spec);
 
     const outputPath = join(__dirname, '..', 'specs', 'bigcommerce', 'catalog.v3.yml');
