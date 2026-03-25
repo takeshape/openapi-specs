@@ -2390,17 +2390,7 @@ paths:
                   data:
                     type: array
                     items:
-                      allOf:
-                        - $ref: '#/components/schemas/Product'
-                        - type: object
-                          properties:
-                            channels:
-                              type: array
-                              items:
-                                type: integer
-                              description: >-
-                                The channels to which the product is assigned. This field only appears in the response
-                                if you include `channels` in the `include` query parameter.
+                      $ref: '#/components/schemas/Product'
                   meta:
                     $ref: '#/components/schemas/MetaCollection'
     put:
@@ -3298,17 +3288,7 @@ paths:
                 type: object
                 properties:
                   data:
-                    allOf:
-                      - $ref: '#/components/schemas/Product'
-                      - type: object
-                        properties:
-                          channels:
-                            type: array
-                            items:
-                              type: integer
-                            description: >-
-                              The channels to which the product is assigned. This field only appears in the response if
-                              you include `channels` in the `include` query parameter.
+                    $ref: '#/components/schemas/Product'
                   meta:
                     $ref: '#/components/schemas/MetaEmpty'
               example:
@@ -3770,14 +3750,7 @@ paths:
                 type: object
                 properties:
                   data:
-                    allOf:
-                      - type: object
-                        properties:
-                          id:
-                            type: integer
-                            description: Unique ID of the *Bulk Pricing Rule*. Read-Only.
-                            readOnly: true
-                      - $ref: '#/components/schemas/BulkPricingRuleResponse'
+                    $ref: '#/components/schemas/BulkPricingRuleResponse'
                   meta:
                     $ref: '#/components/schemas/MetaEmpty'
               example:
@@ -3807,14 +3780,7 @@ paths:
                 type: object
                 properties:
                   data:
-                    allOf:
-                      - type: object
-                        properties:
-                          id:
-                            type: integer
-                            description: Unique ID of the *Bulk Pricing Rule*. Read-Only.
-                            readOnly: true
-                      - $ref: '#/components/schemas/BulkPricingRuleResponse'
+                    $ref: '#/components/schemas/BulkPricingRuleResponse'
                   meta:
                     $ref: '#/components/schemas/MetaCollection'
               example:
@@ -3853,16 +3819,7 @@ paths:
                 type: object
                 properties:
                   data:
-                    allOf:
-                      - type: object
-                        properties:
-                          id:
-                            type: integer
-                            description: Unique ID of the *Bulk Pricing Rule*. Read-Only.
-                            readOnly: true
-                        required:
-                          - id
-                      - $ref: '#/components/schemas/BulkPricingRuleResponse'
+                    $ref: '#/components/schemas/BulkPricingRuleResponse'
                   meta:
                     $ref: '#/components/schemas/MetaEmpty'
               example:
@@ -3899,16 +3856,7 @@ paths:
         content:
           application/json:
             schema:
-              allOf:
-                - type: object
-                  properties:
-                    id:
-                      type: integer
-                      description: Unique ID of the *Bulk Pricing Rule*. Read-Only.
-                      readOnly: true
-                  required:
-                    - id
-                - $ref: '#/components/schemas/BulkPricingRule'
+              $ref: '#/components/schemas/BulkPricingRule'
         required: true
       responses:
         '200':
@@ -3920,14 +3868,7 @@ paths:
                 type: object
                 properties:
                   data:
-                    allOf:
-                      - type: object
-                        properties:
-                          id:
-                            type: integer
-                            description: Unique ID of the *Bulk Pricing Rule*. Read-Only.
-                            readOnly: true
-                      - $ref: '#/components/schemas/BulkPricingRuleResponse'
+                    $ref: '#/components/schemas/BulkPricingRuleResponse'
                   meta:
                     $ref: '#/components/schemas/MetaEmpty'
               example:
@@ -6617,45 +6558,7 @@ paths:
                   data:
                     type: array
                     items:
-                      allOf:
-                        - title: Product Review Base
-                          required:
-                            - date_reviewed
-                            - title
-                          type: object
-                          properties:
-                            title:
-                              maxLength: 255
-                              minLength: 0
-                              type: string
-                              description: |-
-                                The title for the product review.
-                                Required in /POST.
-                            text:
-                              type: string
-                              description: |
-                                The text for the product review.
-                            status:
-                              type: string
-                              description: |
-                                The status of the product review. Must be one of `approved`, `disapproved` or `pending`.
-                            rating:
-                              type: integer
-                              description: The rating of the product review. Must be one of 0, 1, 2, 3, 4, 5.
-                            email:
-                              type: string
-                              description: The email of the reviewer. Must be a valid email, or an empty string.
-                            name:
-                              maxLength: 255
-                              minLength: 0
-                              type: string
-                              description: The name of the reviewer.
-                            date_reviewed:
-                              type: string
-                              description: |
-                                Date the product was reviewed. Required in /POST.
-                              format: date-time
-                        - $ref: '#/components/schemas/MetafieldFull'
+                      $ref: '#/components/schemas/MetafieldFull'
                       title: Product Review
                       description: |
                         A product review model.
@@ -6747,45 +6650,7 @@ paths:
                 type: object
                 properties:
                   data:
-                    allOf:
-                      - title: Product Review Base
-                        required:
-                          - date_reviewed
-                          - title
-                        type: object
-                        properties:
-                          title:
-                            maxLength: 255
-                            minLength: 0
-                            type: string
-                            description: |-
-                              The title for the product review.
-                              Required in /POST.
-                          text:
-                            type: string
-                            description: |
-                              The text for the product review.
-                          status:
-                            type: string
-                            description: |
-                              The status of the product review. Must be one of `approved`, `disapproved` or `pending`.
-                          rating:
-                            type: integer
-                            description: The rating of the product review. Must be one of 0, 1, 2, 3, 4, 5.
-                          email:
-                            type: string
-                            description: The email of the reviewer. Must be a valid email, or an empty string.
-                          name:
-                            maxLength: 255
-                            minLength: 0
-                            type: string
-                            description: The name of the reviewer.
-                          date_reviewed:
-                            type: string
-                            description: |
-                              Date the product was reviewed. Required in /POST.
-                            format: date-time
-                      - $ref: '#/components/schemas/MetafieldFull'
+                    $ref: '#/components/schemas/MetafieldFull'
                     title: Product Review
                     description: |
                       A product review model.
@@ -6838,45 +6703,7 @@ paths:
                 type: object
                 properties:
                   data:
-                    allOf:
-                      - title: Product Review Base
-                        required:
-                          - date_reviewed
-                          - title
-                        type: object
-                        properties:
-                          title:
-                            maxLength: 255
-                            minLength: 0
-                            type: string
-                            description: |-
-                              The title for the product review.
-                              Required in /POST.
-                          text:
-                            type: string
-                            description: |
-                              The text for the product review.
-                          status:
-                            type: string
-                            description: |
-                              The status of the product review. Must be one of `approved`, `disapproved` or `pending`.
-                          rating:
-                            type: integer
-                            description: The rating of the product review. Must be one of 0, 1, 2, 3, 4, 5.
-                          email:
-                            type: string
-                            description: The email of the reviewer. Must be a valid email, or an empty string.
-                          name:
-                            maxLength: 255
-                            minLength: 0
-                            type: string
-                            description: The name of the reviewer.
-                          date_reviewed:
-                            type: string
-                            description: |
-                              Date the product was reviewed. Required in /POST.
-                            format: date-time
-                      - $ref: '#/components/schemas/MetafieldFull'
+                    $ref: '#/components/schemas/MetafieldFull'
                     title: Product Review
                     description: |
                       A product review model.
@@ -6976,45 +6803,7 @@ paths:
                 type: object
                 properties:
                   data:
-                    allOf:
-                      - title: Product Review Base
-                        required:
-                          - date_reviewed
-                          - title
-                        type: object
-                        properties:
-                          title:
-                            maxLength: 255
-                            minLength: 0
-                            type: string
-                            description: |-
-                              The title for the product review.
-                              Required in /POST.
-                          text:
-                            type: string
-                            description: |
-                              The text for the product review.
-                          status:
-                            type: string
-                            description: |
-                              The status of the product review. Must be one of `approved`, `disapproved` or `pending`.
-                          rating:
-                            type: integer
-                            description: The rating of the product review. Must be one of 0, 1, 2, 3, 4, 5.
-                          email:
-                            type: string
-                            description: The email of the reviewer. Must be a valid email, or an empty string.
-                          name:
-                            maxLength: 255
-                            minLength: 0
-                            type: string
-                            description: The name of the reviewer.
-                          date_reviewed:
-                            type: string
-                            description: |
-                              Date the product was reviewed. Required in /POST.
-                            format: date-time
-                      - $ref: '#/components/schemas/MetafieldFull'
+                    $ref: '#/components/schemas/MetafieldFull'
                     title: Product Review
                     description: |
                       A product review model.
@@ -9328,6 +9117,37 @@ components:
               description: Unique ID of the metafield.
               readOnly: true
               example: 6
+            title:
+              maxLength: 255
+              minLength: 0
+              type: string
+              description: |-
+                The title for the product review.
+                Required in /POST.
+            text:
+              type: string
+              description: |
+                The text for the product review.
+            status:
+              type: string
+              description: |
+                The status of the product review. Must be one of `approved`, `disapproved` or `pending`.
+            rating:
+              type: integer
+              description: The rating of the product review. Must be one of 0, 1, 2, 3, 4, 5.
+            email:
+              type: string
+              description: The email of the reviewer. Must be a valid email, or an empty string.
+            name:
+              maxLength: 255
+              minLength: 0
+              type: string
+              description: The name of the reviewer.
+            date_reviewed:
+              type: string
+              description: |
+                Date the product was reviewed. Required in /POST.
+              format: date-time
         - $ref: '#/components/schemas/MetafieldBase'
         - type: object
           properties:
@@ -12411,6 +12231,10 @@ components:
 
             Divide the adjustment percentage by 100 and send the result in string format. For example, represent 10% as
             “.10”. The response will return a float value for both `price` and `percentage` adjustments. 
+        id:
+          type: integer
+          description: Unique ID of the *Bulk Pricing Rule*. Read-Only.
+          readOnly: true
     BulkPricingRule:
       title: BulkPricingRule
       type: object
@@ -12461,6 +12285,10 @@ components:
             “.10”. The response will return a float value for both `price` and `percentage` adjustments. 
 
             Required in /POST.
+        id:
+          type: integer
+          description: Unique ID of the *Bulk Pricing Rule*. Read-Only.
+          readOnly: true
       required:
         - quantity_min
         - quantity_max
@@ -12475,6 +12303,13 @@ components:
               type: integer
               description: ID of the product. Read-Only.
               readOnly: true
+            channels:
+              type: array
+              items:
+                type: integer
+              description: >-
+                The channels to which the product is assigned. This field only appears in the response if you include
+                `channels` in the `include` query parameter.
         - $ref: '#/components/schemas/ProductBaseResponse'
         - type: object
           properties:

@@ -4,10 +4,11 @@
  * Strategy:
  * 1. Combine all specs and merge components
  * 2. Replace inline schemas with $refs to existing components (subset matching)
- * 3. Rename component schemas to PascalCase
- * 4. Update all $refs to use new PascalCase names
- * 5. Clean up spec (unwrap single-item allOf, remove empty objects, normalize oneOf number/string to number)
- * 6. Validate the resulting OpenAPI spec
+ * 3. Merge inline allOf extensions into component schemas (e.g., Product + channels -> Product)
+ * 4. Rename component schemas to PascalCase
+ * 5. Update all $refs to use new PascalCase names
+ * 6. Clean up spec (unwrap single-item allOf, remove empty objects, normalize oneOf number/string to number)
+ * 7. Validate the resulting OpenAPI spec
  *
  * Usage: node scripts/combine-bigcommerce-catalog.mjs
  */
@@ -288,6 +289,119 @@ function deduplicateInlineSchemas(spec) {
   return processed;
 }
 
+// ============================================================================
+// Merge inline allOf extensions into component schemas
+// ============================================================================
+
+/**
+ * Find allOf patterns like [$ref: Component, {inline props}] and merge the inline
+ * props into the component schema, then replace the allOf with a simple $ref.
+ *
+ * This simplifies the spec and helps the transform generate cleaner types.
+ */
+function mergeInlineExtensions(spec) {
+  const componentSchemas = spec.components?.schemas || {};
+  const mergedProps = new Map(); // Track what we've merged into each component
+
+  /**
+   * Check if an allOf can be simplified by merging into a component.
+   * Returns { refName, propsToMerge } if simplifiable, null otherwise.
+   */
+  function canSimplifyAllOf(allOf) {
+    if (!Array.isArray(allOf) || allOf.length !== 2) return null;
+
+    // Find the $ref item and the inline object item
+    const refItem = allOf.find(item => item.$ref?.startsWith('#/components/schemas/'));
+    const inlineItem = allOf.find(item => !item.$ref && item.properties);
+
+    if (!refItem || !inlineItem) return null;
+
+    const refName = refItem.$ref.replace('#/components/schemas/', '');
+
+    // Make sure the component exists
+    if (!componentSchemas[refName]) return null;
+
+    return { refName, propsToMerge: inlineItem.properties };
+  }
+
+  /**
+   * Process the spec to find and simplify allOf patterns.
+   */
+  function processValue(value, path = []) {
+    if (value === null || value === undefined) return value;
+    if (Array.isArray(value)) {
+      return value.map((item, i) => processValue(item, [...path, i]));
+    }
+    if (typeof value !== 'object') return value;
+
+    // Skip component schema definitions themselves
+    if (path[0] === 'components' && path[1] === 'schemas') {
+      const result = {};
+      for (const [key, val] of Object.entries(value)) {
+        result[key] = processValue(val, [...path, key]);
+      }
+      return result;
+    }
+
+    // Check if this object has an allOf that can be simplified
+    if (value.allOf) {
+      const simplification = canSimplifyAllOf(value.allOf);
+      if (simplification) {
+        const { refName, propsToMerge } = simplification;
+
+        // Track merged properties
+        if (!mergedProps.has(refName)) {
+          mergedProps.set(refName, {});
+        }
+        Object.assign(mergedProps.get(refName), propsToMerge);
+
+        console.log(`  Merging inline props into ${refName}: ${Object.keys(propsToMerge).join(', ')}`);
+
+        // Return simplified $ref, preserving sibling properties like title
+        const { allOf, ...siblings } = value;
+        return { $ref: `#/components/schemas/${refName}`, ...siblings };
+      }
+    }
+
+    // Recurse into object properties
+    const result = {};
+    for (const [key, val] of Object.entries(value)) {
+      result[key] = processValue(val, [...path, key]);
+    }
+    return result;
+  }
+
+  // Process the spec
+  const processed = processValue(spec);
+
+  // Now merge the collected properties into component schemas
+  for (const [componentName, props] of mergedProps) {
+    const component = processed.components.schemas[componentName];
+    if (!component) continue;
+
+    // If component uses allOf, add properties to the last item or create a new item
+    if (component.allOf && Array.isArray(component.allOf)) {
+      // Find an existing inline object to merge into, or add a new one
+      let targetItem = component.allOf.find(item => !item.$ref && item.properties);
+      if (targetItem) {
+        targetItem.properties = { ...targetItem.properties, ...props };
+      } else {
+        component.allOf.push({ type: 'object', properties: props });
+      }
+    } else if (component.properties) {
+      // Simple object schema - just add properties
+      component.properties = { ...component.properties, ...props };
+    } else {
+      // Convert to object with properties
+      component.type = 'object';
+      component.properties = props;
+    }
+  }
+
+  console.log(`  Merged properties into ${mergedProps.size} component schemas`);
+  return processed;
+}
+
 /**
  * Update all $refs to use new PascalCase names.
  */
@@ -485,8 +599,12 @@ async function main() {
     console.log('\nStep 1: Deduplicating inline schemas (subset matching)...');
     spec = deduplicateInlineSchemas(spec);
 
-    // Step 2: Build name map for PascalCase conversion
-    console.log('\nStep 2: Building PascalCase name map...');
+    // Step 2: Merge inline allOf extensions into component schemas
+    console.log('\nStep 2: Merging inline allOf extensions into components...');
+    spec = mergeInlineExtensions(spec);
+
+    // Step 3: Build name map for PascalCase conversion
+    console.log('\nStep 3: Building PascalCase name map...');
     const nameMap = buildNameMap(spec.components.schemas);
 
     // Log example renames
@@ -497,16 +615,16 @@ async function main() {
       }
     }
 
-    // Step 3: Rename schemas
-    console.log('\nStep 3: Renaming schemas to PascalCase...');
+    // Step 4: Rename schemas
+    console.log('\nStep 4: Renaming schemas to PascalCase...');
     spec.components = renameSchemas(spec.components, nameMap);
 
-    // Step 4: Update all $refs
-    console.log('Step 4: Updating $refs to new names...');
+    // Step 5: Update all $refs
+    console.log('Step 5: Updating $refs to new names...');
     spec = updateRefs(spec, nameMap);
 
-    // Step 5: Clean up
-    console.log('Step 5: Cleaning up spec...');
+    // Step 6: Clean up
+    console.log('Step 6: Cleaning up spec...');
     spec = cleanupSpec(spec);
 
     const outputPath = join(__dirname, '..', 'specs', 'bigcommerce', 'catalog.v3.yml');
@@ -520,7 +638,7 @@ async function main() {
     console.log(`  - Tags: ${spec.tags?.length ?? 0}`);
 
     // Validate the resulting spec
-    console.log('\nStep 6: Validating OpenAPI spec...');
+    console.log('\nStep 7: Validating OpenAPI spec...');
     await SwaggerParser.validate(outputPath);
     console.log('  Spec is valid!');
   } catch (error) {
