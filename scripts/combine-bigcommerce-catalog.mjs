@@ -701,6 +701,69 @@ function countSchemaRefs(spec) {
 }
 
 /**
+ * Find $refs in an allOf that are only used once in the entire spec.
+ */
+function findSingleUseRefs(allOf, schemas, refCounts) {
+  const refs = [];
+  for (const item of allOf) {
+    if (!isSchemaRef(item)) continue;
+    const refName = getSchemaName(item);
+    if (refCounts.get(refName) === 1 && schemas[refName]) {
+      refs.push(refName);
+    }
+  }
+  return refs;
+}
+
+/**
+ * Merge allOf items, flattening single-use refs into properties.
+ * Returns { mergedProperties, newAllOf, flattenedRefs }.
+ */
+function mergeAllOfItems(allOf, refsToFlatten, schemas) {
+  const mergedProperties = {};
+  const newAllOf = [];
+  const flattenedRefs = [];
+
+  for (const item of allOf) {
+    if (isSchemaRef(item)) {
+      const refName = getSchemaName(item);
+      if (refsToFlatten.includes(refName)) {
+        const refSchema = schemas[refName];
+        if (refSchema.properties) {
+          Object.assign(mergedProperties, refSchema.properties);
+        }
+        flattenedRefs.push(refName);
+        continue;
+      }
+    }
+
+    // Keep non-flattened items
+    if (item.properties) {
+      Object.assign(mergedProperties, item.properties);
+    } else {
+      newAllOf.push(item);
+    }
+  }
+
+  return { mergedProperties, newAllOf, flattenedRefs };
+}
+
+/**
+ * Update a schema after flattening its allOf.
+ */
+function applyFlattenedSchema(schema, newAllOf, mergedProperties) {
+  if (newAllOf.length === 0) {
+    // All items were flattened - convert to simple object
+    delete schema.allOf;
+    schema.type = 'object';
+    schema.properties = mergedProperties;
+  } else {
+    // Some items remain - keep allOf but add merged properties
+    schema.allOf = [...newAllOf, { type: 'object', properties: mergedProperties }];
+  }
+}
+
+/**
  * Flatten component schemas that use allOf with a $ref to a component that's only used once.
  * This merges the referenced schema's properties directly into the parent schema.
  */
@@ -714,55 +777,17 @@ function flattenSingleUseAllOf(spec) {
   for (const [schemaName, schema] of Object.entries(schemas)) {
     if (!schema.allOf || !Array.isArray(schema.allOf)) continue;
 
-    // Find $refs in this allOf that are only used once
-    const refsToFlatten = [];
-    for (const item of schema.allOf) {
-      if (isSchemaRef(item)) {
-        const refName = getSchemaName(item);
-        if (refCounts.get(refName) === 1 && schemas[refName]) {
-          refsToFlatten.push(refName);
-        }
-      }
-    }
-
+    const refsToFlatten = findSingleUseRefs(schema.allOf, schemas, refCounts);
     if (refsToFlatten.length === 0) continue;
 
-    // Merge properties from single-use refs into this schema
-    const mergedProperties = {};
-    const newAllOf = [];
+    const { mergedProperties, newAllOf, flattenedRefs } = mergeAllOfItems(schema.allOf, refsToFlatten, schemas);
 
-    for (const item of schema.allOf) {
-      if (isSchemaRef(item)) {
-        const refName = getSchemaName(item);
-        if (refsToFlatten.includes(refName)) {
-          const refSchema = schemas[refName];
-          if (refSchema.properties) {
-            Object.assign(mergedProperties, refSchema.properties);
-          }
-          schemasToRemove.add(refName);
-          console.log(`  Flattening ${refName} into ${schemaName}`);
-          continue;
-        }
-      }
-
-      // Keep non-flattened items
-      if (item.properties) {
-        Object.assign(mergedProperties, item.properties);
-      } else {
-        newAllOf.push(item);
-      }
+    for (const refName of flattenedRefs) {
+      schemasToRemove.add(refName);
+      console.log(`  Flattening ${refName} into ${schemaName}`);
     }
 
-    // Update the schema
-    if (newAllOf.length === 0) {
-      // All items were flattened - convert to simple object
-      delete schema.allOf;
-      schema.type = 'object';
-      schema.properties = mergedProperties;
-    } else {
-      // Some items remain - keep allOf but add merged properties
-      schema.allOf = [...newAllOf, { type: 'object', properties: mergedProperties }];
-    }
+    applyFlattenedSchema(schema, newAllOf, mergedProperties);
   }
 
   // Remove flattened schemas
