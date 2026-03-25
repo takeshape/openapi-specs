@@ -587,6 +587,159 @@ async function combineSpecs() {
   return combined;
 }
 
+/**
+ * Fix BigCommerce spec issues - add missing properties to schemas.
+ * The BigCommerce spec doesn't include `variants` in the response schemas,
+ * even though the API returns variants when include=variants is used.
+ */
+function fixSpecIssues(spec) {
+  const schemas = spec.components?.schemas;
+  if (!schemas) return spec;
+
+  // Add variants property to product_Full (which becomes Product after renaming)
+  // The API returns variants when include=variants is used
+  const productSchema = schemas.product_Full;
+
+  if (productSchema && !hasVariantsProperty(productSchema)) {
+    console.log('  Adding variants to product_Full');
+    addVariantsProperty(productSchema, schemas);
+  }
+
+  return spec;
+}
+
+function hasVariantsProperty(schema) {
+  if (schema.properties?.variants) return true;
+  if (schema.allOf) {
+    for (const item of schema.allOf) {
+      if (item.properties?.variants) return true;
+    }
+  }
+  return false;
+}
+
+function addVariantsProperty(schema, allSchemas) {
+  const variantsProperty = {
+    type: 'array',
+    items: { $ref: '#/components/schemas/productVariant_Full' },
+    description: 'Product variants. Only returned when include=variants is specified.'
+  };
+
+  if (schema.allOf) {
+    // Add to an existing properties object in allOf, or create one
+    let propsItem = schema.allOf.find(item => item.properties && !item.$ref);
+    if (propsItem) {
+      propsItem.properties.variants = variantsProperty;
+    } else {
+      schema.allOf.push({ type: 'object', properties: { variants: variantsProperty } });
+    }
+  } else if (schema.properties) {
+    schema.properties.variants = variantsProperty;
+  }
+}
+
+/**
+ * Count how many times each component schema is referenced in the spec.
+ */
+function countSchemaRefs(spec) {
+  const refCounts = new Map();
+
+  function countRefs(obj) {
+    if (obj === null || obj === undefined) return;
+    if (Array.isArray(obj)) {
+      obj.forEach(countRefs);
+      return;
+    }
+    if (typeof obj !== 'object') return;
+
+    if (obj.$ref && typeof obj.$ref === 'string' && obj.$ref.startsWith('#/components/schemas/')) {
+      const refName = obj.$ref.replace('#/components/schemas/', '');
+      refCounts.set(refName, (refCounts.get(refName) || 0) + 1);
+    }
+
+    for (const value of Object.values(obj)) {
+      countRefs(value);
+    }
+  }
+
+  countRefs(spec);
+  return refCounts;
+}
+
+/**
+ * Flatten component schemas that use allOf with a $ref to a component that's only used once.
+ * This merges the referenced schema's properties directly into the parent schema.
+ */
+function flattenSingleUseAllOf(spec) {
+  const schemas = spec.components?.schemas;
+  if (!schemas) return spec;
+
+  const refCounts = countSchemaRefs(spec);
+  const schemasToRemove = new Set();
+
+  for (const [schemaName, schema] of Object.entries(schemas)) {
+    if (!schema.allOf || !Array.isArray(schema.allOf)) continue;
+
+    // Find $refs in this allOf that are only used once
+    const refsToFlatten = [];
+    for (const item of schema.allOf) {
+      if (item.$ref?.startsWith('#/components/schemas/')) {
+        const refName = item.$ref.replace('#/components/schemas/', '');
+        if (refCounts.get(refName) === 1 && schemas[refName]) {
+          refsToFlatten.push(refName);
+        }
+      }
+    }
+
+    if (refsToFlatten.length === 0) continue;
+
+    // Merge properties from single-use refs into this schema
+    const mergedProperties = {};
+    const newAllOf = [];
+
+    for (const item of schema.allOf) {
+      if (item.$ref?.startsWith('#/components/schemas/')) {
+        const refName = item.$ref.replace('#/components/schemas/', '');
+        if (refsToFlatten.includes(refName)) {
+          const refSchema = schemas[refName];
+          if (refSchema.properties) {
+            Object.assign(mergedProperties, refSchema.properties);
+          }
+          schemasToRemove.add(refName);
+          console.log(`  Flattening ${refName} into ${schemaName}`);
+          continue;
+        }
+      }
+
+      // Keep non-flattened items
+      if (item.properties) {
+        Object.assign(mergedProperties, item.properties);
+      } else {
+        newAllOf.push(item);
+      }
+    }
+
+    // Update the schema
+    if (newAllOf.length === 0) {
+      // All items were flattened - convert to simple object
+      delete schema.allOf;
+      schema.type = 'object';
+      schema.properties = mergedProperties;
+    } else {
+      // Some items remain - keep allOf but add merged properties
+      schema.allOf = [...newAllOf, { type: 'object', properties: mergedProperties }];
+    }
+  }
+
+  // Remove flattened schemas
+  for (const name of schemasToRemove) {
+    delete schemas[name];
+  }
+
+  console.log(`  Removed ${schemasToRemove.size} single-use schemas`);
+  return spec;
+}
+
 async function main() {
   console.log('Combining BigCommerce Catalog API specs...\n');
 
@@ -594,6 +747,14 @@ async function main() {
     let spec = await combineSpecs();
 
     console.log(`\nMerged ${Object.keys(spec.components?.schemas ?? {}).length} component schemas`);
+
+    // Step 0: Fix BigCommerce spec issues
+    console.log('\nStep 0: Fixing BigCommerce spec issues...');
+    spec = fixSpecIssues(spec);
+
+    // Step 0.5: Flatten single-use allOf references
+    console.log('\nStep 0.5: Flattening single-use allOf references...');
+    spec = flattenSingleUseAllOf(spec);
 
     // Step 1: Deduplicate inline schemas using subset matching
     console.log('\nStep 1: Deduplicating inline schemas (subset matching)...');
