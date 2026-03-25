@@ -5837,8 +5837,8 @@ paths:
         content:
           application/json:
             schema:
-              title: Option Base
-              description: Common Option properties.
+              title: Option Post
+              description: The model for a POST to create options on a product.
               type: object
               properties:
                 product_id:
@@ -5904,7 +5904,6 @@ paths:
                 type: object
                 properties:
                   data:
-                    title: Option
                     allOf:
                       - title: Option Base
                         description: Common Option properties.
@@ -5977,6 +5976,7 @@ paths:
                               The unique option name, auto-generated from the display name, a timestamp, and the product
                               ID.
                             example: Add-a-$5-Donation1535042499-187
+                    title: Option
                   meta:
                     title: Meta
                     type: object
@@ -6132,8 +6132,7 @@ paths:
         content:
           application/json:
             schema:
-              title: Option Base
-              description: Common Option properties.
+              title: Option Put
               type: object
               properties:
                 id:
@@ -6194,6 +6193,7 @@ paths:
                 image_url:
                   type: string
                   description: Publicly available image url
+              description: The model for a PUT to update options on a product.
         required: true
       responses:
         '200':
@@ -6205,7 +6205,6 @@ paths:
                 type: object
                 properties:
                   data:
-                    title: Option
                     allOf:
                       - title: Option Base
                         type: object
@@ -6278,6 +6277,7 @@ paths:
                               The unique option name, auto-generated from the display name, a timestamp, and the product
                               ID.
                             example: Add-a-$5-Donation1535042499-187
+                    title: Option
                   meta:
                     $ref: '#/components/schemas/MetaEmpty'
               example:
@@ -6617,9 +6617,6 @@ paths:
                   data:
                     type: array
                     items:
-                      title: Product Review
-                      description: |
-                        A product review model.
                       allOf:
                         - title: Product Review Base
                           required:
@@ -6659,6 +6656,9 @@ paths:
                                 Date the product was reviewed. Required in /POST.
                               format: date-time
                         - $ref: '#/components/schemas/MetafieldFull'
+                      title: Product Review
+                      description: |
+                        A product review model.
                   meta:
                     $ref: '#/components/schemas/MetaCollection'
         '204':
@@ -6692,9 +6692,7 @@ paths:
         content:
           application/json:
             schema:
-              title: Product Review Base
-              description: |
-                The model for a POST to create a product review.
+              title: Product Review Post
               required:
                 - date_reviewed
                 - title
@@ -6736,6 +6734,8 @@ paths:
                   description: |
                     Date the product was reviewed. Required in /POST.
                   format: date-time
+              description: |
+                The model for a POST to create a product review.
         required: true
       responses:
         '200':
@@ -6747,9 +6747,6 @@ paths:
                 type: object
                 properties:
                   data:
-                    title: Product Review
-                    description: |
-                      A product review model.
                     allOf:
                       - title: Product Review Base
                         required:
@@ -6789,6 +6786,9 @@ paths:
                               Date the product was reviewed. Required in /POST.
                             format: date-time
                       - $ref: '#/components/schemas/MetafieldFull'
+                    title: Product Review
+                    description: |
+                      A product review model.
                   meta:
                     $ref: '#/components/schemas/MetaEmpty'
                 description: |
@@ -6838,9 +6838,6 @@ paths:
                 type: object
                 properties:
                   data:
-                    title: Product Review
-                    description: |
-                      A product review model.
                     allOf:
                       - title: Product Review Base
                         required:
@@ -6880,6 +6877,9 @@ paths:
                               Date the product was reviewed. Required in /POST.
                             format: date-time
                       - $ref: '#/components/schemas/MetafieldFull'
+                    title: Product Review
+                    description: |
+                      A product review model.
                   meta:
                     $ref: '#/components/schemas/MetaEmpty'
                 description: |
@@ -6926,9 +6926,7 @@ paths:
         content:
           application/json:
             schema:
-              title: Product Review Base
-              description: |
-                The model for a PUT to update a product review.
+              title: Product Review Put
               required:
                 - date_reviewed
                 - title
@@ -6965,6 +6963,8 @@ paths:
                   description: |
                     Date the product was reviewed. Required in /POST.
                   format: date-time
+              description: |
+                The model for a PUT to update a product review.
         required: true
       responses:
         '200':
@@ -6976,9 +6976,6 @@ paths:
                 type: object
                 properties:
                   data:
-                    title: Product Review
-                    description: |
-                      A product review model.
                     allOf:
                       - title: Product Review Base
                         required:
@@ -7018,6 +7015,9 @@ paths:
                               Date the product was reviewed. Required in /POST.
                             format: date-time
                       - $ref: '#/components/schemas/MetafieldFull'
+                    title: Product Review
+                    description: |
+                      A product review model.
                   meta:
                     $ref: '#/components/schemas/MetaEmpty'
                 description: |
@@ -9320,7 +9320,6 @@ components:
         Error payload for the BigCommerce API.
       x-internal: false
     MetafieldFull:
-      title: MetafieldFull
       allOf:
         - type: object
           properties:
@@ -9368,6 +9367,7 @@ components:
               description: Client ID for the metafieldʼs creator.
               example: asdfasdfasdfasdfasdfasdfasdf
               readOnly: true
+      title: MetafieldFull
       x-internal: false
     Metafield:
       type: object
@@ -9707,8 +9707,6 @@ components:
         - key
         - value
     MetafieldPost:
-      description: |
-        The model for a POST to create metafield.
       allOf:
         - $ref: '#/components/schemas/MetafieldBasePost'
         - type: object
@@ -9720,6 +9718,8 @@ components:
                 The ID for the resource with which the metafield is associated.
           required:
             - resource_id
+      description: |
+        The model for a POST to create metafield.
       x-internal: false
     MetafieldBasePut:
       type: object
@@ -9943,9 +9943,6 @@ components:
           description: The relative priority of the product among other products inside the category.
       x-internal: false
     Category:
-      x-tags:
-        - Models
-      title: Category
       allOf:
         - $ref: '#/components/schemas/Id'
         - $ref: '#/components/schemas/ParentId'
@@ -9965,6 +9962,9 @@ components:
           properties:
             custom_url:
               $ref: '#/components/schemas/Url'
+      x-tags:
+        - Models
+      title: Category
     Url:
       title: URL
       description: |
@@ -10152,7 +10152,6 @@ components:
       additionalProperties: true
       x-internal: false
     GetCategories:
-      title: Get Categories
       allOf:
         - type: object
           properties:
@@ -10171,6 +10170,7 @@ components:
           properties:
             url:
               $ref: '#/components/schemas/Url'
+      title: Get Categories
     CreateCategories:
       title: Create Categories
       type: array
@@ -10785,8 +10785,6 @@ components:
       description: Common Modifier properties.
       x-internal: false
     ProductModifier:
-      title: ProductModifier
-      description: Product modifier
       allOf:
         - $ref: '#/components/schemas/ProductModifierBase'
         - type: object
@@ -10813,6 +10811,8 @@ components:
                 specific modifier types. See [Option Values](#option-values) for more details.
               items:
                 $ref: '#/components/schemas/ProductModifierOptionValue'
+      title: ProductModifier
+      description: Product modifier
       x-internal: false
     ProductModifierOptionValueBase:
       title: ProductModifierOptionValueBase
@@ -10855,8 +10855,6 @@ components:
       description: Common Product modifier `option_value` properties.
       x-internal: false
     ProductModifierOptionValue:
-      title: ProductModifierOptionValue
-      description: Product modifier `option_value`.
       allOf:
         - $ref: '#/components/schemas/ProductModifierOptionValueBase'
         - type: object
@@ -10867,6 +10865,8 @@ components:
                 The unique numeric ID of the value; increments sequentially.
             option_id:
               type: integer
+      title: ProductModifierOptionValue
+      description: Product modifier `option_value`.
       x-internal: false
     Adjuster:
       title: Adjuster
@@ -11121,7 +11121,6 @@ components:
       description: Common Option properties.
       x-internal: false
     ProductOption:
-      title: ProductOption
       allOf:
         - $ref: '#/components/schemas/ProductOptionBase'
         - type: object
@@ -11131,6 +11130,7 @@ components:
               description: |
                 The unique option name, auto-generated from the display name, a timestamp, and the product ID.
               example: Add-a-$5-Donation1535042499-187
+      title: ProductOption
       x-internal: false
     ProductOptionOptionValueBase:
       title: ProductOptionOptionValueBase
@@ -11174,8 +11174,6 @@ components:
       description: Common Product Option `option_value` properties.
       x-internal: false
     ProductOptionOptionValue:
-      title: ProductOptionOptionValue
-      description: Product Option `option_value`.
       allOf:
         - $ref: '#/components/schemas/ProductOptionOptionValueBase'
         - type: object
@@ -11184,6 +11182,8 @@ components:
               type: integer
               description: |
                 The unique numeric ID of the value; increments sequentially.
+      title: ProductOptionOptionValue
+      description: Product Option `option_value`.
       x-internal: false
     ProductOptionConfig:
       title: ProductOptionConfig
@@ -11543,7 +11543,6 @@ components:
           mpn: string
           gtin: '012345678905'
     ProductVariant:
-      title: ProductVariant
       allOf:
         - $ref: '#/components/schemas/ProductVariantBase'
         - type: object
@@ -11573,6 +11572,7 @@ components:
               format: double
             calculated_weight:
               type: number
+      title: ProductVariant
       x-internal: false
       description: ''
       x-examples:
@@ -11607,9 +11607,6 @@ components:
           calculated_price: 0
           calculated_weight: 0
     ProductVariantPost:
-      title: ProductVariantPost
-      description: |
-        The model for a POST to create variants on a product.
       allOf:
         - title: Variant Base
           type: object
@@ -11779,9 +11776,11 @@ components:
                 $ref: '#/components/schemas/ProductVariantOptionValue'
               x-required:
                 - post
+      title: ProductVariantPost
+      description: |
+        The model for a POST to create variants on a product.
       x-internal: false
     ProductVariantOptionValue:
-      title: ProductVariantOptionValue
       allOf:
         - type: object
           properties:
@@ -11804,6 +11803,7 @@ components:
               x-required:
                 - post
         - $ref: '#/components/schemas/ProductVariantOptionValueBase'
+      title: ProductVariantOptionValue
       x-internal: false
     ProductVariantOptionValueBase:
       title: ProductVariantOptionValueBase
@@ -11848,8 +11848,6 @@ components:
         errors:
           $ref: '#/components/schemas/DetailedErrors'
     ProductVariantPut:
-      title: ProductVariantPut
-      description: The model for a PUT to update variants on a product.
       allOf:
         - $ref: '#/components/schemas/ProductVariantBase'
         - type: object
@@ -11864,6 +11862,8 @@ components:
               type: string
               x-required:
                 - post
+      title: ProductVariantPut
+      description: The model for a PUT to update variants on a product.
       x-internal: false
     Success:
       type: integer
@@ -12075,8 +12075,6 @@ components:
       description: Common ProductImage properties.
       x-internal: false
     ProductImagePostPut:
-      title: ProductImagePostPut
-      description: The model for a POST or PUT to create  or update applicable Product Image fields.
       allOf:
         - title: Product Image Base
           type: object
@@ -12094,6 +12092,8 @@ components:
                 Cannot be used with `image_file`.
           description: Common ProductImage properties.
         - $ref: '#/components/schemas/ProductImageBase'
+      title: ProductImagePostPut
+      description: The model for a POST or PUT to create  or update applicable Product Image fields.
       x-internal: false
     ProductVideoBase:
       title: ProductVideoBase
@@ -12134,9 +12134,6 @@ components:
           description: The ID of the video on a host site.
           example: z3fRu9pkuXE
     ProductVideo:
-      title: ProductVideo
-      description: |
-        A product video model.
       allOf:
         - $ref: '#/components/schemas/ProductVideoBase'
         - type: object
@@ -12153,6 +12150,9 @@ components:
               type: string
               description: |
                 Length of the video. This will be filled in according to data on a host site.
+      title: ProductVideo
+      description: |
+        A product video model.
       x-internal: false
     IncludeParamBase:
       type: array
@@ -12171,9 +12171,9 @@ components:
           - variants
           - videos
     ProductPut:
+      $ref: '#/components/schemas/ProductBasePut'
       title: ProductPut
       description: The model for a PUT to update a product.
-      $ref: '#/components/schemas/ProductBasePut'
       x-internal: false
     ComplexRuleBase:
       title: ComplexRuleBase
@@ -12473,7 +12473,6 @@ components:
         - type
         - amount
     Product:
-      title: Product
       allOf:
         - type: object
           properties:
@@ -12529,10 +12528,9 @@ components:
               description: >-
                 Legacy template setting which controls if the option set shows up to the side of or below the product
                 image and description.
+      title: Product
       x-internal: false
     ProductImage:
-      title: ProductImage
-      description: Common ProductImage properties.
       allOf:
         - $ref: '#/components/schemas/ProductImageBase'
         - title: productImage
@@ -12582,10 +12580,11 @@ components:
                 The date on which the product image was modified.
               format: date-time
           description: Common ProductImage properties.
+      title: ProductImage
+      description: Common ProductImage properties.
       x-internal: false
     PrimaryImage:
-      title: productImage
-      description: Common PrimaryImage properties.
+      title: PrimaryImage
       type: object
       properties:
         id:
@@ -12646,6 +12645,7 @@ components:
           description: |
             The date on which the product image was modified.
           format: date-time
+      description: Common PrimaryImage properties.
       x-internal: false
     ParentRelation:
       title: ParentRelation
@@ -14479,7 +14479,6 @@ components:
           items:
             $ref: '#/components/schemas/ParentRelation'
     ErrorResponse409:
-      title: ErrorResponse409
       allOf:
         - type: object
           properties:
@@ -14496,9 +14495,9 @@ components:
           properties:
             errors:
               $ref: '#/components/schemas/DetailedErrors'
+      title: ErrorResponse409
       x-internal: false
     ErrorResponse422:
-      title: ErrorResponse422
       allOf:
         - type: object
           properties:
@@ -14515,6 +14514,7 @@ components:
           properties:
             errors:
               $ref: '#/components/schemas/DetailedErrors'
+      title: ErrorResponse422
       x-internal: false
     ProductChannelAssignment:
       type: object

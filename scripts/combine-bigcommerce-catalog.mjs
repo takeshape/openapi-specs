@@ -139,12 +139,17 @@ function extractProperties(schema, componentSchemas = {}) {
 /**
  * Get a simplified type signature for a property (for comparison).
  * Returns a basic type that can be compared for compatibility.
+ *
+ * Trade-off: This is intentionally loose for complex types (refs, arrays) to handle
+ * cases where BigCommerce's spec uses inline objects in some places and $refs in others
+ * for semantically equivalent schemas. The "smallest superset" heuristic in
+ * findMatchingComponent helps reduce false positives from this loose matching.
  */
 function getTypeSignature(prop) {
   if (!prop || typeof prop !== 'object') return 'unknown';
 
-  if (prop.$ref) return 'ref';  // All refs are treated as compatible (object references)
-  if (prop.type === 'array') return 'array';  // Arrays are compatible regardless of items
+  if (prop.$ref) return 'ref';
+  if (prop.type === 'array') return 'array';
   return prop.type || 'object';
 }
 
@@ -176,6 +181,9 @@ function isSubsetOf(inlineProps, componentProps) {
   return true;
 }
 
+// Minimum properties required for subset matching to avoid false positives on tiny schemas
+const MIN_PROPERTIES_FOR_MATCH = 3;
+
 /**
  * Find the best matching component schema for an inline schema.
  * Returns the component name if found, null otherwise.
@@ -183,25 +191,21 @@ function isSubsetOf(inlineProps, componentProps) {
  * Criteria:
  * - Component must be a superset of inline (all inline props exist in component)
  * - Prefer smallest superset (fewest extra properties)
- * - Require at least 3 matching properties to avoid false positives
+ * - Require at least MIN_PROPERTIES_FOR_MATCH matching properties to avoid false positives
  */
-function findMatchingComponent(inlineSchema, componentSchemas, currentComponentName = null) {
+function findMatchingComponent(inlineSchema, componentSchemas) {
   const inlineProps = extractProperties(inlineSchema, componentSchemas);
 
   if (!inlineProps) return null;
 
   const inlinePropCount = Object.keys(inlineProps).length;
 
-  // Require minimum properties to match (avoid matching tiny schemas)
-  if (inlinePropCount < 3) return null;
+  if (inlinePropCount < MIN_PROPERTIES_FOR_MATCH) return null;
 
   let bestMatch = null;
   let bestExtraProps = Infinity;
 
   for (const [componentName, componentSchema] of Object.entries(componentSchemas)) {
-    // Skip self-reference
-    if (componentName === currentComponentName) continue;
-
     const componentProps = extractProperties(componentSchema, componentSchemas);
     if (!componentProps) continue;
 
@@ -258,7 +262,7 @@ function deduplicateInlineSchemas(spec) {
     const isNotRef = !value.$ref;
 
     if (hasProperties && isNotRef) {
-      const matchedComponent = findMatchingComponent(value, componentSchemas, null);
+      const matchedComponent = findMatchingComponent(value, componentSchemas);
 
       if (matchedComponent) {
         console.log(`  Replacing inline schema at ${path.join('.')} -> ${matchedComponent}`);
@@ -332,34 +336,68 @@ function cleanupSpec(obj) {
   if (typeof obj !== 'object') return obj;
 
   const result = {};
+
+  // First, collect sibling properties (non-allOf keys) that should be preserved
+  const siblingProps = {};
   for (const [key, value] of Object.entries(obj)) {
-    if (value === undefined) continue;
-
-    if (key === 'allOf' && Array.isArray(value)) {
-      // Filter out empty objects
-      const filtered = value.filter(item => {
-        if (item.type === 'object' && item.properties && Object.keys(item.properties).length === 0) {
-          return false;
-        }
-        return true;
-      });
-
-      if (filtered.length === 0) continue;
-      if (filtered.length === 1) {
-        // Unwrap single-item allOf
-        if (filtered[0].$ref) {
-          result.$ref = filtered[0].$ref;
-        } else {
-          Object.assign(result, cleanupSpec(filtered[0]));
-        }
-        continue;
-      }
-      result[key] = filtered.map(cleanupSpec);
-    } else {
-      result[key] = cleanupSpec(value);
+    if (key !== 'allOf' && value !== undefined) {
+      siblingProps[key] = cleanupSpec(value);
     }
   }
-  return result;
+
+  // Handle allOf specially
+  if (obj.allOf && Array.isArray(obj.allOf)) {
+    // Filter out empty objects
+    const filtered = obj.allOf.filter(item => {
+      if (item.type === 'object' && item.properties && Object.keys(item.properties).length === 0) {
+        return false;
+      }
+      return true;
+    });
+
+    if (filtered.length === 0) {
+      // allOf is empty, just return sibling properties
+      return Object.keys(siblingProps).length > 0 ? siblingProps : result;
+    }
+
+    if (filtered.length === 1) {
+      // Unwrap single-item allOf, but preserve sibling properties
+      if (filtered[0].$ref) {
+        return { $ref: filtered[0].$ref, ...siblingProps };
+      } else {
+        return { ...cleanupSpec(filtered[0]), ...siblingProps };
+      }
+    }
+
+    // Multiple items in allOf - keep it
+    return { allOf: filtered.map(cleanupSpec), ...siblingProps };
+  }
+
+  // No allOf, just return cleaned sibling properties
+  return siblingProps;
+}
+
+/**
+ * Deep equality check that handles object key ordering differences.
+ */
+function deepEqual(a, b) {
+  if (a === b) return true;
+  if (a === null || b === null) return a === b;
+  if (typeof a !== typeof b) return false;
+  if (typeof a !== 'object') return a === b;
+
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
+
+  if (Array.isArray(a)) {
+    if (a.length !== b.length) return false;
+    return a.every((item, i) => deepEqual(item, b[i]));
+  }
+
+  const keysA = Object.keys(a);
+  const keysB = Object.keys(b);
+  if (keysA.length !== keysB.length) return false;
+
+  return keysA.every(key => key in b && deepEqual(a[key], b[key]));
 }
 
 function mergeComponents(target, source, specName) {
@@ -370,9 +408,7 @@ function mergeComponents(target, source, specName) {
       if (!target[type]) target[type] = {};
       for (const [name, schema] of Object.entries(source[type])) {
         if (target[type][name]) {
-          const existingJson = JSON.stringify(target[type][name]);
-          const newJson = JSON.stringify(schema);
-          if (existingJson !== newJson) {
+          if (!deepEqual(target[type][name], schema)) {
             console.warn(`Warning: Component ${type}.${name} already exists with different definition (from ${specName})`);
           }
         } else {
