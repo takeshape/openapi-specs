@@ -3,7 +3,7 @@
  *
  * Strategy:
  * 1. Combine all specs and merge components
- * 2. Replace inline schemas with $refs to existing components (deduplication)
+ * 2. Replace inline schemas with $refs to existing components (subset matching)
  * 3. Rename component schemas to PascalCase
  * 4. Update all $refs to use new PascalCase names
  *
@@ -40,12 +40,6 @@ async function fetchSpec(specName) {
 
 /**
  * Converts a schema name to PascalCase.
- * Examples:
- *   productVariant_Base -> ProductVariantBase
- *   productVariant_Full -> ProductVariant (removes _Full suffix)
- *   metaCollection_Full -> MetaCollection
- *   error_Base -> ErrorBase
- *   brand_Full -> Brand
  */
 function toPascalCase(name) {
   // Remove _Full suffix - the "Full" version is the main type
@@ -76,18 +70,17 @@ function buildNameMap(schemas) {
     newNameCounts.set(newName, (newNameCounts.get(newName) || 0) + 1);
   }
 
-  // Second pass: resolve collisions
+  // Second pass: resolve collisions by keeping suffix
   for (const oldName of Object.keys(schemas)) {
     let newName = toPascalCase(oldName);
 
-    // If there's a collision and this is a _Base type, keep Base suffix
     if (newNameCounts.get(newName) > 1) {
-      if (oldName.endsWith('_Base')) {
-        newName = toPascalCase(oldName.replace('_Base', '')) + 'Base';
-      } else if (oldName.endsWith('_Post')) {
-        newName = toPascalCase(oldName.replace('_Post', '')) + 'Post';
-      } else if (oldName.endsWith('_Put')) {
-        newName = toPascalCase(oldName.replace('_Put', '')) + 'Put';
+      // Extract suffix and keep it for disambiguation
+      const suffixMatch = oldName.match(/_([A-Za-z]+)$/);
+      if (suffixMatch) {
+        const suffix = suffixMatch[1];
+        const baseName = oldName.replace(/_[A-Za-z]+$/, '');
+        newName = toPascalCase(baseName) + suffix.charAt(0).toUpperCase() + suffix.slice(1).toLowerCase();
       }
     }
 
@@ -97,55 +90,150 @@ function buildNameMap(schemas) {
   return nameMap;
 }
 
-/**
- * Mapping of inline schema titles to the component they should reference.
- */
-const INLINE_TITLE_TO_COMPONENT = {
-  'Variant Base': 'productVariant_Full',
-  'Option Value Product Base': 'productVariantOptionValue_Full',
-  'Option Value Variant': 'productVariantOptionValue_Full',
-  'Product Variant Option Value': 'productVariantOptionValue_Full',
-};
+// ============================================================================
+// Subset Matching - Replace inline schemas with $refs to component schemas
+// ============================================================================
 
 /**
- * Check if an allOf pattern matches a known component.
- * Returns the component name to use, or null if no match.
+ * Extract properties from a schema, flattening allOf if present.
+ * Returns a map of property name -> property schema, or null if not an object schema.
  */
-function matchAllOfToComponent(allOf) {
-  if (!Array.isArray(allOf) || allOf.length < 1) return null;
+function extractProperties(schema, componentSchemas = {}) {
+  if (!schema || typeof schema !== 'object') return null;
 
-  const first = allOf[0];
-  const second = allOf[1];
-
-  // Pattern: Variant Base + object with id/product_id/sku -> productVariant_Full
-  if (first.title === 'Variant Base' ||
-      first.$ref === '#/components/schemas/productVariant_Base') {
-    if (second?.type === 'object' && second?.properties) {
-      const props = Object.keys(second.properties);
-      if (props.includes('id') && props.includes('product_id') && props.includes('sku')) {
-        return 'productVariant_Full';
-      }
+  // If it's a $ref, resolve it
+  if (schema.$ref) {
+    const refName = schema.$ref.replace('#/components/schemas/', '');
+    const resolved = componentSchemas[refName];
+    if (resolved) {
+      return extractProperties(resolved, componentSchemas);
     }
+    return null;
   }
 
-  // Pattern: Option Value Product Base + object with id/option_id -> productVariantOptionValue_Full
-  if (first.title === 'Option Value Product Base' ||
-      first.$ref === '#/components/schemas/productVariantOptionValue_Base') {
-    if (second?.type === 'object' && second?.properties) {
-      const props = Object.keys(second.properties);
-      if (props.includes('id') && props.includes('option_id')) {
-        return 'productVariantOptionValue_Full';
+  // If it has allOf, merge all properties
+  if (schema.allOf && Array.isArray(schema.allOf)) {
+    const merged = {};
+    for (const item of schema.allOf) {
+      const props = extractProperties(item, componentSchemas);
+      if (props) {
+        Object.assign(merged, props);
       }
     }
+    return Object.keys(merged).length > 0 ? merged : null;
+  }
+
+  // Direct object with properties
+  if (schema.type === 'object' && schema.properties) {
+    return { ...schema.properties };
+  }
+
+  // Object without explicit type but has properties
+  if (schema.properties && !schema.type) {
+    return { ...schema.properties };
   }
 
   return null;
 }
 
 /**
+ * Get a simplified type signature for a property (for comparison).
+ * Returns a basic type that can be compared for compatibility.
+ */
+function getTypeSignature(prop) {
+  if (!prop || typeof prop !== 'object') return 'unknown';
+
+  if (prop.$ref) return 'ref';  // All refs are treated as compatible (object references)
+  if (prop.type === 'array') return 'array';  // Arrays are compatible regardless of items
+  return prop.type || 'object';
+}
+
+/**
+ * Check if inlineProps is a subset of componentProps.
+ * Returns true if all properties in inline exist in component with compatible types.
+ */
+function isSubsetOf(inlineProps, componentProps) {
+  if (!inlineProps || !componentProps) return false;
+
+  for (const [propName, inlineProp] of Object.entries(inlineProps)) {
+    const componentProp = componentProps[propName];
+
+    // Property must exist in component
+    if (!componentProp) {
+      return false;
+    }
+
+    // Types must be compatible
+    const inlineType = getTypeSignature(inlineProp);
+    const componentType = getTypeSignature(componentProp);
+
+    // Allow exact match or if inline is less specific
+    if (inlineType !== componentType && inlineType !== 'object' && inlineType !== 'unknown') {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Find the best matching component schema for an inline schema.
+ * Returns the component name if found, null otherwise.
+ *
+ * Criteria:
+ * - Component must be a superset of inline (all inline props exist in component)
+ * - Prefer smallest superset (fewest extra properties)
+ * - Require at least 3 matching properties to avoid false positives
+ */
+function findMatchingComponent(inlineSchema, componentSchemas, currentComponentName = null) {
+  const inlineProps = extractProperties(inlineSchema, componentSchemas);
+
+  if (!inlineProps) return null;
+
+  const inlinePropCount = Object.keys(inlineProps).length;
+
+  // Require minimum properties to match (avoid matching tiny schemas)
+  if (inlinePropCount < 3) return null;
+
+  let bestMatch = null;
+  let bestExtraProps = Infinity;
+
+  for (const [componentName, componentSchema] of Object.entries(componentSchemas)) {
+    // Skip self-reference
+    if (componentName === currentComponentName) continue;
+
+    const componentProps = extractProperties(componentSchema, componentSchemas);
+    if (!componentProps) continue;
+
+    const componentPropCount = Object.keys(componentProps).length;
+
+    // Component must have at least as many properties
+    if (componentPropCount < inlinePropCount) continue;
+
+    // Check if inline is a subset of component
+    if (isSubsetOf(inlineProps, componentProps)) {
+      const extraProps = componentPropCount - inlinePropCount;
+
+      // Prefer exact matches, then smallest supersets
+      if (extraProps < bestExtraProps) {
+        bestMatch = componentName;
+        bestExtraProps = extraProps;
+      }
+
+      // Exact match - stop searching
+      if (extraProps === 0) break;
+    }
+  }
+
+  return bestMatch;
+}
+
+/**
  * Process the spec to replace inline schemas with $refs to existing components.
+ * Only processes paths - component schemas are left as-is (they are the canonical definitions).
  */
 function deduplicateInlineSchemas(spec) {
+  const componentSchemas = spec.components?.schemas || {};
   let replacementCount = 0;
 
   function processValue(value, path = []) {
@@ -155,33 +243,28 @@ function deduplicateInlineSchemas(spec) {
     }
     if (typeof value !== 'object') return value;
 
-    // Check for allOf that matches a known component
-    if (value.allOf && Array.isArray(value.allOf)) {
-      const matchedComponent = matchAllOfToComponent(value.allOf);
-      if (matchedComponent) {
-        // Prevent self-referential replacements - if we're inside the schema definition
-        // for the matched component, don't replace it with a ref to itself
-        const isInsideSchema = path[0] === 'components' && path[1] === 'schemas' && path[2] === matchedComponent;
-        if (!isInsideSchema) {
-          console.log(`  Replacing allOf at ${path.join('.')} -> ${matchedComponent}`);
-          replacementCount++;
-          return { $ref: `#/components/schemas/${matchedComponent}` };
-        }
+    // Skip component schema definitions - they are canonical, don't replace them
+    if (path[0] === 'components' && path[1] === 'schemas') {
+      // Still recurse to process nested schemas, but don't replace the top-level component
+      const result = {};
+      for (const [key, val] of Object.entries(value)) {
+        result[key] = processValue(val, [...path, key]);
       }
-
-      // Process allOf members recursively
-      return {
-        ...value,
-        allOf: value.allOf.map((item, i) => processValue(item, [...path, 'allOf', i]))
-      };
+      return result;
     }
 
-    // Check for inline object with title that matches a known component
-    if (value.title && value.type === 'object' && INLINE_TITLE_TO_COMPONENT[value.title]) {
-      const component = INLINE_TITLE_TO_COMPONENT[value.title];
-      console.log(`  Replacing inline "${value.title}" at ${path.join('.')} -> ${component}`);
-      replacementCount++;
-      return { $ref: `#/components/schemas/${component}` };
+    // Check if this looks like an inline object schema that could be deduplicated
+    const hasProperties = value.properties || (value.allOf && Array.isArray(value.allOf));
+    const isNotRef = !value.$ref;
+
+    if (hasProperties && isNotRef) {
+      const matchedComponent = findMatchingComponent(value, componentSchemas, null);
+
+      if (matchedComponent) {
+        console.log(`  Replacing inline schema at ${path.join('.')} -> ${matchedComponent}`);
+        replacementCount++;
+        return { $ref: `#/components/schemas/${matchedComponent}` };
+      }
     }
 
     // Recurse into object properties
@@ -193,7 +276,7 @@ function deduplicateInlineSchemas(spec) {
   }
 
   const processed = processValue(spec);
-  console.log(`  Total inline replacements: ${replacementCount}`);
+  console.log(`  Total replacements: ${replacementCount}`);
   return processed;
 }
 
@@ -360,8 +443,8 @@ async function main() {
 
     console.log(`\nMerged ${Object.keys(spec.components?.schemas ?? {}).length} component schemas`);
 
-    // Step 1: Deduplicate inline schemas
-    console.log('\nStep 1: Deduplicating inline schemas...');
+    // Step 1: Deduplicate inline schemas using subset matching
+    console.log('\nStep 1: Deduplicating inline schemas (subset matching)...');
     spec = deduplicateInlineSchemas(spec);
 
     // Step 2: Build name map for PascalCase conversion
