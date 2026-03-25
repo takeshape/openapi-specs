@@ -14,6 +14,7 @@ import { writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import got from 'got';
+import isEqual from 'lodash/isEqual.js';
 import yaml from 'js-yaml';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -377,29 +378,6 @@ function cleanupSpec(obj) {
   return siblingProps;
 }
 
-/**
- * Deep equality check that handles object key ordering differences.
- */
-function deepEqual(a, b) {
-  if (a === b) return true;
-  if (a === null || b === null) return a === b;
-  if (typeof a !== typeof b) return false;
-  if (typeof a !== 'object') return a === b;
-
-  if (Array.isArray(a) !== Array.isArray(b)) return false;
-
-  if (Array.isArray(a)) {
-    if (a.length !== b.length) return false;
-    return a.every((item, i) => deepEqual(item, b[i]));
-  }
-
-  const keysA = Object.keys(a);
-  const keysB = Object.keys(b);
-  if (keysA.length !== keysB.length) return false;
-
-  return keysA.every(key => key in b && deepEqual(a[key], b[key]));
-}
-
 function mergeComponents(target, source, specName) {
   const componentTypes = ['schemas', 'responses', 'parameters', 'requestBodies', 'headers', 'securitySchemes'];
 
@@ -408,7 +386,7 @@ function mergeComponents(target, source, specName) {
       if (!target[type]) target[type] = {};
       for (const [name, schema] of Object.entries(source[type])) {
         if (target[type][name]) {
-          if (!deepEqual(target[type][name], schema)) {
+          if (!isEqual(target[type][name], schema)) {
             console.warn(`Warning: Component ${type}.${name} already exists with different definition (from ${specName})`);
           }
         } else {
