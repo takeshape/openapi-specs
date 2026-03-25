@@ -6,6 +6,8 @@
  * 2. Replace inline schemas with $refs to existing components (subset matching)
  * 3. Rename component schemas to PascalCase
  * 4. Update all $refs to use new PascalCase names
+ * 5. Clean up spec (unwrap single-item allOf, remove empty objects, normalize oneOf number/string to number)
+ * 6. Validate the resulting OpenAPI spec
  *
  * Usage: node scripts/combine-bigcommerce-catalog.mjs
  */
@@ -330,7 +332,17 @@ function renameSchemas(components, nameMap) {
 }
 
 /**
- * Clean up the spec - remove empty allOf, unwrap single-item allOf, etc.
+ * Check if a oneOf represents a number/string union (common in BigCommerce for amounts).
+ * Returns true if oneOf contains exactly number and string types.
+ */
+function isNumberStringUnion(oneOf) {
+  if (!Array.isArray(oneOf) || oneOf.length !== 2) return false;
+  const types = oneOf.map(item => item.type).sort();
+  return types[0] === 'number' && types[1] === 'string';
+}
+
+/**
+ * Clean up the spec - remove empty allOf, unwrap single-item allOf, normalize oneOf, etc.
  */
 function cleanupSpec(obj) {
   if (obj === null || obj === undefined) return obj;
@@ -339,12 +351,23 @@ function cleanupSpec(obj) {
 
   const result = {};
 
-  // First, collect sibling properties (non-allOf keys) that should be preserved
+  // First, collect sibling properties (non-allOf/oneOf keys) that should be preserved
   const siblingProps = {};
   for (const [key, value] of Object.entries(obj)) {
-    if (key !== 'allOf' && value !== undefined) {
+    if (key !== 'allOf' && key !== 'oneOf' && value !== undefined) {
       siblingProps[key] = cleanupSpec(value);
     }
+  }
+
+  // Handle oneOf with number/string union - normalize to number
+  if (obj.oneOf && isNumberStringUnion(obj.oneOf)) {
+    const numberSchema = obj.oneOf.find(item => item.type === 'number');
+    return { type: 'number', ...numberSchema, ...siblingProps };
+  }
+
+  // Handle other oneOf - just recurse
+  if (obj.oneOf && Array.isArray(obj.oneOf)) {
+    return { oneOf: obj.oneOf.map(cleanupSpec), ...siblingProps };
   }
 
   // Handle allOf specially

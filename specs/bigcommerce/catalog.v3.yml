@@ -4580,10 +4580,10 @@ paths:
                 type: object
                 properties:
                   data:
-                    title: Product Image
                     oneOf:
                       - $ref: '#/components/schemas/ProductImage'
                       - $ref: '#/components/schemas/PrimaryImage'
+                    title: Product Image
                   meta:
                     $ref: '#/components/schemas/MetaEmpty'
                 description: |
@@ -4720,10 +4720,10 @@ paths:
                 type: object
                 properties:
                   data:
-                    title: Product Image
                     oneOf:
                       - $ref: '#/components/schemas/ProductImage'
                       - $ref: '#/components/schemas/PrimaryImage'
+                    title: Product Image
                   meta:
                     $ref: '#/components/schemas/MetaEmpty'
                 description: |
@@ -12403,11 +12403,8 @@ components:
             - percent
             - fixed
         amount:
-          oneOf:
-            - type: number
-              example: 10
-            - type: string
-              example: '.10'
+          type: number
+          example: 10
           description: >-
             You can express the adjustment type as either a fixed dollar amount or a percentage. Send a number; the
             response will return a number for `price` and `fixed` adjustments.
@@ -12454,11 +12451,8 @@ components:
           x-required:
             - post
         amount:
-          oneOf:
-            - type: number
-              example: 10
-            - type: string
-              example: '.10'
+          type: number
+          example: 10
           description: >-
             You can express the adjustment type as either a fixed dollar amount or a percentage. Send a number; the
             response will return a number for `price` and `fixed` adjustments.
