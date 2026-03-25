@@ -13,6 +13,7 @@
 import { writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import SwaggerParser from '@apidevtools/swagger-parser';
 import got from 'got';
 import isEqual from 'lodash/isEqual.js';
 import yaml from 'js-yaml';
@@ -494,8 +495,13 @@ async function main() {
     console.log(`  - Paths: ${Object.keys(spec.paths).length}`);
     console.log(`  - Schemas: ${Object.keys(spec.components?.schemas ?? {}).length}`);
     console.log(`  - Tags: ${spec.tags?.length ?? 0}`);
+
+    // Validate the resulting spec
+    console.log('\nStep 6: Validating OpenAPI spec...');
+    await SwaggerParser.validate(outputPath);
+    console.log('  Spec is valid!');
   } catch (error) {
-    console.error('Error combining specs:', error);
+    console.error('Error:', error.message || error);
     process.exit(1);
   }
 }

@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/takeshape/openapi-specs#readme",
   "devDependencies": {
+    "@apidevtools/swagger-parser": "^12.1.0",
     "@stoplight/spectral-cli": "^6.10.1",
     "@takeshape/util": "^8.271.1",
     "cheerio": "^1.0.0-rc.12",
