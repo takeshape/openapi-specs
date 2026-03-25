@@ -53,6 +53,66 @@ export function makeSchemaRef(name: string): ReferenceObject {
 }
 
 // ============================================================================
+// Spec traversal utilities
+// ============================================================================
+
+export type SpecPath = (string | number)[];
+
+/**
+ * Callback for transforming values during spec traversal.
+ * Return undefined to use default recursion, or a value to replace the current node.
+ */
+export type TransformCallback = (
+  value: Record<string, unknown>,
+  path: SpecPath,
+  recurse: (val: unknown, key: string | number) => unknown
+) => unknown | undefined;
+
+/**
+ * Traverse and transform a spec, calling the transform function for each object.
+ * The transform function receives the value, path, and a recurse helper.
+ * If transform returns undefined, default recursion is applied.
+ * Component schemas are always recursed into but not transformed at the top level.
+ */
+export function traverseSpec(spec: OpenAPISpec, transform: TransformCallback): OpenAPISpec {
+  function processValue(value: unknown, path: SpecPath = []): unknown {
+    if (value === null || value === undefined) return value;
+    if (Array.isArray(value)) {
+      return value.map((item, i) => processValue(item, [...path, i]));
+    }
+    if (typeof value !== 'object') return value;
+
+    const valueObj = value as Record<string, unknown>;
+    const recurse = (val: unknown, key: string | number) => processValue(val, [...path, key]);
+
+    // Skip component schema definitions - they are canonical, don't transform them
+    // but still recurse into them
+    if (path[0] === 'components' && path[1] === 'schemas') {
+      const result: Record<string, unknown> = {};
+      for (const [key, val] of Object.entries(valueObj)) {
+        result[key] = recurse(val, key);
+      }
+      return result;
+    }
+
+    // Try the transform callback
+    const transformed = transform(valueObj, path, recurse);
+    if (transformed !== undefined) {
+      return transformed;
+    }
+
+    // Default: recurse into object properties
+    const result: Record<string, unknown> = {};
+    for (const [key, val] of Object.entries(valueObj)) {
+      result[key] = recurse(val, key);
+    }
+    return result;
+  }
+
+  return processValue(spec) as OpenAPISpec;
+}
+
+// ============================================================================
 // Schema reference counting
 // ============================================================================
 

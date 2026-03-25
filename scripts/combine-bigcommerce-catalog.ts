@@ -35,6 +35,7 @@ import {
   type ReferenceObject,
   renameSchemas,
   type SchemaObject,
+  traverseSpec,
   updateRefs
 } from './lib/openapi.ts';
 
@@ -220,31 +221,13 @@ function deduplicateInlineSchemas(spec: OpenAPISpec): OpenAPISpec {
   const componentSchemas = (spec.components?.schemas || {}) as Record<string, SchemaObject>;
   let replacementCount = 0;
 
-  function processValue(value: unknown, path: (string | number)[] = []): unknown {
-    if (value === null || value === undefined) return value;
-    if (Array.isArray(value)) {
-      return value.map((item, i) => processValue(item, [...path, i]));
-    }
-    if (typeof value !== 'object') return value;
-
-    const valueObj = value as Record<string, unknown>;
-
-    // Skip component schema definitions - they are canonical, don't replace them
-    if (path[0] === 'components' && path[1] === 'schemas') {
-      // Still recurse to process nested schemas, but don't replace the top-level component
-      const result: Record<string, unknown> = {};
-      for (const [key, val] of Object.entries(valueObj)) {
-        result[key] = processValue(val, [...path, key]);
-      }
-      return result;
-    }
-
+  const processed = traverseSpec(spec, (valueObj, path) => {
     // Check if this looks like an inline object schema that could be deduplicated
     const hasProperties = valueObj.properties || (valueObj.allOf && Array.isArray(valueObj.allOf));
     const isNotRef = !valueObj.$ref;
 
     if (hasProperties && isNotRef) {
-      const matchedComponent = findMatchingComponent(value, componentSchemas);
+      const matchedComponent = findMatchingComponent(valueObj, componentSchemas);
 
       if (matchedComponent) {
         console.log(`  Replacing inline schema at ${path.join('.')} -> ${matchedComponent}`);
@@ -253,15 +236,9 @@ function deduplicateInlineSchemas(spec: OpenAPISpec): OpenAPISpec {
       }
     }
 
-    // Recurse into object properties
-    const result: Record<string, unknown> = {};
-    for (const [key, val] of Object.entries(valueObj)) {
-      result[key] = processValue(val, [...path, key]);
-    }
-    return result;
-  }
+    return undefined; // Use default recursion
+  });
 
-  const processed = processValue(spec) as OpenAPISpec;
   console.log(`  Total replacements: ${replacementCount}`);
   return processed;
 }
@@ -309,27 +286,7 @@ function mergeInlineExtensions(spec: OpenAPISpec): OpenAPISpec {
     return { refName, propsToMerge: inlineItem.properties as Record<string, unknown> };
   }
 
-  /**
-   * Process the spec to find and simplify allOf patterns.
-   */
-  function processValue(value: unknown, path: (string | number)[] = []): unknown {
-    if (value === null || value === undefined) return value;
-    if (Array.isArray(value)) {
-      return value.map((item, i) => processValue(item, [...path, i]));
-    }
-    if (typeof value !== 'object') return value;
-
-    const valueObj = value as Record<string, unknown>;
-
-    // Skip component schema definitions themselves
-    if (path[0] === 'components' && path[1] === 'schemas') {
-      const result: Record<string, unknown> = {};
-      for (const [key, val] of Object.entries(valueObj)) {
-        result[key] = processValue(val, [...path, key]);
-      }
-      return result;
-    }
-
+  const processed = traverseSpec(spec, (valueObj) => {
     // Check if this object has an allOf that can be simplified
     if (valueObj.allOf) {
       const simplification = canSimplifyAllOf(valueObj.allOf as unknown[]);
@@ -348,16 +305,8 @@ function mergeInlineExtensions(spec: OpenAPISpec): OpenAPISpec {
       }
     }
 
-    // Recurse into object properties
-    const result: Record<string, unknown> = {};
-    for (const [key, val] of Object.entries(valueObj)) {
-      result[key] = processValue(val, [...path, key]);
-    }
-    return result;
-  }
-
-  // Process the spec
-  const processed = processValue(spec) as OpenAPISpec;
+    return undefined; // Use default recursion
+  });
 
   // Now merge the collected properties into component schemas
   for (const [componentName, props] of mergedProps) {
