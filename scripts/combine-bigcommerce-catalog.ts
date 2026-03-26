@@ -20,21 +20,27 @@ import { fileURLToPath } from 'node:url';
 import SwaggerParser from '@apidevtools/swagger-parser';
 import got from 'got';
 import yaml from 'js-yaml';
+import camelCase from 'lodash/camelCase.js';
+import upperFirst from 'lodash/upperFirst.js';
 import type { OpenAPIV3 } from 'openapi-types';
 
 import {
   buildNameMap,
+  type ComponentSchemas,
   cleanupSpec,
-  countSchemaRefs,
+  deepCloneWithPath,
+  flattenSingleUseAllOf,
+  getComponentSchemas,
   getSchemaName,
+  isObjectSchema,
+  isPlainObject,
   isSchemaRef,
   makeSchemaRef,
   mergeComponents,
   mergeTags,
   type OpenAPISpec,
-  type ReferenceObject,
+  type PlainObject,
   renameSchemas,
-  type SchemaObject,
   traverseSpec,
   updateRefs
 } from './lib/openapi.ts';
@@ -57,27 +63,92 @@ const CATALOG_SPECS = [
   'products_catalog.v3.yml'
 ];
 
+/**
+ * Convert a name to PascalCase using lodash.
+ */
+function toPascalCase(name: string): string {
+  return upperFirst(camelCase(name));
+}
+
+/**
+ * BigCommerce schema names use _Full suffix for "full" response types.
+ * We treat these as the canonical type and remove the suffix before converting to PascalCase.
+ */
+function transformSchemaName(name: string): string {
+  return toPascalCase(name.replace(/_Full$/, ''));
+}
+
+/**
+ * Find schemas that should be removed because they're duplicates.
+ * For each _Full schema, check if there's a PascalCase duplicate to remove.
+ */
+function findDuplicateSchemas(schemaNames: string[]): Set<string> {
+  const duplicates = new Set<string>();
+  const nameSet = new Set(schemaNames);
+
+  for (const name of schemaNames) {
+    if (name.endsWith('_Full')) {
+      // e.g., pagination_Full -> Pagination
+      const pascalDuplicate = toPascalCase(name.replace(/_Full$/, ''));
+      if (nameSet.has(pascalDuplicate)) {
+        duplicates.add(pascalDuplicate);
+      }
+    }
+  }
+
+  return duplicates;
+}
+
+/**
+ * Check if a oneOf represents a number/string union.
+ * BigCommerce uses these for monetary amounts - we normalize to just number.
+ */
+function isNumberStringUnion(oneOf: unknown[]): boolean {
+  if (oneOf.length !== 2) return false;
+  const types = oneOf.map((item) => (isPlainObject(item) && 'type' in item ? item.type : null)).sort();
+  return types[0] === 'number' && types[1] === 'string';
+}
+
+/**
+ * Normalize BigCommerce number/string unions to just number.
+ * This simplifies type generation since both represent monetary values.
+ */
+function normalizeNumberStringUnions<T>(obj: T): T {
+  return deepCloneWithPath(obj, (value) => {
+    if (!isPlainObject(value)) return undefined;
+
+    const oneOf = value.oneOf;
+    if (!Array.isArray(oneOf) || !isNumberStringUnion(oneOf)) return undefined;
+
+    const numberSchema = oneOf.find((item) => isPlainObject(item) && item.type === 'number');
+    const { oneOf: _, ...rest } = value;
+    return { type: 'number', ...(numberSchema as PlainObject), ...rest };
+  }) as T;
+}
+
 async function fetchSpec(specName: string): Promise<OpenAPISpec> {
   const url = `${BIGCOMMERCE_DOCS_BASE_URL}/${specName}`;
   console.log(`Fetching ${specName}...`);
   const response = await got.get(url).text();
-  return yaml.load(response) as OpenAPISpec;
+  const parsed = yaml.load(response);
+  // Validate structure without dereferencing (which would create circular refs)
+  // SwaggerParser.parse validates the spec is well-formed OpenAPI
+  const validated = await SwaggerParser.parse(parsed as OpenAPISpec);
+  return validated as OpenAPISpec;
 }
 
 // ============================================================================
 // Subset Matching - Replace inline schemas with $refs to component schemas
 // ============================================================================
 
-type PropertyMap = Record<string, unknown>;
+type PropertyMap = PlainObject;
 
 /**
  * Extract properties from a schema, flattening allOf if present.
  * Returns a map of property name -> property schema, or null if not an object schema.
  */
-function extractProperties(schema: unknown, componentSchemas: Record<string, SchemaObject> = {}): PropertyMap | null {
-  if (!schema || typeof schema !== 'object') return null;
-
-  const schemaObj = schema as Record<string, unknown>;
+function extractProperties(schema: unknown, componentSchemas: ComponentSchemas = {}): PropertyMap | null {
+  if (!isPlainObject(schema)) return null;
 
   // If it's a $ref, resolve it
   if (isSchemaRef(schema)) {
@@ -92,9 +163,9 @@ function extractProperties(schema: unknown, componentSchemas: Record<string, Sch
   }
 
   // If it has allOf, merge all properties
-  if (schemaObj.allOf && Array.isArray(schemaObj.allOf)) {
+  if (Array.isArray(schema.allOf)) {
     const merged: PropertyMap = {};
-    for (const item of schemaObj.allOf) {
+    for (const item of schema.allOf) {
       const props = extractProperties(item, componentSchemas);
       if (props) {
         Object.assign(merged, props);
@@ -103,14 +174,9 @@ function extractProperties(schema: unknown, componentSchemas: Record<string, Sch
     return Object.keys(merged).length > 0 ? merged : null;
   }
 
-  // Direct object with properties
-  if (schemaObj.type === 'object' && schemaObj.properties) {
-    return { ...(schemaObj.properties as PropertyMap) };
-  }
-
-  // Object without explicit type but has properties
-  if (schemaObj.properties && !schemaObj.type) {
-    return { ...(schemaObj.properties as PropertyMap) };
+  // Object with properties (with or without explicit type: 'object')
+  if (isObjectSchema(schema)) {
+    return { ...schema.properties };
   }
 
   return null;
@@ -126,12 +192,10 @@ function extractProperties(schema: unknown, componentSchemas: Record<string, Sch
  * findMatchingComponent helps reduce false positives from this loose matching.
  */
 function getTypeSignature(prop: unknown): string {
-  if (!prop || typeof prop !== 'object') return 'unknown';
-
-  const propObj = prop as Record<string, unknown>;
-  if (propObj.$ref) return 'ref';
-  if (propObj.type === 'array') return 'array';
-  return (propObj.type as string) || 'object';
+  if (!isPlainObject(prop)) return 'unknown';
+  if (prop.$ref) return 'ref';
+  if (prop.type === 'array') return 'array';
+  return typeof prop.type === 'string' ? prop.type : 'object';
 }
 
 /**
@@ -162,7 +226,14 @@ function isSubsetOf(inlineProps: PropertyMap | null, componentProps: PropertyMap
   return true;
 }
 
-// Minimum properties required for subset matching to avoid false positives on tiny schemas
+/**
+ * Minimum properties required for subset matching.
+ *
+ * Why 3? Schemas with 1-2 properties (e.g., {id, name}) are too generic and match
+ * many unrelated components, causing false positive replacements. With 3+ properties,
+ * matches are specific enough to be meaningful. Empirically tested against BigCommerce
+ * specs where 2 caused incorrect matches, 3 produced accurate deduplication.
+ */
 const MIN_PROPERTIES_FOR_MATCH = 3;
 
 /**
@@ -174,7 +245,7 @@ const MIN_PROPERTIES_FOR_MATCH = 3;
  * - Prefer smallest superset (fewest extra properties)
  * - Require at least MIN_PROPERTIES_FOR_MATCH matching properties to avoid false positives
  */
-function findMatchingComponent(inlineSchema: unknown, componentSchemas: Record<string, SchemaObject>): string | null {
+function findMatchingComponent(inlineSchema: unknown, componentSchemas: ComponentSchemas): string | null {
   const inlineProps = extractProperties(inlineSchema, componentSchemas);
 
   if (!inlineProps) return null;
@@ -218,7 +289,7 @@ function findMatchingComponent(inlineSchema: unknown, componentSchemas: Record<s
  * Only processes paths - component schemas are left as-is (they are the canonical definitions).
  */
 function deduplicateInlineSchemas(spec: OpenAPISpec): OpenAPISpec {
-  const componentSchemas = (spec.components?.schemas || {}) as Record<string, SchemaObject>;
+  const componentSchemas = getComponentSchemas(spec);
   let replacementCount = 0;
 
   const processed = traverseSpec(spec, (valueObj, path) => {
@@ -257,210 +328,106 @@ interface SimplificationResult {
  * props into the component schema, then replace the allOf with a simple $ref.
  *
  * This simplifies the spec and helps the transform generate cleaner types.
+ * Returns a new spec - does not mutate the input.
  */
 function mergeInlineExtensions(spec: OpenAPISpec): OpenAPISpec {
-  const componentSchemas = (spec.components?.schemas || {}) as Record<string, SchemaObject>;
+  const componentSchemas = getComponentSchemas(spec);
   const mergedProps = new Map<string, Record<string, unknown>>();
 
-  /**
-   * Check if an allOf can be simplified by merging into a component.
-   * Returns { refName, propsToMerge } if simplifiable, null otherwise.
-   */
-  function canSimplifyAllOf(allOf: unknown[]): SimplificationResult | null {
-    if (!Array.isArray(allOf) || allOf.length !== 2) return null;
+  function tryExtractSimplifiableAllOf(allOf: unknown[]): SimplificationResult | null {
+    if (allOf.length !== 2) return null;
 
-    // Find the $ref item and the inline object item
-    const refItem = allOf.find((item) => isSchemaRef(item)) as ReferenceObject | undefined;
-    const inlineItem = allOf.find((item) => {
-      const itemObj = item as Record<string, unknown>;
-      return !itemObj.$ref && itemObj.properties;
-    }) as Record<string, unknown> | undefined;
+    const refItem = allOf.find((item) => isSchemaRef(item));
+    const inlineItem = allOf.find((item) => isObjectSchema(item) && !item.$ref);
 
-    if (!refItem || !inlineItem) return null;
+    if (!refItem || !isObjectSchema(inlineItem)) return null;
 
     const refName = getSchemaName(refItem);
-
-    // Make sure the component exists
     if (!refName || !componentSchemas[refName]) return null;
 
-    return { refName, propsToMerge: inlineItem.properties as Record<string, unknown> };
+    return { refName, propsToMerge: inlineItem.properties };
   }
 
   const processed = traverseSpec(spec, (valueObj) => {
-    // Check if this object has an allOf that can be simplified
-    if (valueObj.allOf) {
-      const simplification = canSimplifyAllOf(valueObj.allOf as unknown[]);
+    if (Array.isArray(valueObj.allOf)) {
+      const simplification = tryExtractSimplifiableAllOf(valueObj.allOf);
       if (simplification) {
         const { refName, propsToMerge } = simplification;
 
-        // Track merged properties
         const existing = mergedProps.get(refName) ?? {};
         mergedProps.set(refName, { ...existing, ...propsToMerge });
 
         console.log(`  Merging inline props into ${refName}: ${Object.keys(propsToMerge).join(', ')}`);
 
-        // Return simplified $ref, preserving sibling properties like title
         const { allOf: _, ...siblings } = valueObj;
         return { ...makeSchemaRef(refName), ...siblings };
       }
     }
-
-    return undefined; // Use default recursion
+    return undefined;
   });
 
-  // Now merge the collected properties into component schemas
-  for (const [componentName, props] of mergedProps) {
-    const component = processed.components?.schemas?.[componentName] as Record<string, unknown> | undefined;
-    if (!component) continue;
+  if (mergedProps.size === 0) {
+    console.log('  Merged properties into 0 component schemas');
+    return processed;
+  }
 
-    // If component uses allOf, add properties to the last item or create a new item
-    if (component.allOf && Array.isArray(component.allOf)) {
-      // Find an existing inline object to merge into, or add a new one
-      const targetItem = component.allOf.find((item) => {
-        const itemObj = item as Record<string, unknown>;
-        return !itemObj.$ref && itemObj.properties;
-      }) as Record<string, unknown> | undefined;
+  // Build new schemas with merged properties
+  const newSchemas: Record<string, OpenAPIV3.SchemaObject | OpenAPIV3.ReferenceObject> = {};
 
-      if (targetItem) {
-        targetItem.properties = { ...(targetItem.properties as Record<string, unknown>), ...props };
-      } else {
-        component.allOf.push({ type: 'object', properties: props });
-      }
-    } else if (component.properties) {
-      // Simple object schema - just add properties
-      component.properties = { ...(component.properties as Record<string, unknown>), ...props };
-    } else {
-      // Convert to object with properties
-      component.type = 'object';
-      component.properties = props;
+  for (const [name, schema] of Object.entries(processed.components?.schemas ?? {})) {
+    const props = mergedProps.get(name);
+    if (!props) {
+      newSchemas[name] = schema;
+      continue;
     }
+
+    if (!isPlainObject(schema)) {
+      newSchemas[name] = schema;
+      continue;
+    }
+
+    newSchemas[name] = mergePropsIntoSchema(schema, props);
   }
 
   console.log(`  Merged properties into ${mergedProps.size} component schemas`);
-  return processed;
-}
 
-// ============================================================================
-// Flatten single-use allOf references
-// ============================================================================
-
-/**
- * Find $refs in an allOf that are only used once in the entire spec.
- */
-function findSingleUseRefs(
-  allOf: unknown[],
-  schemas: Record<string, SchemaObject>,
-  refCounts: Map<string, number>
-): string[] {
-  const refs: string[] = [];
-  for (const item of allOf) {
-    if (!isSchemaRef(item)) continue;
-    const refName = getSchemaName(item);
-    if (refName && refCounts.get(refName) === 1 && schemas[refName]) {
-      refs.push(refName);
+  return {
+    ...processed,
+    components: {
+      ...processed.components,
+      schemas: newSchemas
     }
-  }
-  return refs;
+  };
 }
 
-interface MergeResult {
-  mergedProperties: Record<string, unknown>;
-  newAllOf: unknown[];
-  flattenedRefs: string[];
-}
+function mergePropsIntoSchema(schema: PlainObject, props: Record<string, unknown>): OpenAPIV3.SchemaObject {
+  if (Array.isArray(schema.allOf)) {
+    const targetIndex = schema.allOf.findIndex((item) => isObjectSchema(item) && !item.$ref);
 
-/**
- * Merge allOf items, flattening single-use refs into properties.
- * Returns { mergedProperties, newAllOf, flattenedRefs }.
- */
-function mergeAllOfItems(
-  allOf: unknown[],
-  refsToFlatten: string[],
-  schemas: Record<string, SchemaObject>
-): MergeResult {
-  const mergedProperties: Record<string, unknown> = {};
-  const newAllOf: unknown[] = [];
-  const flattenedRefs: string[] = [];
-
-  for (const item of allOf) {
-    if (isSchemaRef(item)) {
-      const refName = getSchemaName(item);
-      if (refName && refsToFlatten.includes(refName)) {
-        const refSchema = schemas[refName] as Record<string, unknown>;
-        if (refSchema.properties) {
-          Object.assign(mergedProperties, refSchema.properties);
-        }
-        flattenedRefs.push(refName);
-        continue;
-      }
+    if (targetIndex >= 0) {
+      const target = schema.allOf[targetIndex] as PlainObject;
+      const newAllOf = [...schema.allOf];
+      newAllOf[targetIndex] = {
+        ...target,
+        properties: { ...(target.properties as PlainObject), ...props }
+      };
+      return { ...schema, allOf: newAllOf } as OpenAPIV3.SchemaObject;
     }
 
-    // Keep non-flattened items
-    const itemObj = item as Record<string, unknown>;
-    if (itemObj.properties) {
-      Object.assign(mergedProperties, itemObj.properties);
-    } else {
-      newAllOf.push(item);
-    }
+    return {
+      ...schema,
+      allOf: [...schema.allOf, { type: 'object', properties: props }]
+    } as OpenAPIV3.SchemaObject;
   }
 
-  return { mergedProperties, newAllOf, flattenedRefs };
-}
-
-/**
- * Update a schema after flattening its allOf.
- */
-function applyFlattenedSchema(
-  schema: Record<string, unknown>,
-  newAllOf: unknown[],
-  mergedProperties: Record<string, unknown>
-): void {
-  if (newAllOf.length === 0) {
-    // All items were flattened - convert to simple object
-    delete schema.allOf;
-    schema.type = 'object';
-    schema.properties = mergedProperties;
-  } else {
-    // Some items remain - keep allOf but add merged properties
-    schema.allOf = [...newAllOf, { type: 'object', properties: mergedProperties }];
-  }
-}
-
-/**
- * Flatten component schemas that use allOf with a $ref to a component that's only used once.
- * This merges the referenced schema's properties directly into the parent schema.
- */
-function flattenSingleUseAllOf(spec: OpenAPISpec): OpenAPISpec {
-  const schemas = spec.components?.schemas as Record<string, SchemaObject> | undefined;
-  if (!schemas) return spec;
-
-  const refCounts = countSchemaRefs(spec);
-  const schemasToRemove = new Set<string>();
-
-  for (const [schemaName, schema] of Object.entries(schemas)) {
-    const schemaObj = schema as Record<string, unknown>;
-    if (!schemaObj.allOf || !Array.isArray(schemaObj.allOf)) continue;
-
-    const refsToFlatten = findSingleUseRefs(schemaObj.allOf, schemas, refCounts);
-    if (refsToFlatten.length === 0) continue;
-
-    const { mergedProperties, newAllOf, flattenedRefs } = mergeAllOfItems(schemaObj.allOf, refsToFlatten, schemas);
-
-    for (const refName of flattenedRefs) {
-      schemasToRemove.add(refName);
-      console.log(`  Flattening ${refName} into ${schemaName}`);
-    }
-
-    applyFlattenedSchema(schemaObj, newAllOf, mergedProperties);
+  if (isObjectSchema(schema)) {
+    return {
+      ...schema,
+      properties: { ...schema.properties, ...props }
+    } as OpenAPIV3.SchemaObject;
   }
 
-  // Remove flattened schemas
-  for (const name of schemasToRemove) {
-    delete schemas[name];
-  }
-
-  console.log(`  Removed ${schemasToRemove.size} single-use schemas`);
-  return spec;
+  return { ...schema, type: 'object', properties: props } as OpenAPIV3.SchemaObject;
 }
 
 // ============================================================================
@@ -469,60 +436,41 @@ function flattenSingleUseAllOf(spec: OpenAPISpec): OpenAPISpec {
 
 /**
  * Fix BigCommerce spec issues - add missing properties to schemas.
- * The BigCommerce spec doesn't include `variants` in the response schemas,
- * even though the API returns variants when include=variants is used.
+ * Must be called after flattening so schemas are simple objects.
+ * Returns a new spec - does not mutate the input.
  */
 function fixSpecIssues(spec: OpenAPISpec): OpenAPISpec {
-  const schemas = spec.components?.schemas as Record<string, SchemaObject> | undefined;
+  const schemas = spec.components?.schemas;
   if (!schemas) return spec;
 
-  // Add variants property to product_Full (which becomes Product after renaming)
-  // The API returns variants when include=variants is used
-  const productSchema = schemas.product_Full as Record<string, unknown> | undefined;
+  const productSchema = schemas.product_Full;
 
-  if (productSchema && !hasVariantsProperty(productSchema)) {
-    console.log('  Adding variants to product_Full');
-    addVariantsProperty(productSchema);
+  if (!isObjectSchema(productSchema) || productSchema.properties.variants) {
+    return spec;
   }
 
-  return spec;
-}
+  console.log('  Adding variants to product_Full');
 
-function hasVariantsProperty(schema: Record<string, unknown>): boolean {
-  const props = schema.properties as Record<string, unknown> | undefined;
-  if (props?.variants) return true;
-  if (schema.allOf && Array.isArray(schema.allOf)) {
-    for (const item of schema.allOf) {
-      const itemObj = item as Record<string, unknown>;
-      const itemProps = itemObj.properties as Record<string, unknown> | undefined;
-      if (itemProps?.variants) return true;
+  return {
+    ...spec,
+    components: {
+      ...spec.components,
+      schemas: {
+        ...schemas,
+        product_Full: {
+          ...productSchema,
+          properties: {
+            ...productSchema.properties,
+            variants: {
+              type: 'array',
+              items: makeSchemaRef('productVariant_Full'),
+              description: 'Product variants. Only returned when include=variants is specified.'
+            }
+          }
+        }
+      }
     }
-  }
-  return false;
-}
-
-function addVariantsProperty(schema: Record<string, unknown>): void {
-  const variantsProperty = {
-    type: 'array',
-    items: makeSchemaRef('productVariant_Full'),
-    description: 'Product variants. Only returned when include=variants is specified.'
   };
-
-  if (schema.allOf && Array.isArray(schema.allOf)) {
-    // Add to an existing properties object in allOf, or create one
-    const propsItem = schema.allOf.find((item) => {
-      const itemObj = item as Record<string, unknown>;
-      return itemObj.properties && !itemObj.$ref;
-    }) as Record<string, unknown> | undefined;
-
-    if (propsItem) {
-      (propsItem.properties as Record<string, unknown>).variants = variantsProperty;
-    } else {
-      schema.allOf.push({ type: 'object', properties: { variants: variantsProperty } });
-    }
-  } else if (schema.properties) {
-    (schema.properties as Record<string, unknown>).variants = variantsProperty;
-  }
 }
 
 // ============================================================================
@@ -530,7 +478,36 @@ function addVariantsProperty(schema: Record<string, unknown>): void {
 // ============================================================================
 
 async function combineSpecs(): Promise<OpenAPISpec> {
-  const combined: OpenAPISpec = {
+  let components: OpenAPIV3.ComponentsObject = { schemas: {}, parameters: {}, responses: {} };
+  let tags: OpenAPIV3.TagObject[] = [];
+  const paths: OpenAPIV3.PathsObject = {};
+
+  for (const specName of CATALOG_SPECS) {
+    const spec = await fetchSpec(specName);
+
+    for (const [path, pathItem] of Object.entries(spec.paths || {})) {
+      const existing = paths[path];
+      if (existing) {
+        Object.assign(existing, pathItem);
+      } else {
+        paths[path] = pathItem;
+      }
+    }
+
+    if (spec.components) {
+      components = mergeComponents(components, spec.components, specName);
+    }
+    tags = mergeTags(tags, spec.tags);
+  }
+
+  // Sort paths and tags
+  const sortedPaths: OpenAPIV3.PathsObject = {};
+  for (const path of Object.keys(paths).sort()) {
+    sortedPaths[path] = paths[path];
+  }
+  tags.sort((a, b) => a.name.localeCompare(b.name));
+
+  return {
     openapi: '3.0.3',
     info: {
       title: 'BigCommerce Catalog API',
@@ -544,41 +521,10 @@ async function combineSpecs(): Promise<OpenAPISpec> {
         variables: { store_hash: { default: 'your_store_hash' } }
       }
     ],
-    tags: [],
-    paths: {},
-    components: { schemas: {}, parameters: {}, responses: {} }
+    tags,
+    paths: sortedPaths,
+    components
   };
-
-  const components = combined.components as OpenAPIV3.ComponentsObject;
-  const tags = combined.tags as OpenAPIV3.TagObject[];
-
-  for (const specName of CATALOG_SPECS) {
-    const spec = await fetchSpec(specName);
-
-    for (const [path, pathItem] of Object.entries(spec.paths || {})) {
-      const existing = combined.paths[path];
-      if (existing) {
-        Object.assign(existing, pathItem);
-      } else {
-        combined.paths[path] = pathItem;
-      }
-    }
-
-    if (spec.components) {
-      mergeComponents(components, spec.components, specName);
-    }
-    mergeTags(tags, spec.tags);
-  }
-
-  // Sort paths and tags
-  const sortedPaths: OpenAPIV3.PathsObject = {};
-  for (const path of Object.keys(combined.paths).sort()) {
-    sortedPaths[path] = combined.paths[path];
-  }
-  combined.paths = sortedPaths;
-  tags.sort((a, b) => a.name.localeCompare(b.name));
-
-  return combined;
 }
 
 // ============================================================================
@@ -593,28 +539,34 @@ async function main(): Promise<void> {
 
     console.log(`\nMerged ${Object.keys(spec.components?.schemas ?? {}).length} component schemas`);
 
-    // Step 0: Fix BigCommerce spec issues
-    console.log('\nStep 0: Fixing BigCommerce spec issues...');
-    spec = fixSpecIssues(spec);
-
-    // Step 0.5: Flatten single-use allOf references
-    console.log('\nStep 0.5: Flattening single-use allOf references...');
+    console.log('\nStep 1: Flattening single-use allOf references...');
     spec = flattenSingleUseAllOf(spec);
 
-    // Step 1: Deduplicate inline schemas using subset matching
-    console.log('\nStep 1: Deduplicating inline schemas (subset matching)...');
+    console.log('\nStep 2: Fixing BigCommerce spec issues...');
+    spec = fixSpecIssues(spec);
+
+    console.log('\nStep 3: Deduplicating inline schemas (subset matching)...');
     spec = deduplicateInlineSchemas(spec);
 
-    // Step 2: Merge inline allOf extensions into component schemas
-    console.log('\nStep 2: Merging inline allOf extensions into components...');
+    console.log('\nStep 4: Merging inline allOf extensions into components...');
     spec = mergeInlineExtensions(spec);
 
-    // Step 3: Build name map for PascalCase conversion
-    console.log('\nStep 3: Building PascalCase name map...');
-    const schemas = (spec.components?.schemas ?? {}) as Record<string, SchemaObject>;
-    const nameMap = buildNameMap(schemas);
+    console.log('\nStep 5: Removing duplicate schemas...');
+    const schemas = getComponentSchemas(spec);
+    const duplicates = findDuplicateSchemas(Object.keys(schemas));
+    if (duplicates.size > 0) {
+      console.log(`  Removing duplicates: ${[...duplicates].join(', ')}`);
+      const specSchemas = spec.components?.schemas;
+      if (specSchemas) {
+        for (const name of duplicates) {
+          delete specSchemas[name];
+        }
+      }
+    }
 
-    // Log example renames
+    console.log('\nStep 6: Building PascalCase name map...');
+    const filteredSchemas = getComponentSchemas(spec);
+    const nameMap = buildNameMap(filteredSchemas, transformSchemaName);
     const examples = ['productVariant_Base', 'productVariant_Full', 'metaCollection_Full', 'brand_Full', 'error_Base'];
     for (const ex of examples) {
       if (nameMap.has(ex)) {
@@ -622,30 +574,26 @@ async function main(): Promise<void> {
       }
     }
 
-    // Step 4: Rename schemas
-    console.log('\nStep 4: Renaming schemas to PascalCase...');
+    console.log('\nStep 7: Renaming schemas to PascalCase...');
     spec.components = renameSchemas(spec.components, nameMap);
+    spec = updateRefs(spec, nameMap);
 
-    // Step 5: Update all $refs
-    console.log('Step 5: Updating $refs to new names...');
-    spec = updateRefs(spec, nameMap) as OpenAPISpec;
+    console.log('Step 8: Cleaning up spec...');
+    spec = cleanupSpec(spec);
 
-    // Step 6: Clean up
-    console.log('Step 6: Cleaning up spec...');
-    spec = cleanupSpec(spec) as OpenAPISpec;
+    console.log('Step 9: Normalizing number/string unions...');
+    spec = normalizeNumberStringUnions(spec);
 
     const outputPath = join(__dirname, '..', 'specs', 'bigcommerce', 'catalog.v3.yml');
     const yamlOutput = yaml.dump(spec, { lineWidth: 120, noRefs: true, sortKeys: false });
     writeFileSync(outputPath, yamlOutput, 'utf8');
 
     console.log(`\nCombined spec written to: ${outputPath}`);
-    console.log('\nSummary:');
-    console.log(`  - Paths: ${Object.keys(spec.paths).length}`);
-    console.log(`  - Schemas: ${Object.keys(spec.components?.schemas ?? {}).length}`);
-    console.log(`  - Tags: ${spec.tags?.length ?? 0}`);
+    console.log(
+      `\nSummary: ${Object.keys(spec.paths).length} paths, ${Object.keys(spec.components?.schemas ?? {}).length} schemas, ${spec.tags?.length ?? 0} tags`
+    );
 
-    // Validate the resulting spec
-    console.log('\nStep 7: Validating OpenAPI spec...');
+    console.log('\nStep 10: Validating OpenAPI spec...');
     await SwaggerParser.validate(outputPath);
     console.log('  Spec is valid!');
   } catch (error) {

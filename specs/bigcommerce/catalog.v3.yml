@@ -467,7 +467,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/MetafieldFull'
+                $ref: '#/components/schemas/Metafield'
         description: ''
       responses:
         '200':
@@ -810,7 +810,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
     delete:
       tags:
         - Images
@@ -859,7 +859,7 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/MetafieldFull'
+                      $ref: '#/components/schemas/Metafield'
                   meta:
                     $ref: '#/components/schemas/MetaCollection'
               example:
@@ -925,7 +925,7 @@ paths:
                 type: object
                 properties:
                   data:
-                    $ref: '#/components/schemas/MetafieldFull'
+                    $ref: '#/components/schemas/Metafield'
                   meta:
                     title: Meta
                     type: object
@@ -1008,7 +1008,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
         '422':
           description: >
             The `Metafield` was not valid. This is the result of missing required fields, or of invalid data. See the
@@ -1016,7 +1016,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
       x-codegen-request-body-name: Metafield
     parameters:
       - $ref: '#/components/parameters/BrandIdPath'
@@ -1041,7 +1041,7 @@ paths:
                 type: object
                 properties:
                   data:
-                    $ref: '#/components/schemas/MetafieldFull'
+                    $ref: '#/components/schemas/Metafield'
                   meta:
                     $ref: '#/components/schemas/MetaEmpty'
               example:
@@ -1089,7 +1089,7 @@ paths:
                 type: object
                 properties:
                   data:
-                    $ref: '#/components/schemas/MetafieldFull'
+                    $ref: '#/components/schemas/Metafield'
                   meta:
                     $ref: '#/components/schemas/MetaEmpty'
               example:
@@ -1348,7 +1348,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CategoryFull'
+              $ref: '#/components/schemas/Category'
         required: true
       responses:
         '200':
@@ -1360,7 +1360,7 @@ paths:
                 type: object
                 properties:
                   data:
-                    $ref: '#/components/schemas/CategoryFull'
+                    $ref: '#/components/schemas/Category'
                   meta:
                     $ref: '#/components/schemas/MetaEmpty'
         '207':
@@ -1379,7 +1379,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
         '422':
           description: >
             The `Category` was not valid. This is the result of missing required fields, or of invalid data. See the
@@ -1387,7 +1387,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
       x-codegen-request-body-name: category
     delete:
       tags:
@@ -1536,7 +1536,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/MetafieldFull'
+                $ref: '#/components/schemas/Metafield'
         description: ''
       responses:
         '200':
@@ -1664,7 +1664,7 @@ paths:
                 type: object
                 properties:
                   data:
-                    $ref: '#/components/schemas/CategoryFull'
+                    $ref: '#/components/schemas/Category'
                   meta:
                     $ref: '#/components/schemas/MetaEmpty'
         '404':
@@ -1707,7 +1707,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CategoryFull'
+              $ref: '#/components/schemas/Category'
         required: true
       responses:
         '200':
@@ -1719,7 +1719,7 @@ paths:
                 type: object
                 properties:
                   data:
-                    $ref: '#/components/schemas/CategoryFull'
+                    $ref: '#/components/schemas/Category'
                   meta:
                     title: Meta
                     type: object
@@ -1740,7 +1740,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
         '422':
           description: >-
             The `Category` was not valid. This is the result of missing required fields, or of invalid data. See the
@@ -1748,7 +1748,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
       x-codegen-request-body-name: category
     delete:
       tags:
@@ -1855,7 +1855,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
     delete:
       tags:
         - Images
@@ -1913,7 +1913,7 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/MetafieldFull'
+                      $ref: '#/components/schemas/Metafield'
                   meta:
                     $ref: '#/components/schemas/MetaCollection'
               example:
@@ -1993,7 +1993,7 @@ paths:
                 type: object
                 properties:
                   data:
-                    $ref: '#/components/schemas/MetafieldFull'
+                    $ref: '#/components/schemas/Metafield'
                   meta:
                     $ref: '#/components/schemas/MetaEmpty'
               example:
@@ -2040,7 +2040,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
         '422':
           description: >
             The `Metafield` was not valid. This is the result of missing required fields, or of invalid data. See the
@@ -2048,7 +2048,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
       x-codegen-request-body-name: Metafield
     parameters:
       - $ref: '#/components/parameters/Accept'
@@ -2087,7 +2087,7 @@ paths:
                 type: object
                 properties:
                   data:
-                    $ref: '#/components/schemas/MetafieldFull'
+                    $ref: '#/components/schemas/Metafield'
                   meta:
                     $ref: '#/components/schemas/MetaEmpty'
               example:
@@ -2133,7 +2133,7 @@ paths:
                 type: object
                 properties:
                   data:
-                    $ref: '#/components/schemas/MetafieldFull'
+                    $ref: '#/components/schemas/Metafield'
                   meta:
                     $ref: '#/components/schemas/MetaEmpty'
               example:
@@ -2878,7 +2878,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
         '422':
           description: >
             `Product` was not valid. This is the result of missing required fields, or of invalid data. See the response
@@ -2886,7 +2886,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
       x-codegen-request-body-name: product
     delete:
       tags:
@@ -2980,7 +2980,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta5errorResponse'
+                $ref: '#/components/schemas/Beta5ErrorResponse'
     delete:
       summary: Delete Products Category Assignments
       description: Deletes products category assignments. A filter must be supplied.
@@ -2998,7 +2998,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta5errorResponse'
+                $ref: '#/components/schemas/Beta5ErrorResponse'
     parameters:
       - $ref: '#/components/parameters/Accept'
   /catalog/products/channel-assignments:
@@ -3057,7 +3057,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta5errorResponse'
+                $ref: '#/components/schemas/Beta5ErrorResponse'
     delete:
       summary: Delete Products Channel Assignments
       description: Delete products channel assignments. A filter must be supplied.
@@ -3075,7 +3075,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta5errorResponse'
+                $ref: '#/components/schemas/Beta5ErrorResponse'
     parameters:
       - $ref: '#/components/parameters/Accept'
   /catalog/products/metafields:
@@ -3173,7 +3173,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/MetafieldFull'
+                $ref: '#/components/schemas/Metafield'
         description: ''
       responses:
         '200':
@@ -3700,7 +3700,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
         '422':
           description: >
             `Product` was not valid. This is the result of missing required fields, or of invalid data. See the response
@@ -3708,7 +3708,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
       x-codegen-request-body-name: product
     delete:
       tags:
@@ -3893,7 +3893,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
         '422':
           description: >
             The `BulkPricingRule` was not valid. This is the result of missing required fields, or of invalid data. See
@@ -3901,7 +3901,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
       x-codegen-request-body-name: BulkPricingRule
     delete:
       tags:
@@ -4132,7 +4132,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
         '422':
           description: >
             The `ComplexRule` was not valid. This is the result of missing required fields, or of invalid data. See the
@@ -4140,7 +4140,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
       x-codegen-request-body-name: ComplexRule
     parameters:
       - $ref: '#/components/parameters/Accept'
@@ -4219,7 +4219,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
         '422':
           description: >
             The `ComplexRule` was not valid. This is the result of missing required fields, or of invalid data. See the
@@ -4227,7 +4227,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
       x-codegen-request-body-name: ComplexRule
     delete:
       tags:
@@ -4521,10 +4521,10 @@ paths:
                 type: object
                 properties:
                   data:
+                    title: Product Image
                     oneOf:
                       - $ref: '#/components/schemas/ProductImage'
                       - $ref: '#/components/schemas/PrimaryImage'
-                    title: Product Image
                   meta:
                     $ref: '#/components/schemas/MetaEmpty'
                 description: |
@@ -4661,10 +4661,10 @@ paths:
                 type: object
                 properties:
                   data:
+                    title: Product Image
                     oneOf:
                       - $ref: '#/components/schemas/ProductImage'
                       - $ref: '#/components/schemas/PrimaryImage'
-                    title: Product Image
                   meta:
                     $ref: '#/components/schemas/MetaEmpty'
                 description: |
@@ -4742,7 +4742,7 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/MetafieldFull'
+                      $ref: '#/components/schemas/Metafield'
                   meta:
                     $ref: '#/components/schemas/MetaCollection'
               example:
@@ -4817,7 +4817,7 @@ paths:
                 type: object
                 properties:
                   data:
-                    $ref: '#/components/schemas/MetafieldFull'
+                    $ref: '#/components/schemas/Metafield'
                   meta:
                     $ref: '#/components/schemas/MetaEmpty'
               example:
@@ -4864,7 +4864,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
         '422':
           description: >
             The `Metafield` was not valid. This is the result of missing required fields, or of invalid data. See the
@@ -4872,7 +4872,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
     parameters:
       - $ref: '#/components/parameters/Accept'
       - $ref: '#/components/parameters/ProductIdParam'
@@ -4910,7 +4910,7 @@ paths:
                 type: object
                 properties:
                   data:
-                    $ref: '#/components/schemas/MetafieldFull'
+                    $ref: '#/components/schemas/Metafield'
                   meta:
                     $ref: '#/components/schemas/MetaEmpty'
               example:
@@ -4957,7 +4957,7 @@ paths:
                 type: object
                 properties:
                   data:
-                    $ref: '#/components/schemas/MetafieldFull'
+                    $ref: '#/components/schemas/Metafield'
                   meta:
                     $ref: '#/components/schemas/MetaEmpty'
               example:
@@ -5245,7 +5245,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
         '422':
           description: >
             The `Modifier` was not valid. This is the result of missing required fields, or of invalid data. See the
@@ -5253,7 +5253,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
       x-codegen-request-body-name: Modifier
     parameters:
       - $ref: '#/components/parameters/Accept'
@@ -5328,7 +5328,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
         '422':
           description: >
             The `Modifier` was not valid. This is the result of missing required fields, or of invalid data. See the
@@ -5336,7 +5336,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
       x-codegen-request-body-name: Modifier
     delete:
       tags:
@@ -5481,7 +5481,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
       x-codegen-request-body-name: ModifierValue
     parameters:
       - $ref: '#/components/parameters/Accept'
@@ -5596,7 +5596,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
       x-codegen-request-body-name: ModifierValue
     delete:
       tags:
@@ -5689,7 +5689,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
     parameters:
       - $ref: '#/components/parameters/Accept'
       - $ref: '#/components/parameters/ProductIdParam'
@@ -6014,7 +6014,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
         '422':
           description: >
             Option was not valid. This is the result of missing required fields, or of invalid data. See the response
@@ -6022,7 +6022,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
       x-codegen-request-body-name: Option
     parameters:
       - $ref: '#/components/parameters/Accept'
@@ -6267,7 +6267,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
         '422':
           description: >
             The `Option` was not valid. This is the result of missing required fields, or of invalid data. See the
@@ -6275,7 +6275,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
       x-codegen-request-body-name: option
     delete:
       tags:
@@ -6412,7 +6412,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
       x-codegen-request-body-name: OptionValue
     parameters:
       - $ref: '#/components/parameters/Accept'
@@ -6509,7 +6509,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
       x-codegen-request-body-name: OptionValue
     delete:
       tags:
@@ -6558,7 +6558,7 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/MetafieldFull'
+                      $ref: '#/components/schemas/Metafield'
                       title: Product Review
                       description: |
                         A product review model.
@@ -6650,7 +6650,7 @@ paths:
                 type: object
                 properties:
                   data:
-                    $ref: '#/components/schemas/MetafieldFull'
+                    $ref: '#/components/schemas/Metafield'
                     title: Product Review
                     description: |
                       A product review model.
@@ -6703,7 +6703,7 @@ paths:
                 type: object
                 properties:
                   data:
-                    $ref: '#/components/schemas/MetafieldFull'
+                    $ref: '#/components/schemas/Metafield'
                     title: Product Review
                     description: |
                       A product review model.
@@ -6803,7 +6803,7 @@ paths:
                 type: object
                 properties:
                   data:
-                    $ref: '#/components/schemas/MetafieldFull'
+                    $ref: '#/components/schemas/Metafield'
                     title: Product Review
                     description: |
                       A product review model.
@@ -7378,13 +7378,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
         '500':
           description: Returns for an `image_file` larger than 1 MB.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
       x-codegen-request-body-name: body
     parameters:
       - $ref: '#/components/parameters/Accept'
@@ -7424,7 +7424,7 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/MetafieldFull'
+                      $ref: '#/components/schemas/Metafield'
                   meta:
                     $ref: '#/components/schemas/CategoriesTreeResp'
     post:
@@ -7473,7 +7473,7 @@ paths:
                 type: object
                 properties:
                   data:
-                    $ref: '#/components/schemas/MetafieldFull'
+                    $ref: '#/components/schemas/Metafield'
                   meta:
                     $ref: '#/components/schemas/MetaEmpty'
               example:
@@ -7520,7 +7520,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
         '422':
           description: >
             The `Metafield` was not valid. This is the result of missing required fields, or of invalid data. See the
@@ -7528,7 +7528,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
       x-codegen-request-body-name: Metafield
     parameters:
       - $ref: '#/components/parameters/Accept'
@@ -7554,7 +7554,7 @@ paths:
                 type: object
                 properties:
                   data:
-                    $ref: '#/components/schemas/MetafieldFull'
+                    $ref: '#/components/schemas/Metafield'
                   meta:
                     $ref: '#/components/schemas/MetaEmpty'
               example:
@@ -7601,7 +7601,7 @@ paths:
                 type: object
                 properties:
                   data:
-                    $ref: '#/components/schemas/MetafieldFull'
+                    $ref: '#/components/schemas/Metafield'
                   meta:
                     $ref: '#/components/schemas/MetaEmpty'
               example:
@@ -8127,7 +8127,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
               example:
                 status: 0
                 title: string
@@ -8453,7 +8453,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Beta4errorResponse'
+                $ref: '#/components/schemas/Beta4ErrorResponse'
               example:
                 status: 0
                 title: string
@@ -8580,7 +8580,7 @@ paths:
                   batch_errors:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Beta4errorResponse'
+                      $ref: '#/components/schemas/Beta4ErrorResponse'
                 description: |
                   Errors during batch usage for the BigCommerce API.
       x-codegen-request-body-name: body
@@ -8685,7 +8685,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/MetafieldFull'
+                $ref: '#/components/schemas/Metafield'
         description: ''
       responses:
         '200':
@@ -8783,55 +8783,6 @@ paths:
       - $ref: '#/components/parameters/Accept'
 components:
   schemas:
-    Pagination:
-      type: object
-      description: Data about the response, including pagination and collection totals.
-      title: Pagination
-      properties:
-        total:
-          type: integer
-          description: |
-            Total number of items in the result set.
-          example: 36
-        count:
-          type: integer
-          description: |
-            Total number of items in the collection response.
-          example: 36
-        per_page:
-          type: integer
-          description: |
-            The amount of items returned in the collection per page, controlled by the limit parameter.
-          example: 50
-        current_page:
-          type: integer
-          description: |
-            The page you are currently on within the collection.
-          example: 1
-        total_pages:
-          type: integer
-          description: |
-            The total number of pages in the collection.
-          example: 1
-        links:
-          type: object
-          description: |
-            Pagination links for the previous and next parts of the whole collection.
-          properties:
-            previous:
-              type: string
-              description: |
-                Link to the previous page returned in the response.
-            current:
-              type: string
-              description: |
-                Link to the current page returned in the response.
-              example: '?page=1&limit=50'
-            next:
-              type: string
-              description: |
-                Link to the next page returned in the response.
-      x-internal: false
     CursorPagination:
       type: object
       description: Data about the response, including cursor pagination and collection totals.
@@ -9033,11 +8984,11 @@ components:
       type: object
       properties:
         pagination:
-          $ref: '#/components/schemas/PaginationFull'
+          $ref: '#/components/schemas/Pagination'
       description: Data about the response, including pagination and collection totals.
       x-internal: false
-    PaginationFull:
-      title: PaginationFull
+    Pagination:
+      title: Pagination
       type: object
       properties:
         total:
@@ -9108,7 +9059,7 @@ components:
       description: |
         Error payload for the BigCommerce API.
       x-internal: false
-    MetafieldFull:
+    Metafield:
       allOf:
         - type: object
           properties:
@@ -9187,106 +9138,8 @@ components:
               description: Client ID for the metafieldʼs creator.
               example: asdfasdfasdfasdfasdfasdfasdf
               readOnly: true
-      title: MetafieldFull
+      title: Metafield
       x-internal: false
-    Metafield:
-      type: object
-      description: |
-        Common Metafield properties.
-      x-internal: false
-      properties:
-        permission_set:
-          type: string
-          description: >
-            Determines the visibility and writeability of the field by other API consumers.
-
-            | Value | Description |
-
-            | :--- | :--- |
-
-            | `app_only` | Private to the app that owns the field. |
-
-            | `read` | Visible to other API consumers. |
-
-            | `write` | Open for reading and writing by other API consumers. |
-
-            | `read_and_sf_access` | Visible to other API consumers, including on the storefront. |
-
-            | `write_and_sf_access` | Open for reading and writing by other API consumers, including on the storefront.
-            |
-          enum:
-            - app_only
-            - read
-            - write
-            - read_and_sf_access
-            - write_and_sf_access
-        namespace:
-          type: string
-          description: |
-            Namespace for the metafield, for organizational purposes.
-          example: Sales Department
-          minLength: 1
-          maxLength: 64
-        key:
-          type: string
-          description: |
-            The name of the field, for example: `location_id`, `color`.
-          minLength: 1
-          maxLength: 64
-          example: Staff Name
-        value:
-          type: string
-          description: |
-            The value of the field, for example: `1`, `blue`.
-          minLength: 1
-          maxLength: 65535
-          example: Ronaldo
-        description:
-          type: string
-          description: |
-            Description for the metafields.
-          example: order
-          minLength: 0
-          maxLength: 255
-        resource_type:
-          type: string
-          description: |
-            The type of resource with which the metafield is associated.
-          enum:
-            - brand
-            - product
-            - variant
-            - category
-            - cart
-            - channel
-            - location
-            - order
-            - customer
-          example: cart
-        resource_id:
-          type: integer
-          description: |
-            The unique identifier for the resource with which the metafield is associated.
-          example: 424242
-          readOnly: true
-        id:
-          type: integer
-          description: The unique identifier for the metafield.
-        date_created:
-          type: string
-          format: date-time
-          description: Date and time of the metafieldʼs creation.
-          example: '2022-06-16T18:39:00+00:00'
-        date_modified:
-          type: string
-          format: date-time
-          description: Date and time when the metafield was last updated.
-          example: '2022-06-16T18:39:00+00:00'
-        owner_client_id:
-          type: string
-          description: Client ID for the metafieldʼs creator.
-          example: asdfasdfasdfasdfasdfasdfasdf
-          readOnly: true
     MetaFieldCollectionResponse:
       type: object
       description: |
@@ -9632,8 +9485,8 @@ components:
           title: Detailed Errors
           type: object
           properties: {}
-    CategoryFull:
-      title: CategoryFull
+    Category:
+      title: Category
       type: object
       description: Common Category object properties.
       x-internal: false
@@ -9762,99 +9615,6 @@ components:
           example: 4
           description: The relative priority of the product among other products inside the category.
       x-internal: false
-    Category:
-      allOf:
-        - $ref: '#/components/schemas/ParentId'
-        - $ref: '#/components/schemas/Name'
-        - type: object
-          properties:
-            id:
-              type: integer
-              description: |-
-                Unique ID of the *Category*. Increments sequentially.
-                Read-Only.
-              readOnly: true
-            description:
-              type: string
-              description: |
-                The product description, which can include HTML formatting.
-              example: <p>We offer a wide variety of products perfect for relaxing</p>
-            views:
-              type: integer
-              description: |
-                Number of views the category has on the storefront.
-              example: 1050
-            sort_order:
-              type: integer
-              description: >
-                Priority this category will be given when included in the menu and category pages. The lower the number,
-                the closer to the top of the results the category will be.
-              example: 3
-            page_title:
-              type: string
-              description: |
-                Custom title for the category page. If not defined, the category name will be used as the meta title.
-              example: Bath
-            meta_keywords:
-              type: array
-              description: >
-                Custom meta keywords for the category page. If not defined, the storeʼs default keywords will be used.
-                Must post as an array like: ["awesome","sauce"].
-              items:
-                type: string
-            meta_description:
-              maxLength: 65535
-              minLength: 0
-              type: string
-              description: >
-                Custom meta description for the category page. If not defined, the storeʼs default meta description will
-                be used.
-            layout_file:
-              maxLength: 500
-              minLength: 0
-              type: string
-              description: >
-                A valid layout file. Please refer to [the article on creating category files (Help
-                Center)](https://support.bigcommerce.com/articles/Public/Creating-Custom-Template-Files/). This field is
-                writable only for stores with a Blueprint theme applied. For stores with a Stencil theme applied, see
-                [Custom Template Associations](/docs/rest-content/custom-template-associations).
-              example: category.html
-            image_url:
-              type: string
-              description: >
-                Image URL used for this category on the storefront. Images can be uploaded using form file post to
-                `/categories/{categoryId}/image`, or by providing a publicly accessible URL in this field. An image
-                extension like .jpg or .png is required.
-              example: https://cdn8.bigcommerce.com/s-123456/product_images/d/fakeimage.png
-              x-url: true
-            is_visible:
-              type: boolean
-              description: >
-                Flag to determine whether the product should be displayed to customers browsing the store. If `true`,
-                the category will be displayed. If `false`, the category will be hidden from view.
-            search_keywords:
-              type: string
-              description: |
-                A comma-separated list of keywords that can be used to locate the category when searching the store.
-            default_product_sort:
-              type: string
-              description: |
-                Determines how the products are sorted on category page load.
-              enum:
-                - use_store_settings
-                - featured
-                - newest
-                - best_selling
-                - alpha_asc
-                - alpha_desc
-                - avg_customer_review
-                - price_asc
-                - price_desc
-            custom_url:
-              $ref: '#/components/schemas/Url'
-      x-tags:
-        - Models
-      title: Category
     Url:
       title: URL
       description: |
@@ -10317,7 +10077,7 @@ components:
                   example: '?limit=5&page=1'
       x-tags:
         - Models
-    Beta4detailedErrors:
+    Beta4DetailedErrors:
       type: object
       properties: {}
       additionalProperties: true
@@ -10342,13 +10102,13 @@ components:
           type: string
       x-tags:
         - Models
-    Beta4errorResponse:
+    Beta4ErrorResponse:
       allOf:
         - $ref: '#/components/schemas/BaseError'
         - type: object
           properties:
             errors:
-              $ref: '#/components/schemas/Beta4detailedErrors'
+              $ref: '#/components/schemas/Beta4DetailedErrors'
       x-tags:
         - Models
     CategoryUuid:
@@ -12190,11 +11950,6 @@ components:
           type: integer
           description: ID of the product. Read-Only.
           readOnly: true
-        variants:
-          type: array
-          items:
-            $ref: '#/components/schemas/ProductVariant'
-          description: Product variants. Only returned when include=variants is specified.
         name:
           maxLength: 250
           minLength: 1
@@ -12704,6 +12459,11 @@ components:
           description: >-
             Legacy template setting which controls if the option set shows up to the side of or below the product image
             and description.
+        variants:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductVariant'
+          description: Product variants. Only returned when include=variants is specified.
         channels:
           type: array
           items:
@@ -14159,19 +13919,19 @@ components:
           type: integer
       x-tags:
         - Models
-    Beta5detailedErrors:
+    Beta5DetailedErrors:
       type: object
       properties: {}
       additionalProperties: true
       x-tags:
         - Models
-    Beta5errorResponse:
+    Beta5ErrorResponse:
       allOf:
         - $ref: '#/components/schemas/BaseError'
         - type: object
           properties:
             errors:
-              $ref: '#/components/schemas/Beta5detailedErrors'
+              $ref: '#/components/schemas/Beta5DetailedErrors'
       x-tags:
         - Models
     CustomFieldData:

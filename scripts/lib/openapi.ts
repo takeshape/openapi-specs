@@ -6,6 +6,45 @@ import isEqual from 'lodash/isEqual.js';
 import type { OpenAPIV3 } from 'openapi-types';
 
 // ============================================================================
+// Clone utilities
+// TODO: Switch to `import { deepCloneWithPath } from '@takeshape/util'` once
+// @takeshape/prism npm publishing issue is resolved
+// ============================================================================
+
+type CloneWithPathHelper = (
+  value: unknown,
+  key: string | number | undefined,
+  parent: Record<string, unknown> | unknown[] | undefined,
+  path: string[]
+) => unknown;
+
+export function deepCloneWithPath(initialValue: unknown, customizer: CloneWithPathHelper): unknown {
+  const clone: CloneWithPathHelper = (value, key, parent, path) => {
+    const customizedValue = customizer(value, key, parent, path);
+    const cloneValue = customizedValue ?? value;
+
+    if (Array.isArray(cloneValue)) {
+      return cloneValue.map((item, i) => clone(item, i, cloneValue, [...path, String(i)]));
+    }
+
+    if (isPlainObject(cloneValue)) {
+      const result: Record<string, unknown> = {};
+      for (const k of Object.keys(cloneValue)) {
+        const newValue = clone(cloneValue[k], k, cloneValue, [...path, k]);
+        if (newValue !== undefined) {
+          result[k] = newValue;
+        }
+      }
+      return result;
+    }
+
+    return cloneValue;
+  };
+
+  return clone(initialValue, undefined, undefined, []);
+}
+
+// ============================================================================
 // Types
 // ============================================================================
 
@@ -15,6 +54,58 @@ export type ReferenceObject = OpenAPIV3.ReferenceObject;
 export type SchemaOrRef = SchemaObject | ReferenceObject;
 export type ComponentsObject = OpenAPIV3.ComponentsObject;
 export type TagObject = OpenAPIV3.TagObject;
+
+/** Component schemas record - schemas are definitions, never refs at top level */
+export type ComponentSchemas = Record<string, SchemaObject>;
+
+/**
+ * Get component schemas from a spec.
+ * In valid OpenAPI, component schemas are always SchemaObjects (definitions),
+ * never ReferenceObjects (which only appear within schemas).
+ */
+export function getComponentSchemas(spec: OpenAPISpec): ComponentSchemas {
+  const schemas = spec.components?.schemas;
+  if (!schemas) return {};
+
+  // Filter out any refs (shouldn't exist at top level, but be safe)
+  const result: ComponentSchemas = {};
+  for (const [name, schema] of Object.entries(schemas)) {
+    if (!isSchemaRef(schema)) {
+      result[name] = schema;
+    }
+  }
+  return result;
+}
+
+/** A plain object (not null, not array) */
+export type PlainObject = Record<string, unknown>;
+
+// ============================================================================
+// Type guards
+// ============================================================================
+
+/**
+ * Check if a value is a plain object (not null, not array).
+ */
+export function isPlainObject(value: unknown): value is PlainObject {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+/** An object schema with a properties field */
+export interface ObjectSchemaWithProperties extends PlainObject {
+  type?: 'object';
+  properties: PlainObject;
+}
+
+/**
+ * Check if a value is an object schema with properties.
+ * Matches schemas with `properties` field, optionally with `type: 'object'`.
+ */
+export function isObjectSchema(value: unknown): value is ObjectSchemaWithProperties {
+  return (
+    isPlainObject(value) && isPlainObject(value.properties) && (value.type === undefined || value.type === 'object')
+  );
+}
 
 // ============================================================================
 // Schema $ref utilities
@@ -56,60 +147,32 @@ export function makeSchemaRef(name: string): ReferenceObject {
 // Spec traversal utilities
 // ============================================================================
 
-export type SpecPath = (string | number)[];
-
 /**
  * Callback for transforming values during spec traversal.
- * Return undefined to use default recursion, or a value to replace the current node.
+ *
+ * @param value - The current object being visited
+ * @param path - Path to this object (e.g., ['components', 'schemas', 'User'])
+ * @returns A replacement value, or undefined to use default cloning
  */
-export type TransformCallback = (
-  value: Record<string, unknown>,
-  path: SpecPath,
-  recurse: (val: unknown, key: string | number) => unknown
-) => unknown | undefined;
+export type TransformCallback = (value: Record<string, unknown>, path: string[]) => unknown | undefined;
 
 /**
- * Traverse and transform a spec, calling the transform function for each object.
- * The transform function receives the value, path, and a recurse helper.
- * If transform returns undefined, default recursion is applied.
- * Component schemas are always recursed into but not transformed at the top level.
+ * Traverse and transform an OpenAPI spec, calling the transform function for each object.
+ *
+ * Component schema definitions (under `components.schemas.*`) are cloned but not transformed.
+ * The transform is only called for usages of schemas (in paths, responses, etc.).
  */
 export function traverseSpec(spec: OpenAPISpec, transform: TransformCallback): OpenAPISpec {
-  function processValue(value: unknown, path: SpecPath = []): unknown {
-    if (value === null || value === undefined) return value;
-    if (Array.isArray(value)) {
-      return value.map((item, i) => processValue(item, [...path, i]));
-    }
-    if (typeof value !== 'object') return value;
+  return deepCloneWithPath(spec, (value, _key, _parent, path) => {
+    if (!isPlainObject(value)) return undefined;
 
-    const valueObj = value as Record<string, unknown>;
-    const recurse = (val: unknown, key: string | number) => processValue(val, [...path, key]);
-
-    // Skip component schema definitions - they are canonical, don't transform them
-    // but still recurse into them
+    // Skip transform for component schema definitions (but still clone them)
     if (path[0] === 'components' && path[1] === 'schemas') {
-      const result: Record<string, unknown> = {};
-      for (const [key, val] of Object.entries(valueObj)) {
-        result[key] = recurse(val, key);
-      }
-      return result;
+      return undefined;
     }
 
-    // Try the transform callback
-    const transformed = transform(valueObj, path, recurse);
-    if (transformed !== undefined) {
-      return transformed;
-    }
-
-    // Default: recurse into object properties
-    const result: Record<string, unknown> = {};
-    for (const [key, val] of Object.entries(valueObj)) {
-      result[key] = recurse(val, key);
-    }
-    return result;
-  }
-
-  return processValue(spec) as OpenAPISpec;
+    return transform(value, path);
+  }) as OpenAPISpec;
 }
 
 // ============================================================================
@@ -128,7 +191,7 @@ export function countSchemaRefs(spec: OpenAPISpec): Map<string, number> {
       obj.forEach(countRefs);
       return;
     }
-    if (typeof obj !== 'object') return;
+    if (!isPlainObject(obj)) return;
 
     if (isSchemaRef(obj)) {
       const refName = getSchemaName(obj);
@@ -151,50 +214,16 @@ export function countSchemaRefs(spec: OpenAPISpec): Map<string, number> {
 // ============================================================================
 
 /**
- * Converts a schema name to PascalCase.
+ * Build a map of old schema names to new names.
+ *
+ * @param schemas - The component schemas to build names for
+ * @param transformName - Function to transform each name (e.g., to PascalCase)
  */
-export function toPascalCase(name: string): string {
-  // Remove _Full suffix - the "Full" version is the main type
-  const cleanName = name.replace(/_Full$/, '');
-
-  // Split on underscores and camelCase boundaries
-  const parts = cleanName
-    .replace(/([a-z])([A-Z])/g, '$1_$2')
-    .split('_')
-    .filter(Boolean);
-
-  // Capitalize each part and join
-  return parts.map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()).join('');
-}
-
-/**
- * Build a map of old names to new PascalCase names.
- */
-export function buildNameMap(schemas: Record<string, SchemaObject>): Map<string, string> {
+export function buildNameMap(schemas: ComponentSchemas, transformName: (name: string) => string): Map<string, string> {
   const nameMap = new Map<string, string>();
-  const newNameCounts = new Map<string, number>();
 
-  // First pass: generate new names and count collisions
   for (const oldName of Object.keys(schemas)) {
-    const newName = toPascalCase(oldName);
-    newNameCounts.set(newName, (newNameCounts.get(newName) || 0) + 1);
-  }
-
-  // Second pass: resolve collisions by keeping suffix
-  for (const oldName of Object.keys(schemas)) {
-    let newName = toPascalCase(oldName);
-
-    if ((newNameCounts.get(newName) ?? 0) > 1) {
-      // Extract suffix and keep it for disambiguation
-      const suffixMatch = oldName.match(/_([A-Za-z]+)$/);
-      if (suffixMatch) {
-        const suffix = suffixMatch[1];
-        const baseName = oldName.replace(/_[A-Za-z]+$/, '');
-        newName = toPascalCase(baseName) + suffix.charAt(0).toUpperCase() + suffix.slice(1).toLowerCase();
-      }
-    }
-
-    nameMap.set(oldName, newName);
+    nameMap.set(oldName, transformName(oldName));
   }
 
   return nameMap;
@@ -203,24 +232,17 @@ export function buildNameMap(schemas: Record<string, SchemaObject>): Map<string,
 /**
  * Update all $refs to use new names from a name map.
  */
-export function updateRefs(obj: unknown, nameMap: Map<string, string>): unknown {
-  if (obj === null || obj === undefined) return obj;
-  if (Array.isArray(obj)) return obj.map((item) => updateRefs(item, nameMap));
-  if (typeof obj !== 'object') return obj;
-
-  const result: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(obj)) {
+export function updateRefs<T>(obj: T, nameMap: Map<string, string>): T {
+  return deepCloneWithPath(obj, (value, key) => {
     if (key === '$ref' && typeof value === 'string') {
       const oldName = getSchemaName(value);
       if (oldName) {
         const newName = nameMap.get(oldName) || oldName;
-        result[key] = makeSchemaRef(newName).$ref;
-        continue;
+        return makeSchemaRef(newName).$ref;
       }
     }
-    result[key] = updateRefs(value, nameMap);
-  }
-  return result;
+    return undefined;
+  }) as T;
 }
 
 /**
@@ -253,83 +275,158 @@ export function renameSchemas(
 // ============================================================================
 
 /**
- * Check if a oneOf represents a number/string union (common for amounts).
- * Returns true if oneOf contains exactly number and string types.
+ * Check if an allOf item is an empty object schema (type: object with no properties).
  */
-export function isNumberStringUnion(oneOf: unknown[]): boolean {
-  if (!Array.isArray(oneOf) || oneOf.length !== 2) return false;
-  const types = oneOf
-    .map((item) => (typeof item === 'object' && item !== null && 'type' in item ? item.type : null))
-    .sort();
-  return types[0] === 'number' && types[1] === 'string';
+function isEmptyObjectSchema(item: unknown): boolean {
+  if (!isPlainObject(item)) return false;
+  if (item.type !== 'object') return false;
+  if (!isPlainObject(item.properties)) return false;
+  return Object.keys(item.properties).length === 0;
 }
 
 /**
- * Clean up the spec - remove empty allOf, unwrap single-item allOf, normalize oneOf, etc.
+ * Clean up the spec - remove empty allOf, unwrap single-item allOf, etc.
  */
-export function cleanupSpec(obj: unknown): unknown {
-  if (obj === null || obj === undefined) return obj;
-  if (Array.isArray(obj)) return obj.map(cleanupSpec);
-  if (typeof obj !== 'object') return obj;
+export function cleanupSpec<T>(obj: T): T {
+  return deepCloneWithPath(obj, (value) => {
+    if (!isPlainObject(value)) return undefined;
 
-  const objRecord = obj as Record<string, unknown>;
+    const allOf = value.allOf;
+    if (!Array.isArray(allOf)) return undefined;
 
-  // First, collect sibling properties (non-allOf/oneOf keys) that should be preserved
-  const siblingProps: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(objRecord)) {
-    if (key !== 'allOf' && key !== 'oneOf' && value !== undefined) {
-      siblingProps[key] = cleanupSpec(value);
-    }
-  }
-
-  // Handle oneOf with number/string union - normalize to number
-  if (objRecord.oneOf && isNumberStringUnion(objRecord.oneOf as unknown[])) {
-    const oneOf = objRecord.oneOf as Array<Record<string, unknown>>;
-    const numberSchema = oneOf.find((item) => item.type === 'number') || {};
-    return { type: 'number', ...numberSchema, ...siblingProps };
-  }
-
-  // Handle other oneOf - just recurse
-  if (objRecord.oneOf && Array.isArray(objRecord.oneOf)) {
-    return { oneOf: objRecord.oneOf.map(cleanupSpec), ...siblingProps };
-  }
-
-  // Handle allOf specially
-  if (objRecord.allOf && Array.isArray(objRecord.allOf)) {
-    // Filter out empty objects
-    const filtered = objRecord.allOf.filter((item) => {
-      const itemRecord = item as Record<string, unknown>;
-      if (
-        itemRecord.type === 'object' &&
-        itemRecord.properties &&
-        typeof itemRecord.properties === 'object' &&
-        Object.keys(itemRecord.properties).length === 0
-      ) {
-        return false;
-      }
-      return true;
-    });
+    const { allOf: _, ...siblings } = value;
+    const filtered = allOf.filter((item) => !isEmptyObjectSchema(item));
 
     if (filtered.length === 0) {
-      // allOf is empty, just return sibling properties
-      return Object.keys(siblingProps).length > 0 ? siblingProps : {};
+      return Object.keys(siblings).length > 0 ? siblings : {};
     }
 
     if (filtered.length === 1) {
-      // Unwrap single-item allOf, but preserve sibling properties
-      const first = filtered[0] as Record<string, unknown>;
-      if (first.$ref) {
-        return { $ref: first.$ref, ...siblingProps };
+      const first = filtered[0];
+      if (isPlainObject(first) && first.$ref) {
+        return { $ref: first.$ref, ...siblings };
       }
-      return { ...(cleanupSpec(first) as Record<string, unknown>), ...siblingProps };
+      if (isPlainObject(first)) {
+        return { ...first, ...siblings };
+      }
+      return { ...siblings };
     }
 
-    // Multiple items in allOf - keep it
-    return { allOf: filtered.map(cleanupSpec), ...siblingProps };
+    return { allOf: filtered, ...siblings };
+  }) as T;
+}
+
+// ============================================================================
+// Component merging utilities
+// ============================================================================
+
+// ============================================================================
+// Flatten single-use allOf references
+// ============================================================================
+
+/**
+ * Flatten component schemas that use allOf with a $ref to a component that's only used once.
+ * This merges the referenced schema's properties directly into the parent schema and removes
+ * the now-unused schema definitions.
+ *
+ * Returns a new spec - does not mutate the input.
+ */
+export function flattenSingleUseAllOf(spec: OpenAPISpec): OpenAPISpec {
+  const schemas = getComponentSchemas(spec);
+  if (Object.keys(schemas).length === 0) return spec;
+
+  const refCounts = countSchemaRefs(spec);
+  const schemasToRemove = new Set<string>();
+  const newSchemas: Record<string, SchemaObject> = {};
+
+  for (const [name, schema] of Object.entries(schemas)) {
+    if (!isPlainObject(schema) || !Array.isArray(schema.allOf)) {
+      newSchemas[name] = schema;
+      continue;
+    }
+
+    const refsToFlatten = findSingleUseRefs(schema.allOf, schemas, refCounts);
+    if (refsToFlatten.length === 0) {
+      newSchemas[name] = schema;
+      continue;
+    }
+
+    const { mergedProperties, newAllOf, flattenedRefs } = mergeAllOfItems(schema.allOf, refsToFlatten, schemas);
+
+    for (const refName of flattenedRefs) {
+      schemasToRemove.add(refName);
+    }
+
+    newSchemas[name] = buildFlattenedSchema(schema, newAllOf, mergedProperties);
   }
 
-  // No allOf, just return cleaned sibling properties
-  return siblingProps;
+  // Remove flattened schemas
+  for (const name of schemasToRemove) {
+    delete newSchemas[name];
+  }
+
+  return {
+    ...spec,
+    components: {
+      ...spec.components,
+      schemas: newSchemas
+    }
+  };
+}
+
+function findSingleUseRefs(allOf: unknown[], schemas: ComponentSchemas, refCounts: Map<string, number>): string[] {
+  const refs: string[] = [];
+  for (const item of allOf) {
+    if (!isSchemaRef(item)) continue;
+    const refName = getSchemaName(item);
+    if (refName && refCounts.get(refName) === 1 && schemas[refName]) {
+      refs.push(refName);
+    }
+  }
+  return refs;
+}
+
+interface MergeResult {
+  mergedProperties: PlainObject;
+  newAllOf: unknown[];
+  flattenedRefs: string[];
+}
+
+function mergeAllOfItems(allOf: unknown[], refsToFlatten: string[], schemas: ComponentSchemas): MergeResult {
+  const mergedProperties: PlainObject = {};
+  const newAllOf: unknown[] = [];
+  const flattenedRefs: string[] = [];
+
+  for (const item of allOf) {
+    if (isSchemaRef(item)) {
+      const refName = getSchemaName(item);
+      if (refName && refsToFlatten.includes(refName)) {
+        const refSchema = schemas[refName];
+        if (isObjectSchema(refSchema)) {
+          Object.assign(mergedProperties, refSchema.properties);
+        }
+        flattenedRefs.push(refName);
+        continue;
+      }
+    }
+
+    if (isObjectSchema(item)) {
+      Object.assign(mergedProperties, item.properties);
+    } else {
+      newAllOf.push(item);
+    }
+  }
+
+  return { mergedProperties, newAllOf, flattenedRefs };
+}
+
+function buildFlattenedSchema(original: PlainObject, newAllOf: unknown[], mergedProperties: PlainObject): SchemaObject {
+  const { allOf: _, ...rest } = original;
+
+  if (newAllOf.length === 0) {
+    return { ...rest, type: 'object', properties: mergedProperties } as SchemaObject;
+  }
+  return { ...rest, allOf: [...newAllOf, { type: 'object', properties: mergedProperties }] } as SchemaObject;
 }
 
 // ============================================================================
@@ -338,41 +435,50 @@ export function cleanupSpec(obj: unknown): unknown {
 
 /**
  * Merge components from source into target, warning on conflicts.
+ * Returns a new ComponentsObject with merged components.
  */
-export function mergeComponents(target: ComponentsObject, source: ComponentsObject, specName: string): void {
+export function mergeComponents(
+  target: ComponentsObject,
+  source: ComponentsObject,
+  specName: string
+): ComponentsObject {
   const componentTypes = ['schemas', 'responses', 'parameters', 'requestBodies', 'headers', 'securitySchemes'] as const;
+  const result: ComponentsObject = { ...target };
 
   for (const type of componentTypes) {
     const sourceComponents = source[type];
     if (sourceComponents) {
-      if (!target[type]) {
-        (target as Record<string, unknown>)[type] = {};
-      }
-      const targetComponents = target[type] as Record<string, unknown>;
-      for (const [name, schema] of Object.entries(sourceComponents)) {
+      const targetComponents = { ...(result[type] || {}) } as Record<string, unknown>;
+      for (const [name, value] of Object.entries(sourceComponents)) {
         if (targetComponents[name]) {
-          if (!isEqual(targetComponents[name], schema)) {
+          if (!isEqual(targetComponents[name], value)) {
             console.warn(
               `Warning: Component ${type}.${name} already exists with different definition (from ${specName})`
             );
           }
         } else {
-          targetComponents[name] = schema;
+          targetComponents[name] = value;
         }
       }
+      (result as Record<string, unknown>)[type] = targetComponents;
     }
   }
+
+  return result;
 }
 
 /**
  * Merge tags from source into target, avoiding duplicates.
+ * Returns a new array with merged tags.
  */
-export function mergeTags(target: TagObject[], source: TagObject[] | undefined): void {
-  if (!source) return;
+export function mergeTags(target: TagObject[], source: TagObject[] | undefined): TagObject[] {
+  if (!source) return target;
+  const result = [...target];
   for (const tag of source) {
-    const existingTag = target.find((t) => t.name === tag.name);
+    const existingTag = result.find((t) => t.name === tag.name);
     if (!existingTag) {
-      target.push(tag);
+      result.push(tag);
     }
   }
+  return result;
 }
