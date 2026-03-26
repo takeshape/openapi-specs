@@ -1,0 +1,66 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.2.4/schema.json",
+  "root": true,
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true,
+    "defaultBranch": "master"
+  },
+  "files": {
+    "ignoreUnknown": false,
+    "includes": [
+      "scripts/**/*.ts",
+      "scripts/**/*.mjs",
+      "scripts/**/*.js",
+      // Ignore these
+      "!**/node_modules",
+      "!**/dist"
+    ]
+  },
+  "formatter": {
+    "useEditorconfig": true,
+    "lineWidth": 120,
+    "formatWithErrors": false
+  },
+  "linter": {
+    "rules": {
+      "recommended": true,
+      "complexity": {
+        "noExcessiveCognitiveComplexity": {
+          "level": "warn",
+          "options": {
+            "maxAllowedComplexity": 25
+          }
+        }
+      },
+      "correctness": {
+        "noUnusedImports": "error",
+        "noUnusedVariables": {
+          "level": "warn",
+          "options": {
+            "ignoreRestSiblings": true
+          }
+        }
+      },
+      "performance": {
+        "noAccumulatingSpread": "off"
+      },
+      "style": {
+        "useConst": "error",
+        "useTemplate": "error",
+        "noUselessElse": "error",
+        "useNodejsImportProtocol": "error"
+      },
+      "suspicious": {
+        "noConsole": "off"
+      }
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "trailingCommas": "none"
+    }
+  }
+}
