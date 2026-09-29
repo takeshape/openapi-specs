@@ -1090,7 +1090,7 @@ paths:
           description: The order was created successfully
         '422':
            description: The order was invalid
-  /orders/:merchant_id:
+  /orders/{merchant_id}:
     put:
       operationId: updateOrder
       description: Update an existing order in LoyaltyLion, using your internal merchant_id to identify the order.
